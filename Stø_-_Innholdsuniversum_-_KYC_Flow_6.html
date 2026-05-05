@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stø — Innholdsuniversum · KYC Flow v2</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:#F3EFE8;color:#1A1A18;-webkit-font-smoothing:antialiased;font-size:14px}
+:root{--g:#1C3D1C;--g2:#2A4E2A;--a:#7FE832;--dark:#1A1A18;--cream:#F3EFE8;--cream2:#FAF0E6;--w:#fff;--border:#E0D8CC;--muted:#7A7A72;--stone:#5A6B52}
+
+.nav{position:fixed;top:0;left:0;right:0;z-index:300;height:50px;background:var(--dark);border-bottom:1px solid rgba(127,232,50,.1);display:flex;align-items:center;padding:0 18px;gap:12px}
+.nav-logo{font-size:18px;font-weight:800;color:#fff;letter-spacing:-.02em;flex-shrink:0}
+.nav-logo span{color:var(--a)}
+.nav-sep{width:1px;height:16px;background:rgba(255,255,255,.1)}
+.nav-sub{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3);white-space:nowrap}
+.nav-r{display:flex;align-items:center;gap:5px;margin-left:auto;flex-wrap:wrap}
+.sb{font-size:9px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:5px 10px;border-radius:3px;border:1px solid rgba(255,255,255,.12);background:transparent;color:rgba(255,255,255,.4);cursor:pointer;transition:all .15s;white-space:nowrap}
+.sb:hover{color:rgba(255,255,255,.8)}
+.sb.on{color:#fff;background:rgba(127,232,50,.15);border-color:rgba(127,232,50,.3)}
+.nd{width:1px;height:18px;background:rgba(255,255,255,.08)}
+.cb{font-size:9px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:5px 10px;border-radius:3px;border:1px solid rgba(255,255,255,.1);background:transparent;color:rgba(255,255,255,.3);cursor:pointer;transition:all .15s;white-space:nowrap}
+.cb:hover{color:rgba(255,255,255,.7)}
+.cb.on{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2);color:#fff}
+
+.cw{margin-top:50px;padding:18px;overflow:auto;min-height:calc(100vh - 50px)}
+.canvas{display:flex;gap:12px;width:max-content;align-items:flex-start}
+
+.col{width:280px;display:flex;flex-direction:column;gap:7px}
+.ph{border-radius:7px;padding:15px 13px 13px;border:1px solid rgba(255,255,255,.04)}
+.ph-n{font-size:8px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:4px}
+.ph-t{font-size:18px;font-weight:800;color:#fff;line-height:1.15;letter-spacing:-.01em}
+.ph-bar{height:2px;border-radius:1px;width:20px;margin-top:8px;background:var(--a)}
+.ph-c{position:absolute;bottom:10px;right:10px;font-size:9px;font-weight:700;color:rgba(255,255,255,.15)}
+
+.card{border-radius:6px;overflow:hidden;cursor:pointer;transition:transform .12s,box-shadow .12s;border:1px solid rgba(0,0,0,.06)}
+.card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.12)}
+.card.hidden{display:none}
+.cs{height:3px}
+.ci{padding:9px 11px 10px}
+.ct{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.cn{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.mvp{font-size:7px;font-weight:700;padding:2px 5px;border-radius:2px;background:rgba(127,232,50,.15);color:#1C3D1C;border:1px solid rgba(127,232,50,.3);letter-spacing:.04em}
+.ctitle{font-size:12px;font-weight:700;color:var(--dark);line-height:1.3;margin-bottom:3px}
+.cdesc{font-size:10px;color:var(--muted);line-height:1.5;margin-bottom:5px}
+.csegs{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:5px}
+.cs-tag{font-size:7px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 5px;border-radius:2px}
+.cft{display:flex;align-items:center;justify-content:space-between;padding-top:5px;border-top:1px solid rgba(0,0,0,.06)}
+.cf{font-size:8px;color:var(--muted)}
+
+.card-ann{background:#FDF3F3}.card-ann .cs{background:#C03030}.card-ann .cn{color:#C03030}
+.card-lp{background:#EDE8F8}.card-lp .cs{background:#4A2A8E}.card-lp .cn{color:#4A2A8E}
+.card-em{background:#E8EFF8}.card-em .cs{background:#1A3A7A}.card-em .cn{color:#1A3A7A}
+.card-sal{background:#FDF3DC}.card-sal .cs{background:#854F0B}.card-sal .cn{color:#854F0B}
+.card-meet{background:#E6F4EE}.card-meet .cs{background:#1D7A4F}.card-meet .cn{color:#1D7A4F}
+.cs-r{background:#EAF3DE;color:#2A4E2A}
+.cs-b{background:#DEE9F3;color:#1A2A4E}
+.cs-v{background:#F3EAD2;color:#3A2A1A}
+
+/* OVERLAY */
+.ovl{display:none;position:fixed;inset:0;z-index:600;background:rgba(26,26,24,.55);backdrop-filter:blur(6px)}
+.ovl.open{display:block}
+.drw{position:absolute;top:0;right:0;bottom:0;width:min(760px,97vw);background:#fff;display:flex;flex-direction:column;box-shadow:-12px 0 60px rgba(0,0,0,.2)}
+.drw-hd{background:var(--g);display:flex;align-items:stretch}
+.tabs{display:flex;flex:1;padding:0 16px}
+.tab{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:14px 14px;cursor:pointer;border-bottom:2px solid transparent;color:rgba(255,255,255,.35);transition:all .15s}
+.tab:hover{color:rgba(255,255,255,.7)}
+.tab.on{color:#fff;border-bottom-color:var(--a)}
+.drw-x{padding:0 16px;font-size:18px;color:rgba(255,255,255,.35);cursor:pointer;background:none;border:none;display:flex;align-items:center;transition:color .15s}
+.drw-x:hover{color:#fff}
+.drw-sc{overflow-y:auto;flex:1}
+.drw-sc::-webkit-scrollbar{width:3px}
+.drw-sc::-webkit-scrollbar-thumb{background:var(--border)}
+
+/* INFO PANE */
+.info{padding:26px 30px 48px}
+.ibadge{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:3px;margin-bottom:12px}
+.ititle{font-size:24px;font-weight:800;color:var(--dark);line-height:1.15;margin-bottom:9px;letter-spacing:-.02em}
+.ingress{font-size:13px;color:var(--stone);line-height:1.75;margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--border)}
+.isec-lbl{font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--g);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.isec-lbl::after{content:'';flex:1;height:1px;background:var(--border)}
+.imeta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px}
+.imet{background:var(--cream);border:1px solid var(--border);border-radius:4px;padding:9px 11px}
+.imet-l{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.imet-v{font-size:11px;color:var(--dark);line-height:1.5}
+
+/* ARTICLE PANE */
+.artpane{padding:26px 30px 48px}
+.art-h{font-size:22px;font-weight:800;color:var(--dark);line-height:1.2;margin-bottom:10px;letter-spacing:-.02em}
+.art-seg{font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:3px;display:inline-block;margin-bottom:14px}
+.art-ingress{font-size:14px;color:var(--stone);line-height:1.75;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border);font-style:italic}
+.art-seg-intro{background:var(--cream2);border-left:3px solid var(--a);padding:12px 15px;margin-bottom:16px;border-radius:0 4px 4px 0}
+.art-seg-intro-lbl{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--g);margin-bottom:5px}
+.art-seg-intro-txt{font-size:12px;color:var(--stone);line-height:1.7}
+.art-body{font-size:13px;color:var(--dark);line-height:1.8;margin-bottom:18px}
+.art-body p{margin-bottom:12px}
+.art-cta-wrap{background:var(--g);border-radius:5px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
+.art-cta-txt{font-size:11px;color:rgba(255,255,255,.65)}
+.art-cta-btn{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;background:var(--a);color:var(--dark);padding:8px 16px;border-radius:3px;cursor:pointer}
+.art-consistency{margin-top:20px;background:#F8F4EE;border:1px solid var(--border);border-radius:5px;padding:14px 16px}
+.art-con-lbl{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--g);margin-bottom:10px}
+.art-con-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.art-con-item{background:#fff;border:1px solid var(--border);border-radius:4px;padding:8px 10px}
+.art-con-item-l{font-size:8px;font-weight:700;color:var(--muted);margin-bottom:2px;letter-spacing:.06em;text-transform:uppercase}
+.art-con-item-v{font-size:10px;color:var(--dark);line-height:1.4}
+
+/* EMAIL PREVIEW */
+.ep{background:#E8E4DC;padding:18px;min-height:100%}
+.ef{max-width:520px;margin:0 auto;background:#fff;box-shadow:0 3px 18px rgba(0,0,0,.1)}
+.ef-logo{background:#fff;padding:14px 26px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.ef-logo-t{font-size:15px;font-weight:800;color:var(--g);letter-spacing:-.02em}
+.ef-logo-t span{color:var(--a)}
+.ef-logo-s{font-size:8px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.ef-meta{background:var(--g);padding:10px 26px;display:flex;align-items:center;justify-content:space-between}
+.ef-subj{font-size:11px;font-style:italic;color:rgba(255,255,255,.85);font-weight:600}
+.ef-to{font-size:9px;color:rgba(255,255,255,.4)}
+.ef-hero{background:linear-gradient(135deg,var(--g) 0%,var(--g2) 60%,#1A3428 100%);padding:24px 26px;position:relative;overflow:hidden}
+.ef-hero::after{content:'KYC';position:absolute;right:-5px;bottom:-14px;font-size:56px;font-weight:800;color:rgba(127,232,50,.05);pointer-events:none}
+.ef-hero-tag{font-size:8px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--a);margin-bottom:5px}
+.ef-hero-h{font-size:15px;font-weight:800;color:#fff;line-height:1.25;max-width:360px;position:relative;z-index:1}
+.ef-body{padding:20px 26px;border-bottom:1px solid var(--border)}
+.ef-p{font-size:12px;color:var(--stone);line-height:1.75;margin-bottom:9px}
+.ef-arts{display:flex;flex-direction:column;gap:0;margin:12px 0;border:1px solid var(--border);border-radius:4px;overflow:hidden}
+.ef-art{padding:10px 13px;border-bottom:1px solid var(--border);background:#fff}
+.ef-art:last-child{border-bottom:none}
+.ef-art-tag{font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--a);margin-bottom:2px}
+.ef-art-ttl{font-size:12px;font-weight:700;color:var(--dark);margin-bottom:2px;line-height:1.3}
+.ef-art-txt{font-size:11px;color:var(--stone);margin-bottom:4px;line-height:1.5}
+.ef-art-lnk{font-size:10px;color:var(--g);font-weight:600;text-decoration:underline}
+.ef-hl{background:var(--cream2);border-left:3px solid var(--a);padding:9px 13px;margin:10px 0;border-radius:0 3px 3px 0;font-size:11px;color:var(--stone);line-height:1.65;font-style:italic}
+.ef-cta-w{padding:14px 26px;text-align:center;background:var(--cream2);border-bottom:1px solid var(--border)}
+.ef-cta{display:inline-block;background:var(--g);color:#fff;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:10px 22px;border-radius:4px}
+.ef-feats{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:14px 26px;border-bottom:1px solid var(--border)}
+.ef-feat{background:var(--cream2);border-radius:3px;padding:9px 11px}
+.ef-feat-t{font-size:11px;font-weight:700;color:var(--dark);margin-bottom:1px}
+.ef-feat-s{font-size:10px;color:var(--muted)}
+.ef-foot{padding:10px 26px;background:var(--cream);text-align:center}
+.ef-foot-t{font-size:9px;color:var(--muted);line-height:1.7}
+
+/* AD PREVIEW */
+.adp{background:#E0E0DC;padding:18px;min-height:100%;display:flex;flex-direction:column;gap:14px}
+.adp-lbl{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.ad-g{background:#fff;border:1px solid #DFE1E5;border-radius:8px;padding:13px 16px;max-width:540px}
+.ad-g-url{font-size:10px;color:#188038;margin-bottom:3px}
+.ad-g-sp{display:inline-block;font-size:9px;font-weight:700;color:#188038;border:1px solid #188038;border-radius:2px;padding:1px 3px;margin-right:5px}
+.ad-g-h{font-size:16px;color:#1A0DAB;margin-bottom:4px;line-height:1.3}
+.ad-g-d{font-size:12px;color:#545454;line-height:1.55}
+.ad-g-chips{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap}
+.ad-chip{font-size:10px;background:#F0F0F0;padding:2px 7px;border-radius:10px;color:#666}
+.ad-li{max-width:460px;background:#fff;border:1px solid #E0DFDC;border-radius:8px;overflow:hidden}
+.ad-li-hd{padding:9px 13px;display:flex;justify-content:space-between;align-items:center}
+.ad-li-meta{font-size:10px;color:#666}
+.ad-li-sp{font-size:9px;background:#F0F0F0;padding:2px 6px;border-radius:3px;color:#666}
+.ad-li-img{background:linear-gradient(135deg,var(--g),var(--g2));height:170px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px;text-align:center;position:relative;overflow:hidden}
+.ad-li-img::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,rgba(127,232,50,.02) 0px,rgba(127,232,50,.02) 1px,transparent 1px,transparent 10px)}
+.ad-li-tag{font-size:8px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--a);margin-bottom:6px;position:relative;z-index:1}
+.ad-li-h{font-size:17px;font-weight:800;color:#fff;line-height:1.2;position:relative;z-index:1;letter-spacing:-.01em}
+.ad-li-bd{padding:11px 13px}
+.ad-li-hl{font-size:12px;font-weight:700;color:#191919;margin-bottom:3px}
+.ad-li-desc{font-size:11px;color:#555;line-height:1.5;margin-bottom:9px}
+.ad-li-cta{display:inline-block;background:var(--g);color:#fff;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:8px 16px;border-radius:4px}
+.ad-link{margin:0 13px 11px;border:1px solid #E0DFDC;border-radius:4px;overflow:hidden}
+.ad-link-dom{background:var(--cream);padding:5px 9px;font-size:10px;color:var(--muted);border-bottom:1px solid var(--border)}
+.ad-link-ttl{padding:5px 9px;font-size:11px;font-weight:700;color:var(--dark)}
+.ad-link-d{padding:0 9px 7px;font-size:10px;color:var(--stone)}
+.li-react{padding:7px 13px;border-top:1px solid #E0DFDC;display:flex;justify-content:space-between;font-size:11px;color:#888}
+
+/* LP PREVIEW */
+.lpp{background:#EDE8E0;padding:18px;min-height:100%}
+.lpf{max-width:520px;margin:0 auto;background:#fff;border-radius:5px;overflow:hidden;border:1px solid var(--border)}
+.lp-nav{background:var(--dark);padding:11px 20px;display:flex;align-items:center;justify-content:space-between}
+.lp-nav-logo{font-size:13px;font-weight:800;color:#fff}
+.lp-nav-logo span{color:var(--a)}
+.lp-nav-cta{font-size:9px;font-weight:700;color:var(--a);letter-spacing:.05em;text-transform:uppercase}
+.lp-hero{background:linear-gradient(145deg,var(--g) 0%,var(--g2) 50%,#1A3428 100%);padding:28px 26px;position:relative;overflow:hidden}
+.lp-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:150px;height:150px;border-radius:50%;background:rgba(127,232,50,.05)}
+.lp-hero-tag{font-size:8px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--a);margin-bottom:8px}
+.lp-hero-h{font-size:20px;font-weight:800;color:#fff;line-height:1.2;margin-bottom:8px;letter-spacing:-.02em;position:relative;z-index:1;max-width:360px}
+.lp-hero-s{font-size:11px;color:rgba(255,255,255,.55);line-height:1.65;margin-bottom:16px;max-width:320px;position:relative;z-index:1}
+.lp-wb{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:5px;padding:10px 13px;display:flex;align-items:center;gap:10px;margin-bottom:14px;position:relative;z-index:1}
+.lp-play{width:32px;height:32px;border-radius:50%;background:var(--a);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px}
+.lp-wb-t{font-size:11px;font-weight:700;color:#fff;margin-bottom:1px}
+.lp-wb-m{font-size:9px;color:rgba(255,255,255,.45);display:flex;gap:10px}
+.lp-form{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:5px;padding:14px;position:relative;z-index:1}
+.lp-form-lbl{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:8px}
+.lp-inp{width:100%;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);border-radius:3px;padding:7px 10px;font-size:11px;color:#fff;font-family:inherit;margin-bottom:5px}
+.lp-inp::placeholder{color:rgba(255,255,255,.3)}
+.lp-sel{width:100%;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);border-radius:3px;padding:7px 10px;font-size:11px;color:rgba(255,255,255,.65);font-family:inherit;margin-bottom:5px}
+.lp-btn{width:100%;background:var(--a);color:var(--dark);border:none;border-radius:3px;padding:10px;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;font-family:inherit;margin-top:2px}
+.lp-fine{font-size:9px;color:rgba(255,255,255,.25);margin-top:6px;line-height:1.5}
+.lp-checks{display:flex;flex-direction:column;gap:4px;margin-top:12px}
+.lp-check{font-size:11px;color:rgba(255,255,255,.6);display:flex;align-items:flex-start;gap:6px}
+.lp-check-ico{color:var(--a);font-weight:700;flex-shrink:0}
+.lp-trust{background:var(--cream2);padding:10px 20px;display:flex;justify-content:center;gap:16px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.lp-trust-i{font-size:10px;color:var(--muted);display:flex;align-items:center;gap:4px}
+.lp-spk{display:flex;align-items:center;gap:10px;background:var(--cream2);border:1px solid var(--border);border-radius:4px;padding:10px 13px;margin:12px 20px}
+.lp-spk-av{width:36px;height:36px;border-radius:50%;background:var(--g);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--a);flex-shrink:0}
+.lp-spk-n{font-size:11px;font-weight:700;color:var(--dark)}
+.lp-spk-t{font-size:10px;color:var(--muted)}
+.lp-foot{background:var(--dark);padding:11px 20px;display:flex;justify-content:space-between;align-items:center}
+.lp-foot-logo{font-size:11px;font-weight:800;color:rgba(255,255,255,.35)}
+.lp-foot-logo span{color:var(--a)}
+.lp-foot-t{font-size:9px;color:rgba(255,255,255,.2)}
+
+/* SALES EMAIL */
+.sep{background:#EBE7DE;padding:18px;min-height:100%}
+
+/* MEETING */
+.meep{background:#E4EEE8;padding:18px;min-height:100%}
+.meef{max-width:520px;margin:0 auto;background:#fff;box-shadow:0 3px 18px rgba(0,0,0,.1)}
+.meet-hd{background:var(--g);padding:18px 26px}
+.meet-logo{font-size:14px;font-weight:800;color:#fff;margin-bottom:3px}
+.meet-logo span{color:var(--a)}
+.meet-sub{font-size:9px;color:rgba(255,255,255,.4);letter-spacing:.08em;text-transform:uppercase}
+.meet-c{background:rgba(127,232,50,.12);border:1px solid rgba(127,232,50,.25);border-radius:4px;padding:11px 13px;margin-top:12px}
+.meet-c-tag{font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--a);margin-bottom:3px}
+.meet-c-t{font-size:13px;font-weight:700;color:#fff}
+.meet-c-m{font-size:10px;color:rgba(255,255,255,.5);margin-top:2px}
+.meet-add{font-size:10px;font-weight:600;color:var(--a);text-decoration:underline;cursor:pointer;display:inline-block;margin-top:6px}
+.meet-d{display:flex;align-items:flex-start;gap:13px;padding:18px 26px;border-bottom:1px solid var(--border)}
+.meet-d-av{width:48px;height:48px;border-radius:50%;background:var(--g2);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:var(--a);flex-shrink:0}
+.meet-d-n{font-size:13px;font-weight:700;color:var(--dark);margin-bottom:2px}
+.meet-d-t{font-size:10px;color:var(--muted);margin-bottom:6px}
+.meet-d-bio{font-size:11px;color:var(--stone);line-height:1.6}
+.meet-ag{padding:16px 26px;border-bottom:1px solid var(--border)}
+.meet-ag-lbl{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--g);margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.meet-ag-lbl::after{content:'';flex:1;height:1px;background:var(--border)}
+.meet-step{display:flex;gap:11px;margin-bottom:9px}
+.meet-step-t{font-size:10px;font-weight:700;color:var(--a);flex-shrink:0;width:28px}
+.meet-step-ttl{font-size:12px;font-weight:700;color:var(--dark);margin-bottom:1px}
+.meet-step-txt{font-size:11px;color:var(--stone);line-height:1.5}
+.meet-prep{padding:12px 26px;background:var(--cream2);border-bottom:1px solid var(--border)}
+.meet-prep-lbl{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.meet-prep-txt{font-size:11px;color:var(--stone);line-height:1.65;font-style:italic}
+.meet-cta-w{padding:14px 26px;text-align:center}
+.meet-cta{display:inline-block;background:var(--g);color:#fff;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:10px 20px;border-radius:4px}
+.meet-ph{font-size:11px;color:var(--muted);margin-top:7px}
+.meet-sig{padding:12px 26px;border-top:1px solid var(--border);font-size:10px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-logo">Stø<span>.</span></div>
+  <div class="nav-sep"></div>
+  <div class="nav-sub">Innholdsuniversum · KYC Flow · fra Bjørn</div>
+  <div class="nav-r">
+    <button class="sb on" onclick="fSeg('all',this)">Alle</button>
+    <button class="sb" onclick="fSeg('r',this)">Regnskap</button>
+    <button class="sb" onclick="fSeg('b',this)">Bank</button>
+    <button class="sb" onclick="fSeg('v',this)">Verdipapir</button>
+    <div class="nd"></div>
+    <button class="cb on" onclick="fCh('ann',this)">Annonser</button>
+    <button class="cb on" onclick="fCh('lp',this)">Landingssider</button>
+    <button class="cb on" onclick="fCh('em',this)">E-post 1+2</button>
+    <button class="cb on" onclick="fCh('sal',this)">Salgs-e-post</button>
+    <button class="cb on" onclick="fCh('meet',this)">Møtebekreftelse</button>
+  </div>
+</nav>
+
+<div class="cw"><div class="canvas" id="canvas">
+
+<!-- FASE 1 -->
+<div class="col">
+  <div class="ph" style="background:linear-gradient(135deg,#1A2A1A,#2A3A2A);position:relative">
+    <div class="ph-n">Fase 1</div>
+    <div class="ph-t">Betalt<br>annonsering</div>
+    <div class="ph-bar"></div>
+    <div class="ph-c">Google + LinkedIn</div>
+  </div>
+
+  <div class="card card-ann" data-ch="ann" data-seg="r" onclick="O('g-r-a')">
+    <div class="cs"></div><div class="ci">
+      <div class="ct"><div class="cn">Google Ads · Variant A</div><span class="mvp">Compliance</span></div>
+      <div class="ctitle">Er du rapporteringspliktig? — KYC for regnskapsførere</div>
+      <div class="cdesc">Hook fra Art. 1. Juridisk plikt som inngang. Fra 1 300 kr/mnd.</div>
+      <div class="csegs"><span class="cs-tag cs-r">Regnskap</span></div>
+      <div class="cft"><span class="cf">Art. 1 → LP → E-post</span><span class="cf">utm_content=art1-compliance</span></div>
+    </div>
+  </div>
+
+  <div class="card card-ann" data-ch="ann" data-seg="r" onclick="O('g-r-b')">
+    <div class="cs"></div><div class="ci">
+      <div class="ct"><div class="cn">Google Ads · Variant B</div><span class="mvp">Effektivitet</span></div>
+      <div class="ctitle">5 vanlige KYC-feil — og hvordan du enkelt unngår dem</div>
+      <div class="cdesc">Hook fra Art. 5. Konkrete feil + løsning. Test mot Variant A.</div>
+      <div class="csegs"><span class="cs-tag cs-r">Regnskap</span></div>
+      <div class="cft"><span class="cf">Art. 5 → LP → E-post</span><span class="cf">utm_content=art5-feil</span></div>
+    </div>
+  </div>
+
+  <div class="card card-ann" data-ch="ann" data-seg="r" onclick="O('li-r')">
+    <div class="cs"></div><div class="ci">
+      <div class="ct"><div class="cn">LinkedIn Ads</div></div>
+      <div class="ctitle">Automatisk overvåkning av kunder — viktigere enn du tror</div>
+      <div class="cdesc">Hook fra Art. 3. Løpende overvåkning som differensiator.</div>
+      <div class="csegs"><span class="cs-tag cs-r">Regnskap</span></div>
+      <div class="cft"><span class="cf">Art. 3 → LP → E-post</span></div>
+    </div>
+  </div>
+
+  <div class="card card-ann" data-ch="ann" data-seg="b" onclick="O('g-b-a')">
+    <div class="cs"></div><div class="ci">
+      <div class="ct"><div class="cn">Google Ads · Variant A</div><span class="mvp">Konsekvenser</span></div>
+      <div class="ctitle">Hva skjer hvis du ikke overholder hvitvaskingsloven?</div>
+      <div class="cdesc">Hook fra Art. 4. Overtredelsesgebyr, tilbakekall av konsesjon.</div>
+      <div class="csegs"><span class="cs-tag cs-b">Bank</span></div>
+      <div class="cft"><span class="cf">Art. 4 → LP → E-post</span><span class="cf">utm_content=art4-konsekvenser</span></div>
+    </div>
+  </div>
+
+  <div class="card card-ann" data-ch="ann" data-seg="b" onclick="O('li-b')">
+    <div class="cs"></div><div class="ci">
+      <div class="ct"><div class="cn">LinkedIn Ads</div></div>
+      <div class="ctitle">Er dine kunder på en sanksjonsliste? Slik holder du kontroll</div>
+      <div class="cdesc">Hook fra Art. 9. Automatisk sanksjonskontroll.</div>
+      <div class="csegs"><span class="cs-tag cs-b">Bank</span></div>
+      <div class="cft"><span class="cf">Art. 9 → LP → E-post</span></div>
+    </div>
+  </div>
+
+
+  <div class="card card-ann" data-ch="ann" data-seg="b" onclick="O('g-b-b')">
+    <div class="cs"></div><div class="ci">
+      <div class="ct"><div class="cn">Google Ads · Variant B</div><span class="mvp">Sanksjon</span></div>
+      <div class="ctitle">Er dine kunder på en sanksjonsliste? Slik holder du kontroll</div>
+      <div class="cdesc">Hook fra Art. 9. Automatisk sanksjonskontroll. Test mot Variant A.</div>
+      <div class="csegs"><span class="cs-tag cs-b">Bank</span></div>
+      <div class="cft"><span class="cf">Art. 9 → LP → E-post</span><span class="cf">utm_content=art9-sanksjon</span></div>
+    </div>
+  </div>
+
+  <div class="card card-ann" data-ch="ann" data-seg="v" onclick="O('g-v-a')">
+    <div class="cs"></div><div class="ci">
+      <div class="ct"><div class="cn">Google Ads · Variant A</div><span class="mvp">Uten integrasjon</span></div>
+      <div class="ctitle">KYC Flow: Komplett kundekontroll fra dag én — uten teknisk integrasjon</div>
+      <div class="cdesc">Hook fra Art. 6. Ingen IT-avdeling nødvendig.</div>
+      <div class="csegs"><span class="cs-tag cs-v">Verdipapir</span></div>
+      <div class="cft"><span class="cf">Art. 6 → LP → E-post</span><span class="cf">utm_content=art6-integrasjon</span></div>
+    </div>
+  </div>
+
+  <div class="card card-ann" data-ch="ann" data-seg="v" onclick="O('li-v')">
+    <div class="cs"></div><div class="ci">
+      <div class="ct"><div class="cn">LinkedIn Ads</div></div>
+      <div class="ctitle">Forstå risikovurdering i KYC — og gjør det riktig første gang</div>
+      <div class="cdesc">Hook fra Art. 10. Risikovurdering på under 10 minutter per kunde.</div>
+      <div class="csegs"><span class="cs-tag cs-v">Verdipapir</span></div>
+      <div class="cft"><span class="cf">Art. 10 → LP → E-post</span></div>
+    </div>
+  </div>
+
+
+  <div class="card card-ann" data-ch="ann" data-seg="v" onclick="O('g-v-b')">
+    <div class="cs"></div><div class="ci">
+      <div class="ct"><div class="cn">Google Ads · Variant B</div><span class="mvp">Risikovurdering</span></div>
+      <div class="ctitle">Forstå risikovurdering i KYC — og gjør det riktig første gang</div>
+      <div class="cdesc">Hook fra Art. 10. Under 10 min per kunde. Test mot Variant A.</div>
+      <div class="csegs"><span class="cs-tag cs-v">Verdipapir</span></div>
+      <div class="cft"><span class="cf">Art. 10 → LP → E-post</span><span class="cf">utm_content=art10-risikovurdering</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- FASE 2 -->
+<div class="col">
+  <div class="ph" style="background:linear-gradient(135deg,#1A1A3A,#2A2A4A);position:relative">
+    <div class="ph-n">Fase 2</div>
+    <div class="ph-t">Landingsside<br>+ skjema</div>
+    <div class="ph-bar"></div>
+    <div class="ph-c">Dag 0 · Grading</div>
+  </div>
+
+  <div class="card card-lp" data-ch="lp" data-seg="r" onclick="O('lp-r-web')">
+    <div class="cs"></div><div class="ci">
+      <div class="ct"><div class="cn">LP A · Webinar</div><span class="mvp">MVP</span></div>
+      <div class="ctitle">Er du rapporteringspliktig? Dette må du vite om KYC</div>
+      <div class="cdesc">Tittel fra Art. 1 · Ingress fra skreddersydd regnskap-versjon · BankID + PEP-sjekk + samme dag</div>
+      <div class="csegs"><span class="cs-tag cs-r">Regnskap</span></div>
+      <div class="cft"><span class="cf">stoe.no/kyc/regnskap</span><span class="cf">+20 pts</span></div>
+    </div>
+  </div>
+
+  <div class="card card-lp" data-ch="lp" data-seg="r" onclick="O('lp-r-wp')">
+    <div class="cs"></div><div class="ci">
+      <div class="ct"><div class="cn">LP B · Guide</div></div>
+      <div class="ctitle">5 vanlige KYC-feil — og hvordan du enkelt unngår dem</div>
+      <div class="cdesc">Art. 5 som hook · PDF-guide · 5 konkrete feil med løsninger</div>
+      <div class="csegs"><span class="cs-tag cs-r">Regnskap</span></div>
+      <div class="cft"><span class="cf">stoe.no/kyc/regnskap-guide</span><span class="cf">+20 pts</span></div>
+    </div>
+  </div>
+
+  <div class="card card-lp" data-ch="lp" data-seg="b" onclick="O('lp-b-web')">
+    <div class="cs"></div><div class="ci">
+      <div class="ct"><div class="cn">LP A · Webinar</div><span class="mvp">MVP</span></div>
+      <div class="ctitle">Hva skjer hvis du ikke overholder hvitvaskingsloven?</div>
+      <div class="cdesc">Art. 4 · Konsekvenser for bank · Finanstilsynet-vinkel</div>
+      <div class="csegs"><span class="cs-tag cs-b">Bank</span></div>
+      <div class="cft"><span class="cf">stoe.no/kyc/bank</span><span class="cf">+20 pts</span></div>
+    </div>
+  </div>
+
+  <div class="card card-lp" data-ch="lp" data-seg="b" onclick="O('lp-b-wp')">
+    <div class="cs"></div><div class="ci">
+      <div class="ct"><div class="cn">LP B · Guide</div></div>
+      <div class="ctitle">Er dine kunder på en sanksjonsliste?</div>
+      <div class="cdesc">Art. 9 · Sanksjonskontroll · Automatisk overvåkning</div>
+      <div class="csegs"><span class="cs-tag cs-b">Bank</span></div>
+      <div class="cft"><span class="cf">stoe.no/kyc/bank-guide</span><span class="cf">+20 pts</span></div>
+    </div>
+  </div>
+
+  <div class="card card-lp" data-ch="lp" data-seg="v" onclick="O('lp-v-web')">
+    <div class="cs"></div><div class="ci">
+      <div class="ct"><div class="cn">LP A · Webinar</div><span class="mvp">MVP</span></div>
+      <div class="ctitle">KYC Flow: Komplett kundekontroll fra dag én — uten teknisk integrasjon</div>
+      <div class="cdesc">Art. 6 · Ingen implementeringstid · BankID + PEP fra dag 1</div>
+      <div class="csegs"><span class="cs-tag cs-v">Verdipapir</span></div>
+      <div class="cft"><span class="cf">stoe.no/kyc/verdipapir</span><span class="cf">+20 pts</span></div>
+    </div>
+  </div>
+
+  <div class="card card-lp" data-ch="lp" data-seg="v" onclick="O('lp-v-wp')">
+    <div class="cs"></div><div class="ci">
+      <div class="ct"><div class="cn">LP B · Guide</div></div>
+      <div class="ctitle">Forstå risikovurdering i KYC — og gjør det riktig første gang</div>
+      <div class="cdesc">Art. 10 · Risikovurdering på 10 min · Sjekklister + risikoindikatorer</div>
+      <div class="csegs"><span class="cs-tag cs-v">Verdipapir</span></div>
+      <div class="cft"><span class="cf">stoe.no/kyc/verdipapir-guide</span><span class="cf">+20 pts</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- FASE 3 -->
+<div class="col">
+  <div class="ph" style="background:linear-gradient(135deg,#1A2A4A,#2A3A5A);position:relative">
+    <div class="ph-n">Fase 3</div>
+    <div class="ph-t">E-post 1+2<br>Nurture</div>
+    <div class="ph-bar"></div>
+    <div class="ph-c">Dag 2 + Dag 7</div>
+  </div>
+
+  <div class="card card-em" data-ch="em" data-seg="r" onclick="O('em1-r')">
+    <div class="cs"></div><div class="ci">
+      <div class="ct"><div class="cn">E-post 1 · Dag 2</div><span class="mvp">Bjørn Art. 1+3+5</span></div>
+      <div class="ctitle">Hva betyr rapporteringsplikten for deg som regnskapsfører?</div>
+      <div class="cdesc">Art. 1 (rapporteringspliktig) · Art. 3 (overvåkning) · Art. 5 (5 feil). AML-helsesjekk CTA.</div>
+      <div class="csegs"><span class="cs-tag cs-r">Regnskap</span></div>
+      <div class="cft"><span class="cf">Dag 2 · +10 pts klikk</span></div>
+    </div>
+  </div>
+
+  <div class="card card-em" data-ch="em" data-seg="r" onclick="O('em2-r')">
+    <div class="cs"></div><div class="ci">
+      <div class="ct"><div class="cn">E-post 2 · Dag 7</div></div>
+      <div class="ctitle">{{lead.Company}} — 5 KYC-feil vi ser igjen og igjen i regnskapsbyråer</div>
+      <div class="cdesc">Art. 5 som hook · Pris 1 300 kr/mnd · Guide-nedlasting · Prisside CTA</div>
+      <div class="csegs"><span class="cs-tag cs-r">Regnskap</span></div>
+      <div class="cft"><span class="cf">Dag 7 · +15–25 pts</span></div>
+    </div>
+  </div>
+
+  <div class="card card-em" data-ch="em" data-seg="b" onclick="O('em1-b')">
+    <div class="cs"></div><div class="ci">
+      <div class="ct"><div class="cn">E-post 1 · Dag 2</div><span class="mvp">Bjørn Art. 1+4+9</span></div>
+      <div class="ctitle">Hva skjer hvis du ikke overholder hvitvaskingsloven?</div>
+      <div class="cdesc">Art. 1 (rapporteringspliktig) · Art. 4 (konsekvenser) · Art. 9 (sanksjonslister). Modenhetsvurdering CTA.</div>
+      <div class="csegs"><span class="cs-tag cs-b">Bank</span></div>
+      <div class="cft"><span class="cf">Dag 2 · +10 pts klikk</span></div>
+    </div>
+  </div>
+
+  <div class="card card-em" data-ch="em" data-seg="b" onclick="O('em2-b')">
+    <div class="cs"></div><div class="ci">
+      <div class="ct"><div class="cn">E-post 2 · Dag 7</div></div>
+      <div class="ctitle">{{lead.Company}} — Er dine kunder på en sanksjonsliste?</div>
+      <div class="cdesc">Art. 9 som hook · Automatisk sanksjonskontroll · Pris 3 900 kr/mnd</div>
+      <div class="csegs"><span class="cs-tag cs-b">Bank</span></div>
+      <div class="cft"><span class="cf">Dag 7 · +15–25 pts</span></div>
+    </div>
+  </div>
+
+  <div class="card card-em" data-ch="em" data-seg="v" onclick="O('em1-v')">
+    <div class="cs"></div><div class="ci">
+      <div class="ct"><div class="cn">E-post 1 · Dag 2</div><span class="mvp">Bjørn Art. 1+6+10</span></div>
+      <div class="ctitle">KYC i verdipapir: rapporteringsplikten og hva den krever</div>
+      <div class="cdesc">Art. 1 (rapporteringspliktig) · Art. 6 (ingen integrasjon) · Art. 10 (risikovurdering). KYC-modenhetsvurdering CTA.</div>
+      <div class="csegs"><span class="cs-tag cs-v">Verdipapir</span></div>
+      <div class="cft"><span class="cf">Dag 2 · +10 pts klikk</span></div>
+    </div>
+  </div>
+
+  <div class="card card-em" data-ch="em" data-seg="v" onclick="O('em2-v')">
+    <div class="cs"></div><div class="ci">
+      <div class="ct"><div class="cn">E-post 2 · Dag 7</div></div>
+      <div class="ctitle">{{lead.Company}} — gjør risikovurdering riktig første gang</div>
+      <div class="cdesc">Art. 10 som hook · Risikovurdering på 10 min · Pris 2 900 kr/mnd</div>
+      <div class="csegs"><span class="cs-tag cs-v">Verdipapir</span></div>
+      <div class="cft"><span class="cf">Dag 7 · +15–25 pts</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- FASE 4 -->
+<div class="col">
+  <div class="ph" style="background:linear-gradient(135deg,#3A2A1A,#4A3A2A);position:relative">
+    <div class="ph-n">Fase 4</div>
+    <div class="ph-t">Salgs-e-post<br>SQL</div>
+    <div class="ph-bar"></div>
+    <div class="ph-c">Score ≥ 45</div>
+  </div>
+
+  <div class="card card-sal" data-ch="sal" data-seg="r" onclick="O('sal-r')">
+    <div class="cs"></div><div class="ci">
+      <div class="ct"><div class="cn">Salgs-e-post</div><span class="mvp">Score ≥ 45</span></div>
+      <div class="ctitle">{{lead.Company}} — unngå alle 5 KYC-feilene fra dag én</div>
+      <div class="cdesc">Art. 5-hook · 1 300 kr/mnd · Ingen integrasjon · Book møte med Dennis</div>
+      <div class="csegs"><span class="cs-tag cs-r">Regnskap</span></div>
+      <div class="cft"><span class="cf">Trigger score ≥ 45</span><span class="cf">+20 pts klikk</span></div>
+    </div>
+  </div>
+
+  <div class="card card-sal" data-ch="sal" data-seg="b" onclick="O('sal-b')">
+    <div class="cs"></div><div class="ci">
+      <div class="ct"><div class="cn">Salgs-e-post</div><span class="mvp">Score ≥ 45</span></div>
+      <div class="ctitle">{{lead.Company}} — automatisk sanksjonskontroll fra dag én</div>
+      <div class="cdesc">Art. 9-hook · 3 900 kr/mnd · Book møte med Dennis</div>
+      <div class="csegs"><span class="cs-tag cs-b">Bank</span></div>
+      <div class="cft"><span class="cf">Trigger score ≥ 45</span><span class="cf">+20 pts klikk</span></div>
+    </div>
+  </div>
+
+  <div class="card card-sal" data-ch="sal" data-seg="v" onclick="O('sal-v')">
+    <div class="cs"></div><div class="ci">
+      <div class="ct"><div class="cn">Salgs-e-post</div><span class="mvp">Score ≥ 45</span></div>
+      <div class="ctitle">{{lead.Company}} — gjør risikovurdering riktig med KYC Flow</div>
+      <div class="cdesc">Art. 10-hook · 2 900 kr/mnd · Book møte med Dennis</div>
+      <div class="csegs"><span class="cs-tag cs-v">Verdipapir</span></div>
+      <div class="cft"><span class="cf">Trigger score ≥ 45</span><span class="cf">+20 pts klikk</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- FASE 5 -->
+<div class="col">
+  <div class="ph" style="background:linear-gradient(135deg,#1A3A2A,#2A4E3A);position:relative">
+    <div class="ph-n">Fase 5</div>
+    <div class="ph-t">Møte-<br>bekreftelse</div>
+    <div class="ph-bar"></div>
+    <div class="ph-c">Fra Dennis direkte</div>
+  </div>
+
+  <div class="card card-meet" data-ch="meet" data-seg="r,b,v" onclick="O('meet')">
+    <div class="cs"></div><div class="ci">
+      <div class="ct"><div class="cn">Møtebekreftelse</div><span class="mvp">Alle segmenter</span></div>
+      <div class="ctitle">Vi sees {{meeting.Date}} — litt om meg og hva vi skal gå gjennom</div>
+      <div class="cdesc">Fra: dennis@stoe.no · Agenda 5+15+10+10 min · Forberedelsestips · Redusere no-show</div>
+      <div class="csegs"><span class="cs-tag cs-r">Regnskap</span><span class="cs-tag cs-b">Bank</span><span class="cs-tag cs-v">Verdipapir</span></div>
+      <div class="cft"><span class="cf">Umiddelbart etter booking</span></div>
+    </div>
+  </div>
+</div>
+
+</div></div>
+
+<!-- OVERLAY / DRAWER -->
+<div class="ovl" id="ovl" onclick="CB(event)">
+<div class="drw" id="drw">
+  <div class="drw-hd">
+    <div class="tabs">
+      <div class="tab on" id="t-info" onclick="ST('info')">Detaljer</div>
+      <div class="tab" id="t-art" onclick="ST('art')">Artikkel</div>
+      <div class="tab" id="t-prev" onclick="ST('prev')">Forhåndsvisning</div>
+    </div>
+    <button class="drw-x" onclick="CD()">✕</button>
+  </div>
+  <div class="drw-sc">
+    <div id="p-info" class="info"></div>
+    <div id="p-art" style="display:none"></div>
+    <div id="p-prev" style="display:none;min-height:100%"></div>
+  </div>
+</div>
+</div>
+
+<script>
+// ── ARTIKKELDATA fra Bjørns xlsx ─────────────────────────────────────────
+const ARTS = {
+  r1:{
+    nr:1,seg:'Regnskap og revisjon',
+    h:'Er du rapporteringspliktig bedrift? Dette må du vite om KYC',
+    ingress:'Som regnskapsfører eller revisor er du underlagt hvitvaskingsloven – hvitvaskingsloven stiller strenge krav til en rekke norske virksomheter – uavhengig av størrelse. Mange SMB-bedrifter er usikre på hva de faktisk er pliktige til å gjøre. Her får du en klar oversikt.',
+    seg_intro:'Regnskapsførere og revisorer er blant de mest utsatte yrkesgruppene i hvitvaskingslovens øyne. Du har jevnlig kontakt med klientenes økonomi og er rapporteringspliktig ved mistenkelige forhold. For mange regnskapsbyråer er KYC-arbeid en ekstrabelastning som havner i fanget på én person – uten system, uten struktur, og med stor risiko for mangler.',
+    body:'Hvitvaskingsloven pålegger rapporteringspliktige virksomheter å gjennomføre risikovurdering, kundetiltak (KYC), løpende overvåkning, intern kontroll og rapportering til Økokrim. Alt skal dokumenteres og kan etterprøves av Finanstilsynet.\n\nFor mange små og mellomstore bedrifter er dette krevende å håndtere uten dedikerte ressurser eller systemer. KYC Flow fra Stø gjør dette arbeidet enkelt: du bestiller selv i portalen, og kan starte kundekontroll samme dag – uten utvikling eller integrasjon.\n\nMed KYC Flow får du overvåkning av kunder mot PEP- og sanksjonslister, automatisk dokumentasjon, risikovurdering, eierkart og KYC-skjemaer signert med BankID. Alt samlet på ett sted.',
+    cta:'Kom i gang med KYC Flow – fra kr 1 300/mnd',
+    con:{ann:'Er du rapporteringspliktig? — KYC for regnskapsførere',lp:'LP A/B: Art. 1 som hero-overskrift og ingress',em:'Art. 1 er første av tre artikler i e-post 1'}
+  },
+  r3:{
+    nr:3,seg:'Regnskap og revisjon',
+    h:'Derfor er automatisk overvåkning av kunder viktigere enn du tror',
+    ingress:'Som regnskapsfører eller revisor er du underlagt hvitvaskingsloven – det holder ikke å gjøre én kundekontroll ved oppstart av kundeforholdet. Hvitvaskingsloven krever løpende overvåkning. Her er hva det betyr i praksis – og hvordan du gjør det enkelt.',
+    seg_intro:'Regnskapsførere og revisorer er blant de mest utsatte yrkesgruppene i hvitvaskingslovens øyne. Du har jevnlig kontakt med klientenes økonomi og er rapporteringspliktig ved mistenkelige forhold. For mange regnskapsbyråer er KYC-arbeid en ekstrabelastning som havner i fanget på én person – uten system, uten struktur, og med stor risiko for mangler.',
+    body:'Løpende overvåkning er et av de mest oversette kravene i hvitvaskingsloven. Mange bedrifter gjennomfører én grundig kontroll ved etablering av kundeforholdet – men glemmer at kundenes risikoprofil kan endre seg over tid.\n\nEn kunde som i dag er lav-risiko kan bli PEP, havne på en sanksjonsliste eller endre eierstruktur. Uten løpende overvåkning oppdager du det ikke.\n\nKYC Flow overvåker automatisk alle dine kunder mot norske og internasjonale PEP-lister, sanksjonslister og Nordiske registre. Du varsles umiddelbart ved relevante endringer – og alt dokumenteres automatisk i systemet.',
+    cta:'Aktiver automatisk overvåkning med KYC Flow',
+    con:{ann:'LinkedIn-annonse: Art. 3 som hook for retargeting',lp:'LP A: Art. 3 brukes som «Lær mer»-kobling',em:'Art. 3 er andre av tre artikler i e-post 1'}
+  },
+  r5:{
+    nr:5,seg:'Regnskap og revisjon',
+    h:'5 vanlige KYC-feil – og hvordan du enkelt unngår dem',
+    ingress:'Som regnskapsfører eller revisor er du underlagt hvitvaskingsloven – de fleste feilene som avdekkes i KYC-tilsyn er de samme, gang på gang. Her er de fem vanligste – og hva du konkret kan gjøre for å unngå dem.',
+    seg_intro:'Regnskapsførere og revisorer er blant de mest utsatte yrkesgruppene i hvitvaskingslovens øyne. Du har jevnlig kontakt med klientenes økonomi og er rapporteringspliktig ved mistenkelige forhold. For mange regnskapsbyråer er KYC-arbeid en ekstrabelastning som havner i fanget på én person – uten system, uten struktur, og med stor risiko for mangler.',
+    body:'1. MANGELFULL RISIKOVURDERING – Mange bedrifter mangler en strukturert risikovurdering per kunde. KYC Flow gir deg sjekklister og risikoindikatorer som sikrer at ingenting glipper.\n\n2. UTDATERT KUNDEINFORMASJON – Dokumentasjon som er innhentet ved oppstart, men aldri oppdatert. KYC Flow overvåker og varsler automatisk ved endringer.\n\n3. MANGLENDE IDENTITETSKONTROLL – Identifisering av kunden uten tilstrekkelig dokumentasjon. Med BankID-integrasjon er identitetskontrollen enkel og lovmessig.\n\n4. INGEN KONTROLL AV REELLE RETTIGHETSHAVERE – Eierstrukturen bak et selskap er ikke alltid åpenbar. Eierkartet i KYC Flow visualiserer eierskapsstrukturer grafisk.\n\n5. DÅRLIG DOKUMENTASJON – Spredte arkiver og manglende sporbarhet. KYC Flow arkiverer alt automatisk og gjør dataene tilgjengelige som PDF-rapporter.',
+    cta:'Unngå alle 5 feilene – prøv KYC Flow gratis',
+    con:{ann:'Google Ads Variant B: Art. 5 som direkte hook',lp:'LP B: Art. 5 er hero-overskrift og guide-innhold',em:'Art. 5 er tredje av tre artikler i e-post 1, og hook i e-post 2'}
+  },
+  b1:{
+    nr:1,seg:'Bank og finans',
+    h:'Er du rapporteringspliktig bedrift? Dette må du vite om KYC',
+    ingress:'Som aktør i bank- og finanssektoren er du underlagt hvitvaskingsloven – hvitvaskingsloven stiller strenge krav til en rekke norske virksomheter – uavhengig av størrelse. Mange SMB-bedrifter er usikre på hva de faktisk er pliktige til å gjøre. Her får du en klar oversikt.',
+    seg_intro:'For banker og finansinstitusjoner er KYC et kjernekrav – men kravene strekker seg langt ut over de store aktørene. Også mindre sparebanker, låneformidlere og andre finansforetak er fullt underlagt hvitvaskingsloven. Compliance-belastningen øker år for år, og ressursene er knappe.',
+    body:'Hvitvaskingsloven pålegger rapporteringspliktige virksomheter å gjennomføre risikovurdering, kundetiltak (KYC), løpende overvåkning, intern kontroll og rapportering til Økokrim. Alt skal dokumenteres og kan etterprøves av Finanstilsynet.\n\nFor mange finansforetak er dette krevende å håndtere uten dedikerte ressurser eller systemer. KYC Flow fra Stø gjør dette arbeidet enkelt: du bestiller selv i portalen, og kan starte kundekontroll samme dag – uten utvikling eller integrasjon.\n\nMed KYC Flow får du overvåkning av kunder mot PEP- og sanksjonslister, automatisk dokumentasjon, risikovurdering, eierkart og KYC-skjemaer signert med BankID. Alt samlet på ett sted.',
+    cta:'Kom i gang med KYC Flow – fra kr 1 300/mnd',
+    con:{ann:'Brukes i E-post 1 som første artikkel',lp:'LP A: første punkt i «I dette webinaret lærer du»',em:'Art. 1 er første av tre artikler i e-post 1'}
+  },
+  b4:{
+    nr:4,seg:'Bank og finans',
+    h:'Hva skjer hvis du ikke overholder hvitvaskingsloven?',
+    ingress:'Som aktør i bank- og finanssektoren er du underlagt hvitvaskingsloven – manglende etterlevelse av hvitvaskingsloven kan få alvorlige konsekvenser – fra bøter og pålegg til tap av tillatelse. Slik unngår du å havne i faresonen.',
+    seg_intro:'For banker og finansinstitusjoner er KYC et kjernekrav – men kravene strekker seg langt ut over de store aktørene. Også mindre sparebanker, låneformidlere og andre finansforetak er fullt underlagt hvitvaskingsloven. Compliance-belastningen øker år for år, og ressursene er knappe.',
+    body:'Finanstilsynet har de siste årene intensivert tilsynsarbeidet med AML og KYC. Brudd på hvitvaskingsloven kan medføre overtredelsesgebyr, pålegg om retting og i alvorlige tilfeller tilbakekall av konsesjon eller autorisasjon.\n\nDe vanligste feilene tilsynet avdekker er: manglende risikovurdering, ufullstendig dokumentasjon av kundetiltak og manglende rutiner for løpende overvåkning.\n\nKYC Flow fra Stø er bygget for å hjelpe deg å unngå nettopp disse feilene. Systemet sikrer at du alltid har oppdatert dokumentasjon, at risikovurderinger gjennomføres systematisk og at alle kundeforhold er løpende overvåket. Alt er tilgjengelig som nedlastbare PDF-rapporter ved et eventuelt tilsyn.',
+    cta:'Sikre etterlevelsen med KYC Flow – fra kr 3 900/mnd',
+    con:{ann:'Google Ads: hook i Variant A',lp:'LP A: hero-overskrift og webinar-tema',em:'Art. 4 er andre av tre artikler i e-post 1'}
+  },
+  b9:{
+    nr:9,seg:'Bank og finans',
+    h:'Er dine kunder på en sanksjonsliste? Slik holder du kontroll',
+    ingress:'Som aktør i bank- og finanssektoren er du underlagt hvitvaskingsloven – sanksjonskontroll er et lovkrav – og en praktisk utfordring. Listene oppdateres kontinuerlig, og det er ditt ansvar å holde oversikten. Slik gjør du det enkelt.',
+    seg_intro:'For banker og finansinstitusjoner er KYC et kjernekrav – men kravene strekker seg langt ut over de store aktørene. Også mindre sparebanker, låneformidlere og andre finansforetak er fullt underlagt hvitvaskingsloven. Compliance-belastningen øker år for år, og ressursene er knappe.',
+    body:'Internasjonale sanksjonslister som FN, EU og OFAC oppdateres jevnlig. En kunde som var sanksjonsfri ved oppstart av kundeforholdet kan havne på listen dagen etter.\n\nMange SMB-bedrifter gjennomfører sanksjonskontroll manuelt og sporadisk – og oppdager ikke endringer i tide. Det er både ressurskrevende og risikabelt.\n\nKYC Flow overvåker automatisk alle dine kunder og kontaktpersoner mot internasjonale PEP-lister og sanksjonslister – og varsler deg umiddelbart ved treff. Ingen manuell sjekk nødvendig.\n\nDu slipper å bekymre deg for om listene er oppdaterte. Det er Stø sitt ansvar – du fokuserer på virksomheten din.',
+    cta:'Aktiver automatisk sanksjonskontroll med KYC Flow',
+    con:{ann:'LinkedIn: hook i annonse',lp:'LP B: hero + guide-tema',em:'Art. 9 er tredje artikkel i e-post 1, og hook i e-post 2'}
+  },
+  v1:{
+    nr:1,seg:'Verdipapir',
+    h:'Er du rapporteringspliktig bedrift? Dette må du vite om KYC',
+    ingress:'Som verdipapirforetak er du underlagt hvitvaskingsloven – hvitvaskingsloven stiller strenge krav til en rekke norske virksomheter – uavhengig av størrelse. Mange SMB-bedrifter er usikre på hva de faktisk er pliktige til å gjøre. Her får du en klar oversikt.',
+    seg_intro:'Verdipapirforetak, forvaltningsselskaper og investeringsrådgivere er underlagt hvitvaskingsloven med særlig strenge krav. Bransjen er hardt regulert, og kravene til kundekontroll er blant de mest omfattende. Kravene til KYC i verdipapirmarkedet er komplekse, og mange mindre foretak mangler ressurser til å håndtere dem systematisk.',
+    body:'Hvitvaskingsloven pålegger rapporteringspliktige virksomheter å gjennomføre risikovurdering, kundetiltak (KYC), løpende overvåkning, intern kontroll og rapportering til Økokrim. Alt skal dokumenteres og kan etterprøves av Finanstilsynet.\n\nFor verdipapirforetak er dette krevende å håndtere uten dedikerte ressurser. KYC Flow fra Stø gjør dette arbeidet enkelt: du bestiller selv i portalen, og kan starte kundekontroll samme dag – uten utvikling eller integrasjon.\n\nMed KYC Flow får du overvåkning av kunder mot PEP- og sanksjonslister, automatisk dokumentasjon, risikovurdering, eierkart og KYC-skjemaer signert med BankID. Alt samlet på ett sted.',
+    cta:'Kom i gang med KYC Flow – fra kr 1 300/mnd',
+    con:{ann:'Art. 1 brukes i e-post 1',lp:'LP A: bakgrunnsartikkel',em:'Art. 1 er første av tre artikler i e-post 1'}
+  },
+  v6:{
+    nr:6,seg:'Verdipapir',
+    h:'KYC Flow: Komplett kundekontroll fra dag én – uten teknisk integrasjon',
+    ingress:'Som verdipapirforetak er du underlagt hvitvaskingsloven – mange KYC-systemer krever lang implementeringstid og IT-ressurser. KYC Flow er annerledes: du bestiller selv, og er i gang samme dag.',
+    seg_intro:'Verdipapirforetak, forvaltningsselskaper og investeringsrådgivere er underlagt hvitvaskingsloven med særlig strenge krav. Bransjen er hardt regulert, og kravene til kundekontroll er blant de mest omfattende. Kravene til KYC i verdipapirmarkedet er komplekse, og mange mindre foretak mangler ressurser til å håndtere dem systematisk.',
+    body:'En av de største barrierene for å ta i bruk et KYC-system er implementeringskompleksiteten. For SMB-bedrifter uten egen IT-avdeling kan dette føles uoverkommelig.\n\nKYC Flow er designet for å løse akkurat dette: ingen utvikling, ingen integrasjon, ingen langvarig onboarding. Du velger pakke, betaler i portalen og får umiddelbart tilgang via en unik påloggingslenke.\n\nFra det øyeblikket har du tilgang til: Overvåkning mot PEP- og sanksjonslister – Data fra nordiske registre – KYC-skjemaer med BankID-signatur – Automatisk dokumentasjon og rapportering – Risikovurdering og eierkart.\n\nKYC Flow er bygget av folka bak BankID og BankAxept. Du kan stole på sikkerheten og datakvaliteten.',
+    cta:'Bestill KYC Flow og vær i gang i dag',
+    con:{ann:'Google Ads: Variant A · «uten teknisk integrasjon» som hook',lp:'LP A: hero-overskrift og webinar-tema',em:'Art. 6 er andre av tre artikler i e-post 1'}
+  },
+  v10:{
+    nr:10,seg:'Verdipapir',
+    h:'Forstå risikovurdering i KYC – og gjør det riktig første gang',
+    ingress:'Som verdipapirforetak er du underlagt hvitvaskingsloven – risikovurdering er et av kjerneelementene i hvitvaskingsloven. Mange bedrifter gjennomfører den feil – eller ikke i det hele tatt. Slik gjør du det riktig.',
+    seg_intro:'Verdipapirforetak, forvaltningsselskaper og investeringsrådgivere er underlagt hvitvaskingsloven med særlig strenge krav. Bransjen er hardt regulert, og kravene til kundekontroll er blant de mest omfattende. Kravene til KYC i verdipapirmarkedet er komplekse, og mange mindre foretak mangler ressurser til å håndtere dem systematisk.',
+    body:'Hvitvaskingsloven krever at du vurderer risikoen ved hvert enkelt kundeforhold. Risikovurderingen skal baseres på en rekke faktorer, blant annet: Kundens bransje og forretningsmodell – Geografi (land med høy korrupsjonsrisiko) – Om kunden er politisk eksponert (PEP) – Eierstruktur og reelle rettighetshavere – Type transaksjon og transaksjonsvolum.\n\nKYC Flow gir deg en strukturert og systemstøttet risikovurderingsprosess med sjekklister og risikoindikatorer. Systemet hjelper deg å vurdere risikoen riktig – og dokumenterer vurderingen automatisk.\n\nMed KYC Flow gjennomfører du risikovurdering på under 10 minutter per kunde. Alt lagres og er tilgjengelig ved tilsyn.',
+    cta:'Gjør risikovurdering riktig med KYC Flow – fra kr 2 900/mnd',
+    con:{ann:'LinkedIn: hook i annonse · «riktig første gang»',lp:'LP B: guide-tema',em:'Art. 10 er tredje artikkel i e-post 1, og hook i e-post 2'}
+  }
+};
+
+// ── KORTDATA ──────────────────────────────────────────────────────────────
+const D = {
+
+'g-r-a':{
+  ch:'ann',badge:'Google Ads · Variant A · Regnskap',badgeBg:'#FDF3F3',badgeCol:'#C03030',
+  segs:['Regnskap og revisjon'],art:ARTS.r1,
+  ingress:'Artikkel 1 bærer hele veien: tittelen brukes som Google-annonse-hook, ingressen fra den skreddersydde regnskap-versjonen brukes på landingssiden, og artikkelen er første av tre i e-post 1.',
+  meta:[['Annonseformat','Google Responsive Search Ads'],['Hook','Art. 1 — rapporteringspliktig'],['Variant','A — compliance-vinkel'],['UTM','utm_content=art1-compliance']],
+  prevType:'google',prev:{
+    url:'stoe.no › tjenester › kyc',
+    h:'Er du rapporteringspliktig? — KYC for regnskapsførere',
+    d:'Hvitvaskingsloven stiller strenge krav til regnskapsbyråer. Automatisk risikovurdering, PEP-sjekk og BankID-signerte skjemaer. Kom i gang samme dag. Fra 1\u00a0300\u00a0kr/mnd.',
+    chips:['Rapporteringspliktig','BankID-integrert','Ingen integrasjon nødvendig']
+  }
+},
+
+'g-r-b':{
+  ch:'ann',badge:'Google Ads · Variant B · Regnskap',badgeBg:'#FDF3F3',badgeCol:'#C03030',
+  segs:['Regnskap og revisjon'],art:ARTS.r5,
+  ingress:'Artikkel 5 som effektivitetshook — de 5 konkrete KYC-feilene som går igjen i tilsyn. Tester et annet motiv enn Variant A (regelverkforståelse vs. feilunngåelse).',
+  meta:[['Hook','Art. 5 — 5 vanlige KYC-feil'],['Variant','B — feil/løsning-vinkel'],['UTM','utm_content=art5-feil'],['A/B-mål','Konverteringsrate per variant']],
+  prevType:'google',prev:{
+    url:'stoe.no › tjenester › kyc',
+    h:'5 vanlige KYC-feil — og hvordan du enkelt unngår dem',
+    d:'De fleste feilene i KYC-tilsyn er de samme, gang på gang. Risikovurdering, løpende overvåkning og dokumentasjon — KYC Flow dekker alle. Prøv gratis.',
+    chips:['5 konkrete feil','AML-sjekkliste','Prøv gratis']
+  }
+},
+
+'li-r':{
+  ch:'ann',badge:'LinkedIn Ads · Regnskap',badgeBg:'#FDF3F3',badgeCol:'#C03030',
+  segs:['Regnskap og revisjon'],art:ARTS.r3,
+  ingress:'Artikkel 3 — løpende overvåkning — passer godt for LinkedIn-format der man kan forklare et oversett krav. Differensierer KYC Flow fra «én gangs kontroll»-løsninger.',
+  meta:[['Hook','Art. 3 — løpende overvåkning'],['Targeting','Daglig leder · Partner · Revisor'],['Format','Sponsored Content · Single Image']],
+  prevType:'li',prev:{
+    tag:'Regnskap og revisjon · Art. 3',
+    h:'Det holder ikke med én kontroll. Hvitvaskingsloven krever løpende overvåkning.',
+    hl:'Automatisk overvåkning av kunder — viktigere enn du tror',
+    desc:'En kunde som i dag er lav-risiko kan bli PEP eller havne på sanksjonsliste. KYC Flow varsler deg umiddelbart. Ingen manuell sjekk nødvendig.',
+    lttl:'Webinar: Automatisk KYC-overvåkning for regnskapsbyråer',
+    ldesc:'45 min on-demand. Inkluderer demo av PEP- og sanksjonskontroll.',
+    chips:['Gratis','On-demand','PEP-sjekk']
+  }
+},
+
+'g-b-a':{
+  ch:'ann',badge:'Google Ads · Variant A · Bank',badgeBg:'#FDF3F3',badgeCol:'#C03030',
+  segs:['Bank og finans'],art:ARTS.b4,
+  ingress:'Artikkel 4 — konsekvenser — er den sterkeste compliance-hooken for bank. Overtredelsesgebyr og tilbakekall av konsesjon som risikobilde trigger høy intensjon.',
+  meta:[['Hook','Art. 4 — konsekvenser av brudd'],['Variant','A — konsekvens-vinkel'],['UTM','utm_content=art4-konsekvenser']],
+  prevType:'google',prev:{
+    url:'stoe.no › tjenester › kyc',
+    h:'Hva skjer hvis du ikke overholder hvitvaskingsloven?',
+    d:'Finanstilsynet intensiverer tilsynsarbeidet. Overtredelsesgebyr og tilbakekall av konsesjon er reelle konsekvenser. KYC Flow sikrer etterlevelsen fra dag én. Fra 3\u00a0900\u00a0kr/mnd.',
+    chips:['Finanstilsynet-klar','Nedlastbare PDF-rapporter','Ingen integrasjon']
+  }
+},
+'g-b-b':{
+  ch:'ann',badge:'Google Ads · Variant B · Bank',badgeBg:'#FDF3F3',badgeCol:'#C03030',
+  segs:['Bank og finans'],art:ARTS.b9,
+  ingress:'Art. 9 — sanksjonskontroll — som Variant B for bank. Praktisk/handlingsorientert vinkel mot Variant A (konsekvenser). Tester om frykt for bot eller frykt for ikke å vite er sterkest.',
+  meta:[['Hook','Art. 9 — sanksjonskontroll'],['Variant','B — praktisk vinkel'],['UTM','utm_content=art9-sanksjon'],['A/B-mål','Konvertering vs. Variant A']],
+  prevType:'google',prev:{
+    url:'stoe.no › tjenester › kyc',
+    h:'Er dine kunder på en sanksjonsliste? Slik holder du kontroll',
+    d:'FN, EU og OFAC-lister oppdateres daglig. KYC Flow overvaker alle kunder automatisk og varsler umiddelbart ved treff. Ingen manuell sjekk. Fra 3\u00a0900\u00a0kr/mnd.',
+    chips:['FN/EU/OFAC','Automatisk varsling','Ingen manuell sjekk']
+  }
+},
+
+'li-b':{
+  ch:'ann',badge:'LinkedIn Ads · Bank',badgeBg:'#FDF3F3',badgeCol:'#C03030',
+  segs:['Bank og finans'],art:ARTS.b9,
+  ingress:'Artikkel 9 — sanksjonskontroll — er et særlig relevant tema for bank. FN, EU og OFAC-lister oppdateres daglig, og manuell sjekk er ikke skalérbart.',
+  meta:[['Hook','Art. 9 — sanksjonskontroll'],['Targeting','Compliance officer · CFO · Risikoansvarlig'],['Format','Sponsored Content']],
+  prevType:'li',prev:{
+    tag:'Bank og finans · Art. 9',
+    h:'Sanksjonslister oppdateres daglig. Er du sikker på at kundene dine er rene?',
+    hl:'Automatisk sanksjonskontroll — uten manuell sjekk',
+    desc:'KYC Flow overvåker alle kunder mot FN, EU og OFAC-lister og varsler umiddelbart ved treff. Ingen manuell sjekk nødvendig.',
+    lttl:'Webinar: Sanksjonskontroll for banker — gratis',
+    ldesc:'45 min on-demand. Demo av automatisk PEP- og sanksjonskontroll.',
+    chips:['FN/EU/OFAC','Automatisk','Gratis webinar']
+  }
+},
+
+'g-v-a':{
+  ch:'ann',badge:'Google Ads · Variant A · Verdipapir',badgeBg:'#FDF3F3',badgeCol:'#C03030',
+  segs:['Verdipapir'],art:ARTS.v6,
+  ingress:'Artikkel 6 — «uten teknisk integrasjon» — er den viktigste innvendingsløseren for verdipapir. Mange foretak frykter lange implementeringsprosjekter.',
+  meta:[['Hook','Art. 6 — ingen integrasjon'],['Variant','A — implementering-vinkel'],['UTM','utm_content=art6-integrasjon']],
+  prevType:'google',prev:{
+    url:'stoe.no › tjenester › kyc',
+    h:'KYC Flow: Komplett kundekontroll fra dag én — uten teknisk integrasjon',
+    d:'Ingen utvikling, ingen integrasjon, ingen langvarig onboarding. Du velger pakke og er i gang samme dag. Bygget av folka bak BankID og BankAxept. Fra 2\u00a0900\u00a0kr/mnd.',
+    chips:['Ingen integrasjon','BankID-signatur','I gang samme dag']
+  }
+},
+'g-v-b':{
+  ch:'ann',badge:'Google Ads · Variant B · Verdipapir',badgeBg:'#FDF3F3',badgeCol:'#C03030',
+  segs:['Verdipapir'],art:ARTS.v10,
+  ingress:'Art. 10 — risikovurdering — som Variant B for verdipapir. Under 10 min per kunde er konkret og handlingsorientert. Tester mot Variant A (ingen integrasjon).',
+  meta:[['Hook','Art. 10 — risikovurdering'],['Variant','B — effektivitet/tid-vinkel'],['UTM','utm_content=art10-risikovurdering'],['A/B-mål','Konvertering vs. Variant A']],
+  prevType:'google',prev:{
+    url:'stoe.no › tjenester › kyc',
+    h:'Forstå risikovurdering i KYC — og gjør det riktig første gang',
+    d:'Hvitvaskingsloven krever risikovurdering per kundeforhold. Med KYC Flow gjør du det på under 10 minutter. Sjekklister og automatisk dokumentasjon. Fra 2\u00a0900\u00a0kr/mnd.',
+    chips:['Under 10 min','Sjekklister','Finanstilsynet-klar']
+  }
+},
+
+'li-v':{
+  ch:'ann',badge:'LinkedIn Ads · Verdipapir',badgeBg:'#FDF3F3',badgeCol:'#C03030',
+  segs:['Verdipapir'],art:ARTS.v10,
+  ingress:'Artikkel 10 — risikovurdering — er kjernen i KYC for verdipapir. «Gjøre det riktig første gang» er en sterk hook for compliance-ansvarlige.',
+  meta:[['Hook','Art. 10 — risikovurdering'],['Targeting','Compliance officer · Porteføljeforvalter'],['Format','Sponsored Content']],
+  prevType:'li',prev:{
+    tag:'Verdipapir · Art. 10',
+    h:'Gjør risikovurdering riktig — første gang',
+    hl:'Risikovurdering i KYC: slik gjør du det systematisk',
+    desc:'KYC Flow gir deg sjekklister og risikoindikatorer. Du gjennomfører risikovurdering på under 10 minutter per kunde. Alt dokumenteres automatisk.',
+    lttl:'Webinar: Risikovurdering i verdipapir — gratis',
+    ldesc:'45 min on-demand. Demo med sjekklister og risikoindikatorer.',
+    chips:['Gratis','Under 10 min','Finanstilsynet-klar']
+  }
+},
+
+'lp-r-web':{
+  ch:'lp',badge:'LP A · Webinar · Regnskap',badgeBg:'#EDE8F8',badgeCol:'#4A2A8E',
+  segs:['Regnskap og revisjon'],art:ARTS.r1,
+  ingress:'Landingssiden bruker Art. 1 sin tittel som hero-overskrift og den skreddersydde ingressen som hero-tekst. Konsistent med annonse-hook og e-post 1.',
+  meta:[['Tittel fra','Art. 1 — rapporteringspliktig'],['URL','stoe.no/kyc/regnskap'],['Format','Webinar · 45 min on-demand'],['Score','+20 pts · Grade A–F settes']],
+  prevType:'lp',prev:{
+    tag:'Gratis webinar · Regnskap og revisjon',
+    h:'Er du rapporteringspliktig? Dette må du vite om KYC',
+    sub:'45 minutter on-demand. Inkluderer Q&A med ekspert.',
+    items:['Hvem er rapporteringspliktig og hvilke plikter har du?','Slik gjennomfører du en lovlig kundekontroll steg for steg','Løpende overvåkning — hva kreves og hvorfor det holder ikke med én sjekk','Praktisk demo av Stø KYC Flow for regnskapsbyråer'],
+    roles:['Regnskapsfører','Revisor','Daglig leder / Partner','Compliance-ansvarlig'],
+    systems:['Manuelt / Excel','PowerOffice Go','Visena / Tripletex','Annet KYC-system'],
+    ctaTxt:'Se webinaret gratis →'
+  }
+},
+
+'lp-r-wp':{
+  ch:'lp',badge:'LP B · Guide · Regnskap',badgeBg:'#EDE8F8',badgeCol:'#4A2A8E',
+  segs:['Regnskap og revisjon'],art:ARTS.r5,
+  ingress:'Landingssiden bruker Art. 5 som hero-overskrift. PDF-guide med de 5 konkrete feilene og løsningene — konsistent med Variant B-annonsen.',
+  meta:[['Tittel fra','Art. 5 — 5 vanlige KYC-feil'],['URL','stoe.no/kyc/regnskap-guide'],['Format','8-siders PDF-guide'],['Score','+20 pts · Grade settes']],
+  prevType:'lp',prev:{
+    tag:'Gratis guide · Regnskap og revisjon',
+    h:'5 vanlige KYC-feil – og hvordan du enkelt unngår dem',
+    sub:'8-siders PDF-guide · Gratis nedlasting · Oppdatert 2025',
+    items:['Mangelfull risikovurdering — og sjekklisten som løser det','Utdatert kundeinformasjon — slik holder du det oppdatert','Manglende identitetskontroll med BankID','Ingen kontroll av reelle rettighetshavere — eierkart i praksis','Dårlig dokumentasjon — slik arkiverer du riktig'],
+    roles:['Regnskapsfører','Revisor','Daglig leder / Partner','Compliance-ansvarlig'],
+    systems:null,
+    ctaTxt:'Last ned gratis →'
+  }
+},
+
+'lp-b-web':{
+  ch:'lp',badge:'LP A · Webinar · Bank',badgeBg:'#EDE8F8',badgeCol:'#4A2A8E',
+  segs:['Bank og finans'],art:ARTS.b4,
+  ingress:'Art. 4-tittel som hero. Konsekvens-rammen — tilsyn, overtredelsesgebyr — er riktig tone for bank-segmentet og matcher Google-annonsen.',
+  meta:[['Tittel fra','Art. 4 — konsekvenser'],['URL','stoe.no/kyc/bank'],['Format','Webinar · 45 min on-demand'],['Score','+20 pts']],
+  prevType:'lp',prev:{
+    tag:'Gratis webinar · Bank og finans',
+    h:'Hva skjer hvis du ikke overholder hvitvaskingsloven?',
+    sub:'45 minutter on-demand. Compliance-team i bank.',
+    items:['Hvilke konsekvenser avdekker Finanstilsynet i bank?','De vanligste feilene — og hvordan de unngås','Slik dokumenterer du KYC-arbeidet ved tilsyn','Demo: KYC Flow for bank — fra onboarding til løpende overvåking'],
+    roles:['Compliance officer','CFO','Daglig leder / Partner','Risikoansvarlig'],
+    systems:['Manuelt / Excel','Temenos Go','Mambu / kjernesystemet','Annet KYC-system'],
+    ctaTxt:'Se webinaret gratis →'
+  }
+},
+
+'lp-b-wp':{
+  ch:'lp',badge:'LP B · Guide · Bank',badgeBg:'#EDE8F8',badgeCol:'#4A2A8E',
+  segs:['Bank og finans'],art:ARTS.b9,
+  ingress:'Art. 9-tittel som hero. Sanksjonskontroll som guide-tema. Konsistent med LinkedIn-annonsen.',
+  meta:[['Tittel fra','Art. 9 — sanksjonskontroll'],['URL','stoe.no/kyc/bank-guide'],['Format','8-siders PDF-guide'],['Score','+20 pts']],
+  prevType:'lp',prev:{
+    tag:'Gratis guide · Bank og finans',
+    h:'Er dine kunder på en sanksjonsliste? Slik holder du kontroll',
+    sub:'8-siders PDF-guide · Gratis nedlasting · Oppdatert 2025',
+    items:['Hvilke lister er du pliktig å sjekke (FN, EU, OFAC)?','Hva skjer om en kunde havner på en sanksjonsliste?','Slik setter du opp automatisk sanksjonskontroll','Dokumentasjon ved tilsyn — hva Finanstilsynet ser etter'],
+    roles:['Compliance officer','CFO','Daglig leder','Risikoansvarlig'],
+    systems:null,ctaTxt:'Last ned gratis →'
+  }
+},
+
+'lp-v-web':{
+  ch:'lp',badge:'LP A · Webinar · Verdipapir',badgeBg:'#EDE8F8',badgeCol:'#4A2A8E',
+  segs:['Verdipapir'],art:ARTS.v6,
+  ingress:'Art. 6-tittel som hero. «Uten teknisk integrasjon» er den viktigste innvendingsløseren for verdipapirforetak uten IT-avdeling.',
+  meta:[['Tittel fra','Art. 6 — uten integrasjon'],['URL','stoe.no/kyc/verdipapir'],['Format','Webinar · 45 min on-demand'],['Score','+20 pts']],
+  prevType:'lp',prev:{
+    tag:'Gratis webinar · Verdipapir',
+    h:'KYC Flow: Komplett kundekontroll fra dag én — uten teknisk integrasjon',
+    sub:'45 minutter on-demand. EU-AMLR og MiFID II.',
+    items:['Slik er KYC Flow designet for verdipapirforetak uten IT-avdeling','Ingen integrasjon nødvendig — du er i gang samme dag','Demo: investoronboarding fra uker til dager','PEP-sjekk, risikovurdering og eierkart i ett system'],
+    roles:['Compliance officer','Porteføljeforvalter','Daglig leder','Annet'],
+    systems:['Manuelt / Excel','Advent Geneva','Simcorp / porteføljesystemet','Annet KYC-system'],
+    ctaTxt:'Se webinaret gratis →'
+  }
+},
+
+'lp-v-wp':{
+  ch:'lp',badge:'LP B · Guide · Verdipapir',badgeBg:'#EDE8F8',badgeCol:'#4A2A8E',
+  segs:['Verdipapir'],art:ARTS.v10,
+  ingress:'Art. 10-tittel som hero. Risikovurdering på 10 min per kunde er det konkrete løftet — konsistent med LinkedIn-annonsen.',
+  meta:[['Tittel fra','Art. 10 — risikovurdering'],['URL','stoe.no/kyc/verdipapir-guide'],['Format','8-siders PDF-guide'],['Score','+20 pts']],
+  prevType:'lp',prev:{
+    tag:'Gratis guide · Verdipapir',
+    h:'Forstå risikovurdering i KYC — og gjør det riktig første gang',
+    sub:'8-siders PDF-guide · Gratis nedlasting · Oppdatert 2025',
+    items:['Hvilke faktorer inngår i en lovmessig risikovurdering?','Sjekkliste: geografi, PEP, eierstruktur, transaksjonsvolum','Slik gjennomfører du risikovurdering på under 10 minutter','Dokumentasjon Finanstilsynet godkjenner'],
+    roles:['Compliance officer','Porteføljeforvalter','Daglig leder','Annet'],
+    systems:null,ctaTxt:'Last ned gratis →'
+  }
+},
+
+'em1-r':{
+  ch:'em',badge:'E-post 1 · Dag 2 · Regnskap',badgeBg:'#E8EFF8',badgeCol:'#1A3A7A',
+  segs:['Regnskap og revisjon'],
+  ingress:'Tre artikler fra Bjørns xlsx, alle i regnskap-versjon. Art. 1 (rapporteringspliktig) — Art. 3 (overvåkning) — Art. 5 (5 feil). Samme tematikk som annonse og LP. AML-helsesjekk som CTA.',
+  meta:[['Emne','Hva betyr rapporteringsplikten for deg som regnskapsfører?'],['Artikler','Art. 1 + Art. 3 + Art. 5'],['CTA','AML-helsesjekk · +30 pts'],['Score','+5 åpnet · +10 klikket']],
+  prevType:'email1',prev:{
+    seg:'KYC · Regnskap og revisjon',subj:'Hva betyr rapporteringsplikten for deg som regnskapsfører?',
+    heroTag:'Regnskap og revisjon',hero:'Alt du trenger å vite om KYC-plikten — samlet på ett sted',
+    intro:'Som regnskapsfører eller revisor er du rapporteringspliktig etter hvitvaskingsloven. Vi har samlet artiklene du trenger for å få full oversikt.',
+    arts:[
+      {tag:'Art. 1 · Rapporteringspliktig',ttl:'Er du rapporteringspliktig bedrift? Dette må du vite om KYC',txt:'Regnskapsførere og revisorer er blant de mest utsatte yrkesgruppene. Denne artikkelen forklarer hvilke forpliktelser du faktisk har.'},
+      {tag:'Art. 3 · Løpende overvåkning',ttl:'Derfor er automatisk overvåkning av kunder viktigere enn du tror',txt:'Det holder ikke å gjøre én kontroll ved oppstart. En kunde som er lav-risiko i dag kan bli PEP i morgen. Uten overvåkning oppdager du det ikke.'},
+      {tag:'Art. 5 · 5 vanlige feil',ttl:'5 vanlige KYC-feil – og hvordan du enkelt unngår dem',txt:'De fleste feilene i KYC-tilsyn er de samme, gang på gang. Her er de fem vanligste — og hva du konkret kan gjøre for å unngå dem.'}
+    ],
+    hl:'Usikker på hvor du står? Ta vår gratis AML-helsesjekk — du får svar på 5 minutter.',
+    ctaTxt:'Ta AML-helsesjekken →',foot:'stoe.no/kyc/regnskap-og-revisjon'
+  }
+},
+
+'em2-r':{
+  ch:'em',badge:'E-post 2 · Dag 7 · Regnskap',badgeBg:'#E8EFF8',badgeCol:'#1A3A7A',
+  segs:['Regnskap og revisjon'],
+  ingress:'Art. 5-hook: de 5 feilene som hook på emnelinjen, AMLR-urgency, guide-nedlasting, pris 1 300 kr/mnd og prisside-CTA. Tone-shift fra e-post 1.',
+  meta:[['Emne','{{lead.Company}} — 5 KYC-feil vi ser igjen og igjen i regnskapsbyråer'],['Hook','Art. 5 — feil/løsning'],['Pris','1 300 kr/mnd'],['Score','+15–25 pts']],
+  prevType:'email2',prev:{
+    seg:'Regnskap og revisjon',subj:'{{lead.Company}} — 5 KYC-feil vi ser igjen og igjen i regnskapsbyråer',
+    hero:'5 KYC-feil — og hvordan {{lead.Company}} unngår dem alle',
+    intro:'Hei {{lead.FirstName}}, de fleste feilene som avdekkes i KYC-tilsyn er de samme, gang på gang. Her er de fem vanligste for regnskapsbyråer — og hva KYC Flow gjør for å løse dem.',
+    guide_items:['Mangelfull risikovurdering — sjekklister som sikrer at ingenting glipper','Utdatert kundeinformasjon — automatisk overvåkning og varsling','Manglende identitetskontroll — BankID-integrasjon','Ingen kontroll av reelle rettighetshavere — grafisk eierkart','Dårlig dokumentasjon — alt arkiveres automatisk som PDF'],
+    pris:'1 300',foot:'stoe.no/kyc/regnskap-og-revisjon'
+  }
+},
+
+'em1-b':{
+  ch:'em',badge:'E-post 1 · Dag 2 · Bank',badgeBg:'#E8EFF8',badgeCol:'#1A3A7A',
+  segs:['Bank og finans'],
+  ingress:'Art. 1 + Art. 4 + Art. 9 i bank-versjon. Konsekvensfokus (Art. 4) og sanksjonskontroll (Art. 9) er de sterkeste hookene for compliance-team i bank. Modenhetsvurdering som CTA.',
+  meta:[['Emne','Hva skjer hvis du ikke overholder hvitvaskingsloven?'],['Artikler','Art. 1 + Art. 4 + Art. 9'],['CTA','AML-modenhetsvurdering · +30 pts'],['Score','+5 åpnet · +10 klikket']],
+  prevType:'email1',prev:{
+    seg:'KYC · Bank og finans',subj:'Hva skjer hvis du ikke overholder hvitvaskingsloven?',
+    heroTag:'Bank og finans',hero:'Alt compliance-teamet trenger å vite om KYC-plikten i bank',
+    intro:'Som compliance officer i bank er du rapporteringspliktig etter hvitvaskingsloven. Her er de tre artiklene som gir deg full oversikt.',
+    arts:[
+      {tag:'Art. 1 · Rapporteringspliktig',ttl:'Er du rapporteringspliktig bedrift? Dette må du vite om KYC',txt:'For banker og finansinstitusjoner er KYC et kjernekrav. Også mindre sparebanker og låneformidlere er fullt underlagt hvitvaskingsloven.'},
+      {tag:'Art. 4 · Konsekvenser',ttl:'Hva skjer hvis du ikke overholder hvitvaskingsloven?',txt:'Finanstilsynet intensiverer tilsynsarbeidet. Brudd kan medføre overtredelsesgebyr og tilbakekall av konsesjon. Her er hva du må ha på plass.'},
+      {tag:'Art. 9 · Sanksjonskontroll',ttl:'Er dine kunder på en sanksjonsliste? Slik holder du kontroll',txt:'FN, EU og OFAC-listene oppdateres kontinuerlig. KYC Flow overvåker automatisk og varsler umiddelbart ved treff.'}
+    ],
+    hl:'Usikker på modenhetsnivået ditt? Ta vår gratis AML-modenhetsvurdering — du får svar på 5 minutter.',
+    ctaTxt:'Ta AML-modenhetsvurderingen →',foot:'stoe.no/kyc/bank-og-finans'
+  }
+},
+
+'em2-b':{
+  ch:'em',badge:'E-post 2 · Dag 7 · Bank',badgeBg:'#E8EFF8',badgeCol:'#1A3A7A',
+  segs:['Bank og finans'],
+  ingress:'Art. 9-hook: sanksjonskontroll på emnelinjen. Reell urgency — listene oppdateres daglig. Pris 3 900 kr/mnd.',
+  meta:[['Emne','{{lead.Company}} — Er dine kunder på en sanksjonsliste?'],['Hook','Art. 9 — sanksjonskontroll'],['Pris','3 900 kr/mnd'],['Score','+15–25 pts']],
+  prevType:'email2',prev:{
+    seg:'Bank og finans',subj:'{{lead.Company}} — Er dine kunder på en sanksjonsliste?',
+    hero:'Sanksjonslister oppdateres daglig. Er {{lead.Company}} klar?',
+    intro:'Hei {{lead.FirstName}}, internasjonale sanksjonslister (FN, EU, OFAC) oppdateres jevnlig. En kunde som var sanksjonsfri ved oppstart kan havne på listen dagen etter — uten at du vet det.',
+    guide_items:['Oversikt over listene du er pliktig å sjekke — FN, EU, OFAC og norske lister','Hva skjer ved et treff — rapporteringsplikt og rutiner','Slik setter du opp automatisk sanksjonskontroll i KYC Flow','Dokumentasjon Finanstilsynet ser etter ved tilsyn'],
+    pris:'3 900',foot:'stoe.no/kyc/bank-og-finans'
+  }
+},
+
+'em1-v':{
+  ch:'em',badge:'E-post 1 · Dag 2 · Verdipapir',badgeBg:'#E8EFF8',badgeCol:'#1A3A7A',
+  segs:['Verdipapir'],
+  ingress:'Art. 1 + Art. 6 + Art. 10 i verdipapir-versjon. Art. 6 (ingen integrasjon) og Art. 10 (risikovurdering) er de mest relevante hookene for compliance i verdipapir. KYC-modenhetsvurdering som CTA.',
+  meta:[['Emne','KYC i verdipapir: rapporteringsplikten og hva den krever'],['Artikler','Art. 1 + Art. 6 + Art. 10'],['CTA','KYC-modenhetsvurdering · +30 pts'],['Score','+5 åpnet · +10 klikket']],
+  prevType:'email1',prev:{
+    seg:'KYC · Verdipapir',subj:'KYC i verdipapir: rapporteringsplikten og hva den krever',
+    heroTag:'Verdipapir',hero:'Alt compliance-teamet trenger å vite om KYC-plikten i verdipapir',
+    intro:'Som verdipapirforetak, forvaltningsselskap eller investeringsrådgiver er du underlagt hvitvaskingsloven med særlig strenge krav. Her er de tre artiklene som gir deg oversikten.',
+    arts:[
+      {tag:'Art. 1 · Rapporteringspliktig',ttl:'Er du rapporteringspliktig bedrift? Dette må du vite om KYC',txt:'Verdipapirforetak og investeringsrådgivere er underlagt hvitvaskingsloven med særlig strenge krav. Her får du en klar oversikt over forpliktelsene.'},
+      {tag:'Art. 6 · Uten integrasjon',ttl:'KYC Flow: Komplett kundekontroll fra dag én – uten teknisk integrasjon',txt:'Ingen utvikling, ingen integrasjon, ingen langvarig onboarding. Du velger pakke og er i gang samme dag. Bygget av folka bak BankID og BankAxept.'},
+      {tag:'Art. 10 · Risikovurdering',ttl:'Forstå risikovurdering i KYC – og gjør det riktig første gang',txt:'Hvitvaskingsloven krever risikovurdering per kundeforhold. Med KYC Flow gjennomfører du dette på under 10 minutter — og alt dokumenteres automatisk.'}
+    ],
+    hl:'Usikker på modenhetsnivået ditt? Ta vår gratis KYC-modenhetsvurdering — du får svar på 5 minutter.',
+    ctaTxt:'Ta KYC-modenhetsvurderingen →',foot:'stoe.no/kyc/verdipapir'
+  }
+},
+
+'em2-v':{
+  ch:'em',badge:'E-post 2 · Dag 7 · Verdipapir',badgeBg:'#E8EFF8',badgeCol:'#1A3A7A',
+  segs:['Verdipapir'],
+  ingress:'Art. 10-hook: risikovurdering på emnelinjen. «Gjøre det riktig første gang» er den sterkeste hooken for verdipapir. Pris 2 900 kr/mnd.',
+  meta:[['Emne','{{lead.Company}} — gjør risikovurdering riktig med KYC Flow'],['Hook','Art. 10 — risikovurdering'],['Pris','2 900 kr/mnd'],['Score','+15–25 pts']],
+  prevType:'email2',prev:{
+    seg:'Verdipapir',subj:'{{lead.Company}} — gjør risikovurdering riktig med KYC Flow',
+    hero:'Risikovurdering i KYC — gjør det riktig, første gang',
+    intro:'Hei {{lead.FirstName}}, hvitvaskingsloven krever at du vurderer risikoen ved hvert enkelt kundeforhold. Mange verdipapirforetak gjennomfører det feil — eller ikke i det hele tatt.',
+    guide_items:['Hvilke faktorer inngår i en lovmessig risikovurdering (PEP, geografi, eierstruktur)?','Slik gjennomfører du risikovurdering på under 10 minutter per kunde','Sjekklister og risikoindikatorer i KYC Flow','Dokumentasjon som tåler Finanstilsynets kontroll'],
+    pris:'2 900',foot:'stoe.no/kyc/verdipapir'
+  }
+},
+
+'sal-r':{
+  ch:'sal',badge:'Salgs-e-post · Regnskap',badgeBg:'#FDF3DC',badgeCol:'#854F0B',
+  segs:['Regnskap og revisjon'],
+  ingress:'Art. 5-hook videreføres inn i salgse-posten. «Unngå alle 5 feilene fra dag én» er det konkrete løftet. Pris 1 300 kr/mnd. Book møte eller start selv.',
+  meta:[['Emne','{{lead.Company}} — unngå alle 5 KYC-feilene fra dag én'],['Trigger','Score ≥ 45 eller prisside-besøk'],['Pris','1 300 kr/mnd'],['CTA','Kom i gang / Book møte']],
+  prevType:'sales',prev:{seg:'Regnskap og revisjon',pris:'1 300',
+    subj:'{{lead.Company}} — unngå alle 5 KYC-feilene fra dag én',
+    budskap:'Stø KYC Flow eliminerer alle 5 feilene vi ser igjen og igjen i regnskapsbyråer — uten integrasjon, uten IT-avdeling.',
+    cta1:'Kom i gang nå →',cta2:'Dennis tar en uforpliktende prat om hva som passer for ditt regnskapsbyrå'}
+},
+
+'sal-b':{
+  ch:'sal',badge:'Salgs-e-post · Bank',badgeBg:'#FDF3DC',badgeCol:'#854F0B',
+  segs:['Bank og finans'],
+  ingress:'Art. 9-hook: «automatisk sanksjonskontroll fra dag én». Pris 3 900 kr/mnd. EDD og Finanstilsynet-rapportering som nøkkelfeatures.',
+  meta:[['Emne','{{lead.Company}} — automatisk sanksjonskontroll fra dag én'],['Trigger','Score ≥ 45 eller prisside-besøk'],['Pris','3 900 kr/mnd'],['CTA','Kom i gang / Book møte']],
+  prevType:'sales',prev:{seg:'Bank og finans',pris:'3 900',
+    subj:'{{lead.Company}} — automatisk sanksjonskontroll fra dag én',
+    budskap:'KYC Flow overvåker alle kunder mot FN, EU og OFAC-lister og varsler umiddelbart ved treff. EDD, løpende overvåkning og Finanstilsynet-rapportering samlet på ett sted.',
+    cta1:'Kom i gang nå →',cta2:'Dennis tar en uforpliktende prat om hva som passer for ditt finansforetak'}
+},
+
+'sal-v':{
+  ch:'sal',badge:'Salgs-e-post · Verdipapir',badgeBg:'#FDF3DC',badgeCol:'#854F0B',
+  segs:['Verdipapir'],
+  ingress:'Art. 10-hook: «gjør risikovurdering riktig med KYC Flow». Pris 2 900 kr/mnd. Ingen integrasjon som sekundær hook.',
+  meta:[['Emne','{{lead.Company}} — gjør risikovurdering riktig med KYC Flow'],['Trigger','Score ≥ 45 eller prisside-besøk'],['Pris','2 900 kr/mnd'],['CTA','Kom i gang / Book møte']],
+  prevType:'sales',prev:{seg:'Verdipapir',pris:'2 900',
+    subj:'{{lead.Company}} — gjør risikovurdering riktig med KYC Flow',
+    budskap:'Systemstøttet risikovurdering på under 10 minutter per kunde. Sjekklister, risikoindikatorer og automatisk dokumentasjon — klar til Finanstilsynets kontroll.',
+    cta1:'Kom i gang nå →',cta2:'Dennis tar en uforpliktende prat om hva som passer for ditt verdipapirforetak'}
+},
+
+'meet':{
+  ch:'meet',badge:'Møtebekreftelse · Fra Dennis direkte',badgeBg:'#E6F4EE',badgeCol:'#1D7A4F',
+  segs:['Regnskap og revisjon','Bank og finans','Verdipapir'],
+  ingress:'Fra dennis@stoe.no. Redusere no-show, bygge relasjon. Dennis viser at han har lest skjemaet (system, KYC-volum). Agenda 5+15+10+10 min.',
+  meta:[['Emne','Vi sees {{meeting.Date}} — litt om meg og hva vi skal gå gjennom'],['Avsender','dennis@stoe.no'],['Agenda','5+15+10+10 min'],['Mål','Redusere no-show']],
+  prevType:'meeting'
+}
+
+};
+
+// ── RENDERERS ─────────────────────────────────────────────────────────────
+function render_google(d){
+  const p=d.prev;
+  return `<div class="adp"><div class="adp-lbl">Google Responsive Search Ad · Forhåndsvisning</div>
+<div class="ad-g">
+<div class="ad-g-url"><span class="ad-g-sp">Annonse</span>${p.url}</div>
+<div class="ad-g-h">${p.h}</div>
+<div class="ad-g-d">${p.d}</div>
+<div class="ad-g-chips">${p.chips.map(function(c){return '<span class="ad-chip">'+c+'</span>';}).join('')}</div>
+</div></div>`;
+}
+
+function render_li(d){
+  const p=d.prev;
+  return `<div class="adp"><div class="adp-lbl">LinkedIn Sponsored Content · Forhåndsvisning</div>
+<div class="ad-li">
+<div class="ad-li-hd"><div class="ad-li-meta">KYC Flow · Stø AS · 1 450 følgere</div><div class="ad-li-sp">Sponset</div></div>
+<div class="ad-li-img">
+<div class="ad-li-tag">${p.tag}</div>
+<div class="ad-li-h">${p.h}</div>
+</div>
+<div class="ad-link"><div class="ad-link-dom">stoe.no</div><div class="ad-link-ttl">${p.lttl}</div><div class="ad-link-d">${p.ldesc}</div></div>
+<div class="ad-li-bd">
+<div class="ad-li-hl">${p.hl}</div>
+<div class="ad-li-desc">${p.desc}</div>
+<div class="ad-li-cta">Les mer →</div>
+<div class="ad-li-chips">${p.chips.map(function(c){return '<span class="ad-chip">'+c+'</span>';}).join('')}</div>
+</div>
+<div class="li-react"><span>👍 Liker · Kommenter · Del</span><span>Følg Stø</span></div>
+</div></div>`;
+}
+
+function render_lp(d){
+  const p=d.prev;
+  const checks=p.items.map(function(i){return '<div class="lp-check"><span class="lp-check-ico">✓</span>'+i+'</div>';}).join('');
+  const roles=p.roles.map(function(r){return '<option>'+r+'</option>';}).join('');
+  const sys=p.systems?`<select class="lp-sel">${p.systems.map(function(s){return '<option>'+s+'</option>';}).join('')}</select>`:'';
+  return `<div class="lpp"><div class="lpf">
+<div class="lp-nav"><div class="lp-nav-logo">Stø<span>.</span></div><div class="lp-nav-cta">stoe.no</div></div>
+<div class="lp-hero">
+<div class="lp-hero-tag">${p.tag}</div>
+<div class="lp-hero-h">${p.h}</div>
+<div class="lp-hero-s">${p.sub}</div>
+<div class="lp-wb"><div class="lp-play">▶</div><div><div class="lp-wb-t">${p.tag.split('·')[0].trim()}</div><div class="lp-wb-m"><span>On-demand</span><span>Gratis tilgang</span><span>Q&A</span></div></div></div>
+<div class="lp-form">
+<div class="lp-form-lbl">Fyll inn for tilgang</div>
+<input class="lp-inp" placeholder="Fornavn og etternavn" readonly>
+<input class="lp-inp" placeholder="Jobb-e-post" readonly>
+<select class="lp-sel"><option>Velg rolle...</option>${roles}</select>
+<input class="lp-inp" placeholder="KYC-kunder per år" readonly>
+${sys}
+<button class="lp-btn">${p.ctaTxt}</button>
+<div class="lp-fine">Ingen kredittkort. Du får umiddelbar tilgang.</div>
+<div class="lp-checks">${checks}</div>
+</div></div>
+<div style="height:160px;background:url('https://stoe.no/images/8gh06hji/production/728beab2d394a51a1a1d0edf520696e9c742f65c-2000x1080.png?w=520&fm=webp&q=85&fit=crop') center/cover no-repeat;border-bottom:1px solid var(--border)"></div>
+<div class="lp-trust">
+<div class="lp-trust-i">🔒 BankID-integrert</div>
+<div class="lp-trust-i">⚡ I gang samme dag</div>
+<div class="lp-trust-i">✅ 2 000+ kunder</div>
+</div>
+<div class="lp-spk"><div class="lp-spk-av">D</div><div><div class="lp-spk-n">Dennis Sebastian Nystedt</div><div class="lp-spk-t">KYC Sales · Stø AS</div></div></div>
+<div class="lp-foot"><div class="lp-foot-logo">Stø<span>.</span></div><div class="lp-foot-t">Biskop Gunnerus' gate 14 · 0185 Oslo</div></div>
+</div></div>`;
+}
+
+function render_email1(d){
+  const p=d.prev;
+  const arts=p.arts.map(function(a){
+  return '<div class="ef-art"><div class="ef-art-tag">'+a.tag+'</div><div class="ef-art-ttl">'+a.ttl+'</div><div class="ef-art-txt">'+a.txt+'</div><div class="ef-art-lnk">Les artikkelen →</div></div>';
+}).join('');
+  return `<div class="ep"><div class="ef">
+<div class="ef-logo"><div class="ef-logo-t">Stø<span>.</span></div><div class="ef-logo-s">${p.seg}</div></div>
+<div class="ef-meta"><div class="ef-subj">${p.subj}</div><div class="ef-to">Til: {{lead.FirstName}} {{lead.LastName}}</div></div>
+<div class="ef-hero"><div class="ef-hero-tag">${p.heroTag}</div><div class="ef-hero-h">${p.hero}</div></div>
+<div style="height:120px;background:url('https://stoe.no/images/8gh06hji/production/b5d101843b6b433887e4702c55b9e3b13c35fdcc-1078x1080.png?w=520&fm=webp&q=85&fit=crop') center/cover no-repeat;filter:grayscale(20%) brightness(.8)"></div>
+<div class="ef-body">
+<div class="ef-p">${p.intro}</div>
+<div class="ef-p" style="font-size:11px;font-weight:700;color:#1A1A18;margin-bottom:7px">Aktuelt for deg</div>
+<div class="ef-arts">${arts}</div>
+<div class="ef-hl">${p.hl}</div>
+</div>
+<div class="ef-cta-w"><div class="ef-cta">${p.ctaTxt}</div></div>
+<div class="ef-foot"><div class="ef-foot-t">Stø AS · Biskop Gunnerus' gate 14 · 0185 Oslo<br>Du mottar denne e-posten fordi du registrerte deg på ${p.foot}</div></div>
+</div></div>`;
+}
+
+function render_email2(d){
+  const p=d.prev;
+  const gl=p.guide_items.map(function(i){return '<div style="display:flex;align-items:flex-start;gap:6px;margin-bottom:4px;font-size:11px;color:#5A6B52"><span style="color:#7FE832;font-weight:700;flex-shrink:0">✓</span>'+i+'</div>';}).join('');
+  return `<div class="ep"><div class="ef">
+<div class="ef-logo"><div class="ef-logo-t">Stø<span>.</span></div><div class="ef-logo-s">${p.seg}</div></div>
+<div class="ef-meta"><div class="ef-subj">${p.subj}</div><div class="ef-to">Til: {{lead.FirstName}} {{lead.LastName}}</div></div>
+<div class="ef-hero"><div class="ef-hero-tag">${p.seg}</div><div class="ef-hero-h">${p.hero}</div></div>
+<div style="height:120px;background:url('https://cdn.sanity.io/images/8gh06hji/production/174171b0ae81cbd2acf22b2a3b8022b71ba567c9-6660x4313.jpg?w=520&h=120&q=85&fit=crop') center/cover no-repeat;filter:grayscale(20%) brightness(.8)"></div>
+<div class="ef-body">
+<div class="ef-p">${p.intro}</div>
+<div class="ef-hl" style="font-size:11px;font-style:normal"><strong>I vår guide finner du</strong><br><br>${gl}</div>
+</div>
+<div class="ef-cta-w"><div class="ef-cta">Last ned guiden — gratis →</div></div>
+<div class="ef-body" style="border-top:1px solid #E0D8CC">
+<div class="ef-p">Allerede 2&nbsp;000+ skandinaviske bedrifter bruker Stø for kundekontroll og AML. Ingen integrasjon — i gang samme dag.</div>
+<div class="ef-hl"><strong>Kampanjepris fra ${p.pris} kr per måned</strong>, eks. mva. Standard-pakken til Basic-pris.</div>
+</div>
+<div class="ef-cta-w"><div class="ef-cta">Se priser og pakker →</div></div>
+<div class="ef-foot"><div class="ef-foot-t">Stø AS · Biskop Gunnerus' gate 14 · 0185 Oslo<br>Du mottar denne e-posten fordi du registrerte deg på ${p.foot}</div></div>
+</div></div>`;
+}
+
+function render_sales(d){
+  const p=d.prev;
+  const feats=[['PEP- og sanksjonslister','Automatisk overvåkning'],['BankID-signerte skjemaer','Nordisk BankID'],['Risikovurdering','Finanstilsynet-klar'],['Løpende overvåkning','Automatisk varsling']];
+  return `<div class="sep"><div class="ef">
+<div class="ef-logo"><div class="ef-logo-t">Stø<span>.</span></div><div class="ef-logo-s">KYC Flow · ${p.seg}</div></div>
+<div class="ef-meta"><div class="ef-subj">${p.subj}</div><div class="ef-to">Fra: kyc@stoe.no</div></div>
+<div class="ef-hero"><div class="ef-hero-tag">KYC Flow · ${p.seg}</div><div class="ef-hero-h">Du er nesten der</div></div>
+<div style="height:120px;background:url('https://stoe.no/images/8gh06hji/production/bd40bad372d062f6319ad1ed3fee3016604420a7-832x1080.png?w=520&fm=webp&q=85&fit=crop') center/cover no-repeat;filter:grayscale(20%) brightness(.75)"></div>
+<div class="ef-body"><div class="ef-p">${p.budskap}</div></div>
+<div class="ef-feats">${feats.map(function(f){return '<div class="ef-feat"><div class="ef-feat-t">'+f[0]+'</div><div class="ef-feat-s">'+f[1]+'</div></div>';}).join('')}</div>
+<div class="ef-body" style="text-align:center;padding-top:14px">
+<div style="display:inline-block;background:#1C3D1C;color:#fff;font-size:11px;font-weight:800;letter-spacing:.05em;padding:10px 20px;border-radius:4px">Kampanjepris ${p.pris} kr/mnd</div>
+</div>
+<div class="ef-cta-w"><div class="ef-cta">${p.cta1}</div></div>
+<div class="ef-body"><div class="ef-hl">${p.cta2}</div></div>
+<div class="ef-cta-w" style="background:#fff"><div class="ef-cta" style="background:rgba(28,61,28,.1);color:#1C3D1C">Book et møte med Dennis →</div></div>
+<div class="ef-foot"><div class="ef-foot-t">Stø AS · Biskop Gunnerus' gate 14 · 0185 Oslo · Meld deg av</div></div>
+</div></div>`;
+}
+
+function render_meeting(){
+  return `<div class="meep"><div class="meef">
+<div class="meet-hd">
+<div class="meet-logo">Stø<span>.</span></div>
+<div class="meet-sub">Møtebekreftelse · KYC Flow</div>
+<div class="meet-c">
+<div class="meet-c-tag">✓ Møte bekreftet</div>
+<div class="meet-c-t">{{meeting.Date}} kl. {{meeting.Time}} · {{meeting.Duration}} minutter · Google Meet</div>
+<div class="meet-c-m">Med Dennis Sebastian Nystedt · KYC Sales · Stø AS</div>
+<div class="meet-add">Legg til i kalender →</div>
+</div></div>
+<div class="meet-d">
+<div class="meet-d-av">D</div>
+<div>
+<div class="meet-d-n">Dennis Sebastian Nystedt</div>
+<div class="meet-d-t">KYC Sales · Stø AS · dennis@stoe.no</div>
+<div class="meet-d-bio">Dennis jobber daglig med regnskapsbyråer, banker og verdipapirforetak som er i gang med å bygge gode KYC-prosesser. Han kjenner hvitvaskingsregelverket godt, og er opptatt av å finne løsninger som faktisk fungerer i praksis — ikke bare på papiret.</div>
+</div></div>
+<div class="meet-ag">
+<div class="meet-ag-lbl">Vi går gjennom</div>
+<div class="meet-step"><div class="meet-step-t">5 min</div><div><div class="meet-step-ttl">Bli kjent</div><div class="meet-step-txt">Litt om {{lead.Company}} og deres KYC-prosess i dag — hva fungerer, hva er utfordrende?</div></div></div>
+<div class="meet-step"><div class="meet-step-t">15 min</div><div><div class="meet-step-ttl">Demo av KYC Flow</div><div class="meet-step-txt">Vi går gjennom systemet med utgangspunkt i {{lead.Company}} sin situasjon — kundekontroll, risikovurdering og overvåking.</div></div></div>
+<div class="meet-step"><div class="meet-step-t">10 min</div><div><div class="meet-step-ttl">Integrasjon og oppsett</div><div class="meet-step-txt">Hvordan passer KYC Flow inn i eksisterende arbeidsflyt. Ingen integrasjon nødvendig for å starte.</div></div></div>
+<div class="meet-step"><div class="meet-step-t">10 min</div><div><div class="meet-step-ttl">Priser og neste steg</div><div class="meet-step-txt">Vi ser på hvilken pakke som passer best og hva som skal til for å komme i gang.</div></div></div>
+</div>
+<div class="meet-prep">
+<div class="meet-prep-lbl">Forberedelse (valgfritt)</div>
+<div class="meet-prep-txt">Tenk gjerne over: hvor mange KYC-kunder gjennomfører dere per år, og hvilket system bruker dere i dag? Det hjelper meg å gjøre møtet mest mulig relevant for dere.</div>
+</div>
+<div class="meet-cta-w">
+<div class="meet-cta">Åpne møtelenke (Google Meet) →</div>
+<div class="meet-ph">Eller ring meg direkte: +47 XXX XX XXX</div>
+</div>
+<div class="meet-sig">Dennis Sebastian Nystedt · Stø AS · Biskop Gunnerus' gate 14 · 0185 Oslo<br>Avlys møtet · Endre tidspunkt · Personvern</div>
+</div></div>`;
+}
+
+function render_art(d){
+  if(!d.art){
+    document.getElementById('p-art').innerHTML='<div class="artpane"><div style="background:var(--cream2);border:1px solid var(--border);border-radius:5px;padding:18px;font-size:13px;color:var(--stone);line-height:1.75">Ikke knyttet til en spesifikk artikkel. M\u00f8tebekreftelse og salgs-e-post er basert p\u00e5 prospektets score og atferd.</div></div>';
+    return;
+  }
+  const a=d.art;
+  const seg_col={r:'cs-r',b:'cs-b',v:'cs-v'}[d.ch==='ann'||d.ch==='lp'||d.ch==='em'||d.ch==='sal'?'r':'r'];
+  const segs=d.segs||[];
+  const segKey=segs[0]&&segs[0].includes('Regnskap')?'r':segs[0]&&segs[0].includes('Bank')?'b':'v';
+  const segColMap={r:'cs-r',b:'cs-b',v:'cs-v'};
+  const bodyPs=a.body.split('\n\n').map(function(p){return '<p>'+p+'</p>';}).join('');
+  const conItems=Object.entries(a.con).map(([k,v])=>{
+    const labels={ann:'Annonse',lp:'Landingsside',em:'E-post'};
+    return `<div class="art-con-item"><div class="art-con-item-l">${labels[k]||k}</div><div class="art-con-item-v">${v}</div></div>`;
+  }).join('');
+  return `<div class="artpane">
+<span class="art-seg ${segColMap[segKey]}">Art. ${a.nr} · ${a.seg}</span>
+<div class="art-h">${a.h}</div>
+<div class="art-ingress">${a.ingress}</div>
+<div class="art-seg-intro">
+<div class="art-seg-intro-lbl">Segment-intro (skreddersydd)</div>
+<div class="art-seg-intro-txt">${a.seg_intro}</div>
+</div>
+<div class="art-body">${bodyPs}</div>
+<div class="art-cta-wrap">
+<div class="art-cta-txt">Call-to-action</div>
+<div class="art-cta-btn">${a.cta}</div>
+</div>
+<div class="art-consistency">
+<div class="art-con-lbl">Konsistens gjennom funnelen</div>
+<div class="art-con-grid">${conItems}</div>
+</div>
+</div>`;
+}
+
+// ── OPEN / CLOSE / TABS ──────────────────────────────────────────────────
+let cur=null;
+function O(id){
+  cur=id;const d=D[id];if(!d)return;
+  const segtags=(d.segs||[]).map(function(s){return '<span style="background:#F3EFE8;border:1px solid #E0D8CC;border-radius:2px;padding:2px 6px;font-size:8px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#5A6B52">'+s+'</span>';}).join(' ');
+  const metaHtml=d.meta?'<div class="imeta">'+d.meta.map(m=>'<div class="imet"><div class="imet-l">'+m[0]+'</div><div class="imet-v">'+m[1]+'</div></div>').join('')+'</div>':'';
+  document.getElementById('p-info').innerHTML=`
+<span class="ibadge" style="background:${d.badgeBg};color:${d.badgeCol}">${d.badge}</span>
+<div class="ititle">${d.badge}</div>
+<div class="ingress">${d.ingress}</div>
+<div class="isec-lbl" style="margin-bottom:8px">Segmenter</div>
+<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:16px">${segtags}</div>
+${metaHtml}`;
+  document.getElementById('p-art').innerHTML=render_art(d);
+  let prev='';
+  if(d.prevType==='google') prev=render_google(d);
+  else if(d.prevType==='li') prev=render_li(d);
+  else if(d.prevType==='lp') prev=render_lp(d);
+  else if(d.prevType==='email1') prev=render_email1(d);
+  else if(d.prevType==='email2') prev=render_email2(d);
+  else if(d.prevType==='sales') prev=render_sales(d);
+  else if(d.prevType==='meeting') prev=render_meeting();
+  document.getElementById('p-prev').innerHTML=prev;
+  ST('info');
+  document.getElementById('ovl').classList.add('open');
+}
+function CD(){document.getElementById('ovl').classList.remove('open')}
+function CB(e){if(e.target===document.getElementById('ovl'))CD()}
+function ST(t){
+  ['info','art','prev'].forEach(n=>{
+    document.getElementById('t-'+n).classList.toggle('on',n===t);
+    document.getElementById('p-'+n).style.display=n===t?'block':'none';
+  });
+}
+
+// ── FILTRE ───────────────────────────────────────────────────────────────
+let aS='all',hC=new Set();
+function fSeg(s,b){
+  aS=s;
+  document.querySelectorAll('.sb').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');applyF();
+}
+function fCh(c,b){
+  if(hC.has(c)){hC.delete(c);b.classList.add('on')}else{hC.add(c);b.classList.remove('on')}
+  applyF();
+}
+function applyF(){
+  document.querySelectorAll('.card').forEach(card=>{
+    const ch=card.dataset.ch;
+    const segs=(card.dataset.seg||'').split(',');
+    let show=!hC.has(ch);
+    if(aS!=='all'&&!segs.includes(aS))show=false;
+    card.classList.toggle('hidden',!show);
+  });
+}
+</script>
+</body>
+</html>

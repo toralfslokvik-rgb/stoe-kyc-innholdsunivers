@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stø — Redaksjonskalender · KYC Flow</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:#F3EFE8;color:#1A1A18;-webkit-font-smoothing:antialiased;font-size:14px}
+:root{--g:#1C3D1C;--g2:#2A4E2A;--a:#7FE832;--dark:#1A1A18;--cream:#F3EFE8;--cream2:#FAF0E6;--w:#fff;--border:#E0D8CC;--muted:#7A7A72;--stone:#5A6B52}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:300;height:50px;background:var(--dark);border-bottom:1px solid rgba(127,232,50,.1);display:flex;align-items:center;padding:0 18px;gap:12px}
+.nav-logo{font-size:18px;font-weight:800;color:#fff;letter-spacing:-.02em;flex-shrink:0}
+.nav-logo span{color:var(--a)}
+.nav-sep{width:1px;height:16px;background:rgba(255,255,255,.1)}
+.nav-sub{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3);white-space:nowrap}
+.nav-r{display:flex;align-items:center;gap:5px;margin-left:auto;flex-wrap:wrap}
+.sb{font-size:9px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:5px 10px;border-radius:3px;border:1px solid rgba(255,255,255,.12);background:transparent;color:rgba(255,255,255,.4);cursor:pointer;transition:all .15s;white-space:nowrap}
+.sb:hover{color:rgba(255,255,255,.8)}
+.sb.on{color:#fff;background:rgba(127,232,50,.15);border-color:rgba(127,232,50,.3)}
+.nd{width:1px;height:18px;background:rgba(255,255,255,.08)}
+.cb{font-size:9px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:5px 10px;border-radius:3px;border:1px solid rgba(255,255,255,.1);background:transparent;color:rgba(255,255,255,.3);cursor:pointer;transition:all .15s;white-space:nowrap}
+.cb:hover{color:rgba(255,255,255,.7)}
+.cb.on{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2);color:#fff}
+
+/* MAIN */
+.main{margin-top:50px;padding:20px;overflow:auto}
+
+/* WEEK GRID */
+.week-nav{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.wk-btn{background:var(--w);border:1px solid var(--border);border-radius:4px;padding:6px 12px;font-size:11px;font-weight:600;color:var(--stone);cursor:pointer;transition:all .12s}
+.wk-btn:hover{background:var(--g);color:#fff;border-color:var(--g)}
+.wk-label{font-size:13px;font-weight:700;color:var(--dark);flex:1;text-align:center}
+.wk-count{font-size:10px;color:var(--muted);background:var(--cream2);border:1px solid var(--border);border-radius:10px;padding:2px 8px}
+
+.grid{display:grid;grid-template-columns:80px repeat(5,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.gh{background:var(--dark);padding:10px 12px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.5);text-align:center}
+.gh.day{color:rgba(255,255,255,.7)}
+.time-col{background:var(--cream2);padding:8px 10px;font-size:9px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;text-align:center;border-right:1px solid var(--border)}
+.cell{background:#fff;padding:6px;min-height:80px;display:flex;flex-direction:column;gap:4px}
+.cell.empty{background:#FAFAF8}
+
+/* POST CARD */
+.pcard{border-radius:4px;padding:6px 8px;cursor:pointer;transition:transform .1s,box-shadow .1s;border:1px solid transparent;position:relative}
+.pcard:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.1)}
+.pcard.li{background:#EBF3FB;border-color:#C5DCF0}
+.pcard.nb{background:#F0EBF8;border-color:#D4C5F0}
+.pcard.hidden{display:none}
+.pc-ch{font-size:7px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px}
+.pcard.li .pc-ch{color:#0A66C2}
+.pcard.nb .pc-ch{color:#6B21A8}
+.pc-ttl{font-size:10px;font-weight:700;color:var(--dark);line-height:1.3;margin-bottom:2px}
+.pc-seg{font-size:7px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:1px 4px;border-radius:2px;display:inline-block}
+.pc-art{font-size:8px;color:var(--muted);margin-top:2px}
+
+/* STATS BAR */
+.stats{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.stat{background:var(--w);border:1px solid var(--border);border-radius:5px;padding:8px 14px;display:flex;align-items:center;gap:8px}
+.stat-n{font-size:22px;font-weight:800;color:var(--dark);letter-spacing:-.02em}
+.stat-l{font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.stat-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* OVERLAY */
+.ovl{display:none;position:fixed;inset:0;z-index:600;background:rgba(26,26,24,.55);backdrop-filter:blur(6px)}
+.ovl.open{display:block}
+.drw{position:absolute;top:0;right:0;bottom:0;width:min(580px,97vw);background:#fff;display:flex;flex-direction:column;box-shadow:-12px 0 60px rgba(0,0,0,.2)}
+.drw-hd{background:var(--g);padding:16px 20px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.drw-ch{font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--a);margin-bottom:4px}
+.drw-ttl{font-size:15px;font-weight:800;color:#fff;line-height:1.3;max-width:420px}
+.drw-x{background:none;border:none;color:rgba(255,255,255,.4);font-size:18px;cursor:pointer;padding:0;flex-shrink:0;transition:color .15s}
+.drw-x:hover{color:#fff}
+.drw-sc{overflow-y:auto;flex:1}
+.drw-sc::-webkit-scrollbar{width:3px}
+.drw-sc::-webkit-scrollbar-thumb{background:var(--border)}
+
+.dmeta{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:16px 20px;border-bottom:1px solid var(--border)}
+.dmet{background:var(--cream);border:1px solid var(--border);border-radius:4px;padding:8px 10px}
+.dmet-l{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.dmet-v{font-size:11px;color:var(--dark)}
+
+.dsec{padding:16px 20px;border-bottom:1px solid var(--border)}
+.dsec-lbl{font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--g);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.dsec-lbl::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* LinkedIn preview */
+.lip{background:#F3F2EF;padding:16px;border-radius:5px}
+.lip-hd{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.lip-av{width:36px;height:36px;border-radius:50%;background:var(--g);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--a);flex-shrink:0}
+.lip-name{font-size:12px;font-weight:700;color:#000}
+.lip-title{font-size:10px;color:#666}
+.lip-body{font-size:12px;color:#000;line-height:1.7;white-space:pre-line;margin-bottom:10px}
+.lip-link{background:#fff;border:1px solid #E0DFDC;border-radius:4px;overflow:hidden;margin-bottom:10px}
+.lip-link-img{height:80px;background:linear-gradient(135deg,var(--g),var(--g2));display:flex;align-items:center;justify-content:center}
+.lip-link-img-txt{font-size:11px;font-weight:700;color:var(--a);letter-spacing:.08em;text-transform:uppercase}
+.lip-link-body{padding:8px 12px}
+.lip-link-h{font-size:12px;font-weight:700;color:#000;margin-bottom:2px}
+.lip-link-d{font-size:10px;color:#666}
+.lip-react{display:flex;gap:16px;font-size:11px;color:#666;border-top:1px solid #E0DFDC;padding-top:8px}
+
+/* Newsletter preview */
+.nbp{background:#F5F0FA;padding:16px;border-radius:5px}
+.nbp-hd{background:var(--g);border-radius:4px 4px 0 0;padding:12px 16px;margin:-16px -16px 12px -16px}
+.nbp-logo{font-size:14px;font-weight:800;color:#fff;letter-spacing:-.02em}
+.nbp-logo span{color:var(--a)}
+.nbp-subj{font-size:11px;font-weight:700;color:#fff;margin-top:6px;opacity:.85}
+.nbp-pre{font-size:10px;color:rgba(255,255,255,.5);margin-top:2px}
+.nbp-body{font-size:12px;color:var(--dark);line-height:1.75;white-space:pre-line}
+.nbp-cta{display:inline-block;background:var(--g);color:#fff;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:9px 18px;border-radius:4px;margin-top:12px}
+.nbp-foot{margin-top:12px;font-size:9px;color:var(--muted);border-top:1px solid var(--border);padding-top:8px}
+
+/* Segment tag colors */
+.r{background:#EAF3DE;color:#2A4E2A}
+.b{background:#DEE9F3;color:#1A2A4E}
+.v{background:#F3EAD2;color:#3A2A1A}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-logo">Stø<span>.</span></div>
+  <div class="nav-sep"></div>
+  <div class="nav-sub">Redaksjonskalender · KYC Flow</div>
+  <div class="nav-r">
+    <button class="sb on" onclick="fSeg('all',this)">Alle</button>
+    <button class="sb" onclick="fSeg('r',this)">Regnskap</button>
+    <button class="sb" onclick="fSeg('b',this)">Bank</button>
+    <button class="sb" onclick="fSeg('v',this)">Verdipapir</button>
+    <div class="nd"></div>
+    <button class="cb on" onclick="fCh('li',this)">LinkedIn</button>
+    <button class="cb on" onclick="fCh('nb',this)">Nyhetsbrev</button>
+  </div>
+</nav>
+
+<div class="main">
+
+<div class="stats">
+  <div class="stat"><div class="stat-dot" style="background:#0A66C2"></div><div><div class="stat-n" id="li-count">—</div><div class="stat-l">LinkedIn-poster</div></div></div>
+  <div class="stat"><div class="stat-dot" style="background:#6B21A8"></div><div><div class="stat-n" id="nb-count">—</div><div class="stat-l">Nyhetsbrev</div></div></div>
+  <div class="stat"><div><div class="stat-n">10</div><div class="stat-l">Artikler</div></div></div>
+  <div class="stat"><div><div class="stat-n">3</div><div class="stat-l">Segmenter (MVP)</div></div></div>
+  <div class="stat" style="margin-left:auto"><div><div class="stat-n" id="wk-total">—</div><div class="stat-l">Poster denne uken</div></div></div>
+</div>
+
+<div class="week-nav">
+  <button class="wk-btn" onclick="prevWk()">← Forrige uke</button>
+  <div class="wk-label" id="wk-label">Uke 19 — 5.–9. mai 2026</div>
+  <button class="wk-btn" onclick="nextWk()">Neste uke →</button>
+</div>
+
+<div class="grid" id="cal-grid">
+  <!-- built by JS -->
+</div>
+
+</div><!-- /main -->
+
+<!-- OVERLAY -->
+<div class="ovl" id="ovl" onclick="CB(event)">
+<div class="drw" id="drw">
+  <div class="drw-hd">
+    <div>
+      <div class="drw-ch" id="d-ch"></div>
+      <div class="drw-ttl" id="d-ttl"></div>
+    </div>
+    <button class="drw-x" onclick="CD()">✕</button>
+  </div>
+  <div style="background:#16321A;display:flex;border-bottom:1px solid rgba(127,232,50,.1)">
+    <div id="tab-post" onclick="swTab('post')" style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:11px 16px;cursor:pointer;border-bottom:2px solid #7FE832;color:#fff">Post</div>
+    <div id="tab-art" onclick="swTab('art')" style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:11px 16px;cursor:pointer;border-bottom:2px solid transparent;color:rgba(255,255,255,.35)">Artikkel</div>
+  </div>
+  <div class="drw-sc">
+    <div id="d-body"></div>
+    <div id="d-art" style="display:none"></div>
+  </div>
+</div>
+</div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────
+// 3 MVP segments × 10 articles × 5 posts each = 150 LinkedIn + 150 newsletter
+// We'll schedule them across 10 weeks, 2-3 posts per day
+
+const SEGS = {
+  r:{label:'Regnskap og revisjon',key:'r',cls:'r'},
+  b:{label:'Bank og finans',key:'b',cls:'b'},
+  v:{label:'Verdipapir',key:'v',cls:'v'}
+};
+
+const ARTS = {
+  1:{title:'Er du rapporteringspliktig bedrift? Dette må du vite om KYC'},
+  2:{title:'Slik sparer du tid på KYC – uten å gå på kompromiss med etterlevelsen'},
+  3:{title:'Derfor er automatisk overvåkning av kunder viktigere enn du tror'},
+  4:{title:'Hva skjer hvis du ikke overholder hvitvaskingsloven?'},
+  5:{title:'5 vanlige KYC-feil – og hvordan du enkelt unngår dem'},
+  6:{title:'KYC Flow: Komplett kundekontroll fra dag én – uten teknisk integrasjon'},
+  7:{title:'Hva er egentlig KYC – og hvorfor er det så viktig for din bedrift?'},
+  8:{title:'Slik dokumenterer du KYC-arbeidet ditt – og er klar til tilsyn'},
+  9:{title:'Er dine kunder på en sanksjonsliste? Slik holder du kontroll'},
+  10:{title:'Forstå risikovurdering i KYC – og gjør det riktig første gang'}
+};
+
+// LinkedIn posts — faktisk innhold fra Bjørns xlsx (utvalg, 1 per art per seg)
+const LI_POSTS = {
+  'r-1-1':{seg:'r',art:1,post:1,
+    overskrift:'Er du rapporteringspliktig – og vet du hva det faktisk krever?',
+    ingress:'Hvitvaskingsloven stiller like strenge krav til et regnskapsbyrå med 5 ansatte som til DNB.',
+    tekst:'Mange SMB-bedrifter tror KYC er noe «de store» driver med.\n\nMen hvitvaskingsloven gjelder alle rapporteringspliktige virksomheter – uansett størrelse.\n\nDet betyr: risikovurdering, kundetiltak, løpende overvåkning, intern kontroll og rapportering til Økokrim. Alt dokumentert. Alt etterprøvbart.\n\nKYC Flow fra Stø gjør dette enkelt – uten integrasjon, uten IT-avdeling, fra dag én.\n\n👉 Les artikkelen og finn ut hva du faktisk er pliktig til.',
+    seg_linje:'Som regnskapsfører eller revisor er dette relevant for deg'},
+  'r-1-2':{seg:'r',art:1,post:2,
+    overskrift:'Tilsyn fra Finanstilsynet? Er du klar?',
+    ingress:'De sjekker om du har gjort jobben. Har du?',
+    tekst:'Finanstilsynet intensiverer tilsynsarbeidet med AML og KYC.\n\nDe vanligste funnene er ikke avanserte. De er grunnleggende:\n— Manglende risikovurdering\n— Ufullstendig dokumentasjon\n— Ingen løpende overvåkning\n\nKYC Flow løser alle tre – automatisk.\n\n👉 Kom i gang fra kr 1 300/mnd.',
+    seg_linje:'Som regnskapsfører eller revisor er dette relevant for deg'},
+  'r-3-1':{seg:'r',art:3,post:1,
+    overskrift:'En kundekontroll er ikke nok. Her er hva loven faktisk krever.',
+    ingress:'Hvitvaskingsloven krever løpende overvåkning – ikke bare kontroll ved oppstart.',
+    tekst:'Mange bedrifter gjennomfører én grundig KYC-kontroll ved oppstart av kundeforholdet.\n\nOg stopper der.\n\nMen hvitvaskingsloven krever løpende overvåkning. En kunde som er lav-risiko i dag kan havne på en sanksjonsliste i morgen.\n\nKYC Flow varsler deg automatisk – uten at du trenger å gjøre noe.\n\n👉 Les artikkelen.',
+    seg_linje:'Som regnskapsfører eller revisor er dette relevant for deg'},
+  'r-3-2':{seg:'r',art:3,post:2,
+    overskrift:'Vet du om noen av kundene dine har endret risikoprofil den siste uken?',
+    ingress:'Sannsynligvis ikke – med mindre du har et system som overvåker det.',
+    tekst:'Kunder kan bli PEP. Eiere kan byttes. Selskapets struktur kan endres.\n\nUten løpende overvåkning oppdager du det ikke – og du er ansvarlig.\n\nKYC Flow overvåker automatisk alle dine kunder og varsler ved relevante endringer.\n\n👉 Aktiver automatisk overvåkning.',
+    seg_linje:'Som regnskapsfører eller revisor er dette relevant for deg'},
+  'r-5-1':{seg:'r',art:5,post:1,
+    overskrift:'KYC-tilsyn avdekker de samme feilene – igjen og igjen',
+    ingress:'Den gode nyheten: de er enkle å unngå med riktig system.',
+    tekst:'De fleste feilene som avdekkes i KYC-tilsyn er de samme, gang på gang:\n\n❌ Mangelfull risikovurdering\n❌ Utdatert kundeinformasjon\n❌ Manglende identitetskontroll\n❌ Ingen kontroll av reelle rettighetshavere\n❌ Dårlig dokumentasjon\n\nKYC Flow eliminerer alle fem – systematisk og automatisk.\n\n👉 Les artikkelen og finn ut hva du kan gjøre i dag.',
+    seg_linje:'Som regnskapsfører eller revisor er dette relevant for deg'},
+  'b-1-1':{seg:'b',art:1,post:1,
+    overskrift:'Er du rapporteringspliktig – og vet du hva det faktisk krever?',
+    ingress:'Hvitvaskingsloven stiller like strenge krav til en liten sparebank som til DNB.',
+    tekst:'Mange aktører i bank- og finanssektoren tror KYC er noe «de store» driver med.\n\nMen hvitvaskingsloven gjelder alle rapporteringspliktige virksomheter – uansett størrelse.\n\nDet betyr: risikovurdering, kundetiltak, løpende overvåkning, intern kontroll og rapportering til Økokrim. Alt dokumentert. Alt etterprøvbart.\n\nKYC Flow fra Stø gjør dette enkelt – uten integrasjon, uten IT-avdeling, fra dag én.\n\n👉 Les artikkelen og finn ut hva du faktisk er pliktig til.',
+    seg_linje:'Som aktør i bank- og finanssektoren er dette relevant for deg'},
+  'b-4-1':{seg:'b',art:4,post:1,
+    overskrift:'Hva skjer egentlig hvis Finanstilsynet banker på?',
+    ingress:'Konsekvensene av manglende KYC-etterlevelse er alvorligere enn de fleste tror.',
+    tekst:'Bøter. Pålegg. Tilbakekall av konsesjon.\n\nFinanstilsynet intensiverer tilsynsarbeidet – og de finner feil.\n\nDe vanligste? Manglende risikovurdering. Ingen løpende overvåkning. Dårlig dokumentasjon.\n\nAlt dette løser KYC Flow – systematisk og automatisk.\n\n👉 Les artikkelen og forstå konsekvensene.',
+    seg_linje:'Som aktør i bank- og finanssektoren er dette relevant for deg'},
+  'b-4-2':{seg:'b',art:4,post:2,
+    overskrift:'Manglende KYC-etterlevelse kan koste deg lisensen. Ta det på alvor.',
+    ingress:'Finanstilsynet har intensivert tilsynsarbeidet. Konsekvensene er reelle.',
+    tekst:'De siste årene har Finanstilsynet økt antall tilsyn med AML og KYC betraktelig.\n\nOg funnene er ofte de samme: mangler som er enkle å unngå – men som ingen har hatt et system for å håndtere.\n\nKYC Flow er systemet du trenger.\n\n👉 Kom i gang fra kr 3 900/mnd.',
+    seg_linje:'Som aktør i bank- og finanssektoren er dette relevant for deg'},
+  'b-9-1':{seg:'b',art:9,post:1,
+    overskrift:'Sanksjonslister oppdateres daglig. Er du sikker på at kundene dine er rene?',
+    ingress:'Sannsynligvis ikke – med mindre du har et system som overvåker det.',
+    tekst:'FN, EU og OFAC-listene oppdateres jevnlig.\n\nEn kunde som var sanksjonsfri ved oppstart av kundeforholdet kan havne på listen dagen etter.\n\nMange bedrifter gjennomfører sanksjonskontroll manuelt og sporadisk – og oppdager ikke endringer i tide.\n\nKYC Flow overvåker automatisk alle dine kunder og varsler umiddelbart ved treff. Ingen manuell sjekk nødvendig.\n\n👉 Aktiver automatisk sanksjonskontroll.',
+    seg_linje:'Som aktør i bank- og finanssektoren er dette relevant for deg'},
+  'v-1-1':{seg:'v',art:1,post:1,
+    overskrift:'Er du rapporteringspliktig – og vet du hva det faktisk krever?',
+    ingress:'Verdipapirforetak er blant de mest eksponerte under hvitvaskingsloven.',
+    tekst:'Verdipapirforetak, forvaltningsselskaper og investeringsrådgivere er underlagt hvitvaskingsloven med særlig strenge krav.\n\nDet betyr: risikovurdering, kundetiltak, løpende overvåkning, intern kontroll og rapportering til Økokrim. Alt dokumentert. Alt etterprøvbart.\n\nKYC Flow fra Stø gjør dette enkelt – uten integrasjon, uten IT-avdeling, fra dag én.\n\n👉 Les artikkelen og finn ut hva du faktisk er pliktig til.',
+    seg_linje:'Som verdipapirforetak er dette relevant for deg'},
+  'v-6-1':{seg:'v',art:6,post:1,
+    overskrift:'KYC-system uten implementeringsprosjekt? Ja, det finnes.',
+    ingress:'KYC Flow er designet for verdipapirforetak uten IT-avdeling.',
+    tekst:'En av de største barrierene for å ta i bruk et KYC-system er implementeringskompleksiteten.\n\nKYC Flow løser dette:\n✅ Ingen utvikling\n✅ Ingen integrasjon\n✅ Ingen langvarig onboarding\n\nDu velger pakke, betaler i portalen og er i gang samme dag.\n\nBygget av folka bak BankID og BankAxept.\n\n👉 Les mer og kom i gang.',
+    seg_linje:'Som verdipapirforetak er dette relevant for deg'},
+  'v-10-1':{seg:'v',art:10,post:1,
+    overskrift:'Gjør risikovurdering riktig – første gang',
+    ingress:'Mange verdipapirforetak gjennomfører risikovurdering feil – eller ikke i det hele tatt.',
+    tekst:'Hvitvaskingsloven krever at du vurderer risikoen ved hvert enkelt kundeforhold.\n\nRisikovurderingen skal baseres på:\n• Kundens bransje og forretningsmodell\n• Geografi (land med høy korrupsjonsrisiko)\n• Om kunden er politisk eksponert (PEP)\n• Eierstruktur og reelle rettighetshavere\n• Type transaksjon og transaksjonsvolum\n\nMed KYC Flow gjennomfører du dette på under 10 minutter per kunde.\n\n👉 Les artikkelen og gjør det riktig.',
+    seg_linje:'Som verdipapirforetak er dette relevant for deg'}
+};
+
+// Newsletter posts — faktisk innhold fra Bjørns xlsx
+const NB_POSTS = {
+  'r-1-nb':{seg:'r',art:1,
+    emne:'Er du rapporteringspliktig? Her er det du faktisk trenger å vite',
+    preheader:'Mange norske bedrifter er usikre på hva hvitvaskingsloven krever av dem.',
+    intro:'Hvitvaskingsloven stiller strenge krav til en rekke norske virksomheter – uavhengig av størrelse. Som regnskapsfører eller revisor er du blant de mest eksponerte. Her er det du faktisk trenger å vite.',
+    brodtekst:'Hvitvaskingsloven pålegger deg å gjennomføre risikovurdering, kundetiltak (KYC), løpende overvåkning, intern kontroll og rapportering til Økokrim. Alt skal dokumenteres og kan etterprøves av Finanstilsynet.\n\nFor mange regnskapsbyråer er dette krevende å håndtere uten dedikerte ressurser eller systemer. KYC Flow fra Stø gjør dette arbeidet enkelt: du bestiller selv i portalen, og kan starte kundekontroll samme dag – uten utvikling eller integrasjon.',
+    cta:'Les artikkelen: Er du rapporteringspliktig?'},
+  'r-3-nb':{seg:'r',art:3,
+    emne:'Én kundekontroll er ikke nok. Her er hva loven faktisk krever.',
+    preheader:'Løpende overvåkning er et av de mest oversette kravene i hvitvaskingsloven.',
+    intro:'Mange regnskapsbyråer gjennomfører én grundig kontroll ved oppstart av kundeforholdet – og stopper der. Men det er ikke nok.',
+    brodtekst:'Hvitvaskingsloven krever løpende overvåkning. En kunde som i dag er lav-risiko kan bli PEP, havne på en sanksjonsliste eller endre eierstruktur. Uten løpende overvåkning oppdager du det ikke.\n\nKYC Flow overvåker automatisk alle dine kunder mot norske og internasjonale PEP-lister, sanksjonslister og Nordiske registre. Du varsles umiddelbart ved relevante endringer – og alt dokumenteres automatisk i systemet.',
+    cta:'Aktiver automatisk overvåkning med KYC Flow'},
+  'r-5-nb':{seg:'r',art:5,
+    emne:'5 KYC-feil som avdekkes igjen og igjen i tilsyn – unngå dem alle',
+    preheader:'De vanligste feilene er enkle å unngå med riktig system.',
+    intro:'De fleste feilene som avdekkes i KYC-tilsyn er de samme, gang på gang. Her er de fem vanligste – og hva du konkret kan gjøre for å unngå dem.',
+    brodtekst:'1. Mangelfull risikovurdering\n2. Utdatert kundeinformasjon\n3. Manglende identitetskontroll\n4. Ingen kontroll av reelle rettighetshavere\n5. Dårlig dokumentasjon\n\nKYC Flow eliminerer alle fem – uten at du trenger å endre arbeidsflyten fundamentalt.',
+    cta:'Les: 5 vanlige KYC-feil og hvordan du unngår dem'},
+  'b-4-nb':{seg:'b',art:4,
+    emne:'Hva skjer hvis du ikke overholder hvitvaskingsloven?',
+    preheader:'Finanstilsynet intensiverer tilsynsarbeidet. Konsekvensene er reelle.',
+    intro:'Manglende etterlevelse av hvitvaskingsloven kan få alvorlige konsekvenser – fra bøter og pålegg til tap av tillatelse.',
+    brodtekst:'Finanstilsynet har de siste årene intensivert tilsynsarbeidet med AML og KYC. Brudd kan medføre overtredelsesgebyr, pålegg om retting og i alvorlige tilfeller tilbakekall av konsesjon eller autorisasjon.\n\nDe vanligste feilene tilsynet avdekker er: manglende risikovurdering, ufullstendig dokumentasjon av kundetiltak og manglende rutiner for løpende overvåkning.\n\nKYC Flow sikrer at du alltid har oppdatert dokumentasjon og at alle kundeforhold er løpende overvåket.',
+    cta:'Sikre etterlevelsen med KYC Flow – fra kr 3 900/mnd'},
+  'b-9-nb':{seg:'b',art:9,
+    emne:'Er dine kunder på en sanksjonsliste? Slik holder du kontroll',
+    preheader:'FN, EU og OFAC-listene oppdateres kontinuerlig. Det er ditt ansvar å holde oversikten.',
+    intro:'Sanksjonskontroll er et lovkrav – og en praktisk utfordring for compliance-team i bank.',
+    brodtekst:'Internasjonale sanksjonslister som FN, EU og OFAC oppdateres jevnlig. En kunde som var sanksjonsfri ved oppstart av kundeforholdet kan havne på listen dagen etter.\n\nKYC Flow overvåker automatisk alle dine kunder og kontaktpersoner mot internasjonale PEP-lister og sanksjonslister – og varsler deg umiddelbart ved treff. Ingen manuell sjekk nødvendig.',
+    cta:'Aktiver automatisk sanksjonskontroll med KYC Flow'},
+  'v-6-nb':{seg:'v',art:6,
+    emne:'KYC Flow: Komplett kundekontroll fra dag én – uten teknisk integrasjon',
+    preheader:'Ingen utvikling. Ingen integrasjon. Du er i gang samme dag.',
+    intro:'For verdipapirforetak uten IT-avdeling kan implementeringskompleksiteten føles uoverkommelig. KYC Flow er designet for å løse akkurat dette.',
+    brodtekst:'Du velger pakke, betaler i portalen og får umiddelbart tilgang via en unik påloggingslenke.\n\nFra det øyeblikket har du tilgang til overvåkning mot PEP- og sanksjonslister, data fra nordiske registre, KYC-skjemaer med BankID-signatur, automatisk dokumentasjon og risikovurdering og eierkart.\n\nKYC Flow er bygget av folka bak BankID og BankAxept.',
+    cta:'Bestill KYC Flow og vær i gang i dag'},
+  'v-10-nb':{seg:'v',art:10,
+    emne:'Forstå risikovurdering i KYC – og gjør det riktig første gang',
+    preheader:'Mange verdipapirforetak gjennomfører risikovurdering feil. Slik gjør du det riktig.',
+    intro:'Risikovurdering er et av kjerneelementene i hvitvaskingsloven – og et av de mest oversette for verdipapirforetak.',
+    brodtekst:'Hvitvaskingsloven krever at du vurderer risikoen ved hvert enkelt kundeforhold basert på kundens bransje, geografi, PEP-status, eierstruktur og transaksjonsvolum.\n\nKYC Flow gir deg en strukturert og systemstøttet risikovurderingsprosess med sjekklister og risikoindikatorer. Du gjennomfører risikovurdering på under 10 minutter per kunde – og alt dokumenteres automatisk.',
+    cta:'Gjør risikovurdering riktig med KYC Flow – fra kr 2 900/mnd'}
+};
+
+// ── SCHEDULE ─────────────────────────────────────────────────────────────
+// Map posts to week/day slots
+// Start week: 19 (May 5, 2026)
+// 10 weeks, Mon-Fri, 2-3 posts per day spread across channels and segments
+
+const SCHEDULE = [
+  // Week 19: Art 1 — Regnskap + Bank (oppstartsuke)
+  {wk:19,day:1,ch:'li',id:'r-1-1',art:1,seg:'r'},
+  {wk:19,day:1,ch:'nb',id:'r-1-nb',art:1,seg:'r'},
+  {wk:19,day:2,ch:'li',id:'b-1-1',art:1,seg:'b'},
+  {wk:19,day:3,ch:'li',id:'v-1-1',art:1,seg:'v'},
+  {wk:19,day:4,ch:'li',id:'r-1-2',art:1,seg:'r'},
+  {wk:19,day:5,ch:'nb',id:'b-4-nb',art:4,seg:'b'},
+
+  // Week 20: Art 3 — Løpende overvåkning
+  {wk:20,day:1,ch:'li',id:'r-3-1',art:3,seg:'r'},
+  {wk:20,day:1,ch:'nb',id:'r-3-nb',art:3,seg:'r'},
+  {wk:20,day:2,ch:'li',id:'r-3-2',art:3,seg:'r'},
+  {wk:20,day:3,ch:'li',id:'b-4-1',art:4,seg:'b'},
+  {wk:20,day:4,ch:'nb',id:'v-6-nb',art:6,seg:'v'},
+  {wk:20,day:5,ch:'li',id:'b-4-2',art:4,seg:'b'},
+
+  // Week 21: Art 5 — 5 vanlige feil
+  {wk:21,day:1,ch:'li',id:'r-5-1',art:5,seg:'r'},
+  {wk:21,day:2,ch:'nb',id:'r-5-nb',art:5,seg:'r'},
+  {wk:21,day:3,ch:'li',id:'b-9-1',art:9,seg:'b'},
+  {wk:21,day:3,ch:'nb',id:'b-9-nb',art:9,seg:'b'},
+  {wk:21,day:4,ch:'li',id:'v-6-1',art:6,seg:'v'},
+  {wk:21,day:5,ch:'li',id:'v-10-1',art:10,seg:'v'},
+
+  // Week 22: Art 9 + 10 (sanksjon + risikovurdering)
+  {wk:22,day:1,ch:'nb',id:'v-10-nb',art:10,seg:'v'},
+  {wk:22,day:2,ch:'li',id:'b-9-1',art:9,seg:'b'},
+  {wk:22,day:3,ch:'li',id:'r-1-1',art:1,seg:'r'},
+  {wk:22,day:4,ch:'nb',id:'r-3-nb',art:3,seg:'r'},
+  {wk:22,day:5,ch:'li',id:'v-1-1',art:1,seg:'v'},
+];
+
+// ── RENDER ─────────────────────────────────────────────────────────────
+let currentWk = 19;
+let activeSeg = 'all';
+let hiddenChs = new Set();
+
+const DAYS = ['Man','Tir','Ons','Tor','Fre'];
+const WK_DATES = {
+  19:'5.–9. mai 2026',
+  20:'12.–16. mai 2026',
+  21:'19.–23. mai 2026',
+  22:'26.–30. mai 2026',
+  23:'2.–6. juni 2026'
+};
+const ROWS = [
+  {label:'Morgen\n08:00', time:'08'},
+  {label:'Middag\n12:00', time:'12'},
+  {label:'Ettermiddag\n16:00', time:'16'}
+];
+
+function buildGrid(){
+  const grid = document.getElementById('cal-grid');
+  const wkPosts = SCHEDULE.filter(p=>p.wk===currentWk);
+
+  // Update label
+  document.getElementById('wk-label').textContent =
+    'Uke '+currentWk+' — '+(WK_DATES[currentWk]||'');
+
+  // Assign posts to time slots (morning/midday/afternoon)
+  const slots = {};
+  const dayPosts = {1:[],2:[],3:[],4:[],5:[]};
+  wkPosts.forEach(p=>dayPosts[p.day].push(p));
+
+  // Spread per day across rows
+  const grid_data = {}; // row -> day -> [posts]
+  for(let d=1;d<=5;d++){
+    const dps = dayPosts[d];
+    dps.forEach((p,i)=>{
+      const row = i % 3;
+      if(!grid_data[row]) grid_data[row]={};
+      if(!grid_data[row][d]) grid_data[row][d]=[];
+      grid_data[row][d].push(p);
+    });
+  }
+
+  // Build HTML
+  let html = '';
+  // Header row
+  html += '<div class="gh">Tid</div>';
+  DAYS.forEach(d=>{ html += '<div class="gh day">'+d+'</div>'; });
+
+  // Data rows
+  ROWS.forEach((row,ri)=>{
+    html += '<div class="time-col">'+row.label.replace('\n','<br>')+'</div>';
+    for(let d=1;d<=5;d++){
+      const posts = (grid_data[ri]&&grid_data[ri][d])||[];
+      const visiblePosts = posts.filter(p=>!isHidden(p));
+      html += '<div class="cell'+(posts.length===0?' empty':'')+'">'+
+        posts.map(p=>renderCard(p)).join('')+
+        '</div>';
+    }
+  });
+
+  grid.innerHTML = html;
+
+  // Update counts
+  const allWkPosts = SCHEDULE.filter(p=>p.wk===currentWk);
+  const visible = allWkPosts.filter(p=>!isHidden(p));
+  document.getElementById('wk-total').textContent = visible.length;
+
+  // Global counts
+  const liTotal = SCHEDULE.filter(p=>p.ch==='li').length;
+  const nbTotal = SCHEDULE.filter(p=>p.ch==='nb').length;
+  document.getElementById('li-count').textContent = liTotal * 5; // full dataset
+  document.getElementById('nb-count').textContent = nbTotal * 5;
+}
+
+function isHidden(p){
+  if(hiddenChs.has(p.ch)) return true;
+  if(activeSeg!=='all' && p.seg!==activeSeg) return true;
+  return false;
+}
+
+function renderCard(p){
+  const seg = SEGS[p.seg];
+  const art = ARTS[p.art];
+  const data = p.ch==='li'? LI_POSTS[p.id] : NB_POSTS[p.id];
+  const ttl = data ? data.overskrift||data.emne : art.title;
+  const hidden = isHidden(p) ? ' hidden' : '';
+  return '<div class="pcard '+p.ch+hidden+'" onclick="openPost(\''+p.id+'\',\''+p.ch+'\')">'+
+    '<div class="pc-ch">'+(p.ch==='li'?'LinkedIn':'Nyhetsbrev')+'</div>'+
+    '<div class="pc-ttl">'+ttl+'</div>'+
+    '<span class="pc-seg '+seg.cls+'">'+seg.label.split(' ')[0]+'</span>'+
+    '<div class="pc-art">Art. '+p.art+'</div>'+
+    '</div>';
+}
+
+function openPost(id, ch){
+  const data = ch==='li' ? LI_POSTS[id] : NB_POSTS[id];
+  if(!data) return;
+  const post = SCHEDULE.find(p=>p.id===id);
+  const seg = post ? SEGS[post.seg] : null;
+  const art = post ? ARTS[post.art] : null;
+
+  document.getElementById('d-ch').textContent = (ch==='li'?'LinkedIn-post':'Nyhetsbrev') + (art?' · Art. '+post.art:'');
+  document.getElementById('d-ttl').textContent = data.overskrift||data.emne;
+
+  let body = '';
+  // Meta
+  body += '<div class="dmeta">';
+  body += '<div class="dmet"><div class="dmet-l">Segment</div><div class="dmet-v">'+(seg?seg.label:'—')+'</div></div>';
+  body += '<div class="dmet"><div class="dmet-l">Artikkel</div><div class="dmet-v">'+(art?'Art. '+post.art+': '+art.title:'—')+'</div></div>';
+  body += '<div class="dmet"><div class="dmet-l">Uke</div><div class="dmet-v">'+(post?'Uke '+post.wk+', dag '+post.day:'—')+'</div></div>';
+  body += '<div class="dmet"><div class="dmet-l">Kanal</div><div class="dmet-v">'+(ch==='li'?'LinkedIn Sponsored + organisk':'E-post nyhetsbrev')+'</div></div>';
+  body += '</div>';
+
+  if(ch==='li'){
+    body += '<div class="dsec"><div class="dsec-lbl">LinkedIn-forhåndsvisning</div>';
+    body += '<div class="lip">';
+    body += '<div class="lip-hd"><div class="lip-av">S</div><div><div class="lip-name">Stø AS</div><div class="lip-title">Tillitstjenester · BankID · KYC · Betaling</div></div></div>';
+    body += '<div class="lip-body">'+data.seg_linje+':\n\n'+data.tekst+'</div>';
+    body += '<div class="lip-link"><div class="lip-link-img"><div class="lip-link-img-txt">stoe.no · KYC Flow</div></div>';
+    body += '<div class="lip-link-body"><div class="lip-link-h">'+data.overskrift+'</div><div class="lip-link-d">'+data.ingress+'</div></div></div>';
+    body += '<div class="lip-react">👍 Liker &nbsp; 💬 Kommenter &nbsp; ↗ Del</div>';
+    body += '</div></div>';
+  } else {
+    body += '<div class="dsec"><div class="dsec-lbl">Nyhetsbrev-forhåndsvisning</div>';
+    body += '<div class="nbp">';
+    body += '<div class="nbp-hd"><div class="nbp-logo">Stø<span>.</span></div>';
+    body += '<div class="nbp-subj">'+data.emne+'</div>';
+    body += '<div class="nbp-pre">'+data.preheader+'</div></div>';
+    body += '<div style="height:80px;background:url(\'https://stoe.no/images/8gh06hji/production/728beab2d394a51a1a1d0edf520696e9c742f65c-2000x1080.png?w=520&fm=webp&q=85&fit=crop\') center/cover;margin:-0 0 12px 0;border-radius:0;opacity:.7"></div>';
+    body += '<p class="nbp-body"><strong>'+data.intro+'</strong></p>';
+    body += '<div class="nbp-body" style="margin-top:10px">'+data.brodtekst+'</div>';
+    body += '<div class="nbp-cta">'+data.cta+' →</div>';
+    body += '<div class="nbp-foot">Stø AS · Biskop Gunnerus\' gate 14 · 0185 Oslo · Meld deg av · Personvern</div>';
+    body += '</div></div>';
+  }
+
+  // Article connection
+  if(art){
+    body += '<div class="dsec" style="padding-bottom:20px"><div class="dsec-lbl">Kobling til artikkel</div>';
+    body += '<div style="background:var(--cream2);border:1px solid var(--border);border-radius:5px;padding:12px 14px">';
+    body += '<div style="font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Art. '+post.art+' — '+SEGS[post.seg].label+'</div>';
+    body += '<div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:6px">'+art.title+'</div>';
+    body += '<div style="font-size:11px;color:var(--stone)">Denne posten lenker til artikkelen og driver trafikk inn i leadsfunnelen. Pardot sporer klikk og gir +10 pts ved klikk fra e-post, +5 pts fra LinkedIn.</div>';
+    body += '</div></div>';
+  }
+
+  document.getElementById('d-body').innerHTML = body;
+  // Populate article pane
+  var artKey = post ? post.seg : null;
+  var artNr = post ? post.art : null;
+  document.getElementById('d-art').innerHTML = (artKey && artNr) ? renderArticle(artKey, artNr) : '<div style="padding:20px;color:var(--muted)">Ingen artikkel tilknyttet.</div>';
+  swTab('post');
+  document.getElementById('ovl').classList.add('open');
+}
+
+function prevWk(){ if(currentWk>19) currentWk--; 
+// ── FULL ARTICLE CONTENT from Bjørn's xlsx ───────────────────────────────
+const ART_CONTENT = {
+  'r-1':{seg:'Regnskap og revisjon',nr:1,
+    h:'Er du rapporteringspliktig bedrift? Dette må du vite om KYC',
+    ingress:'Som regnskapsfører eller revisor er du underlagt hvitvaskingsloven – hvitvaskingsloven stiller strenge krav til en rekke norske virksomheter – uavhengig av størrelse. Mange SMB-bedrifter er usikre på hva de faktisk er pliktige til å gjøre. Her får du en klar oversikt.',
+    seg_intro:'Regnskapsførere og revisorer er blant de mest utsatte yrkesgruppene i hvitvaskingslovens øyne. Du har jevnlig kontakt med klientenes økonomi og er rapporteringspliktig ved mistenkelige forhold. For mange regnskapsbyråer er KYC-arbeid en ekstrabelastning som havner i fanget på én person – uten system, uten struktur, og med stor risiko for mangler.',
+    body:'Hvitvaskingsloven pålegger rapporteringspliktige virksomheter å gjennomføre risikovurdering, kundetiltak (KYC), løpende overvåkning, intern kontroll og rapportering til Økokrim. Alt skal dokumenteres og kan etterprøves av Finanstilsynet.\n\nFor mange regnskapsbyråer er dette krevende å håndtere uten dedikerte ressurser eller systemer. KYC Flow fra Stø gjør dette arbeidet enkelt: du bestiller selv i portalen, og kan starte kundekontroll samme dag – uten utvikling eller integrasjon.\n\nMed KYC Flow får du overvåkning av kunder mot PEP- og sanksjonslister, automatisk dokumentasjon, risikovurdering, eierkart og KYC-skjemaer signert med BankID. Alt samlet på ett sted.',
+    cta:'Kom i gang med KYC Flow – fra kr 1 300/mnd'},
+  'r-3':{seg:'Regnskap og revisjon',nr:3,
+    h:'Derfor er automatisk overvåkning av kunder viktigere enn du tror',
+    ingress:'Som regnskapsfører eller revisor er du underlagt hvitvaskingsloven – det holder ikke å gjøre én kundekontroll ved oppstart av kundeforholdet. Hvitvaskingsloven krever løpende overvåkning. Her er hva det betyr i praksis – og hvordan du gjør det enkelt.',
+    seg_intro:'Regnskapsførere og revisorer er blant de mest utsatte yrkesgruppene i hvitvaskingslovens øyne. Du har jevnlig kontakt med klientenes økonomi og er rapporteringspliktig ved mistenkelige forhold. For mange regnskapsbyråer er KYC-arbeid en ekstrabelastning som havner i fanget på én person – uten system, uten struktur, og med stor risiko for mangler.',
+    body:'Løpende overvåkning er et av de mest oversette kravene i hvitvaskingsloven. Mange bedrifter gjennomfører én grundig kontroll ved etablering av kundeforholdet – men glemmer at kundenes risikoprofil kan endre seg over tid.\n\nEn kunde som i dag er lav-risiko kan bli PEP, havne på en sanksjonsliste eller endre eierstruktur. Uten løpende overvåkning oppdager du det ikke.\n\nKYC Flow overvåker automatisk alle dine kunder mot norske og internasjonale PEP-lister, sanksjonslister og Nordiske registre. Du varsles umiddelbart ved relevante endringer – og alt dokumenteres automatisk i systemet.',
+    cta:'Aktiver automatisk overvåkning med KYC Flow'},
+  'r-5':{seg:'Regnskap og revisjon',nr:5,
+    h:'5 vanlige KYC-feil – og hvordan du enkelt unngår dem',
+    ingress:'Som regnskapsfører eller revisor er du underlagt hvitvaskingsloven – de fleste feilene som avdekkes i KYC-tilsyn er de samme, gang på gang. Her er de fem vanligste – og hva du konkret kan gjøre for å unngå dem.',
+    seg_intro:'Regnskapsførere og revisorer er blant de mest utsatte yrkesgruppene i hvitvaskingslovens øyne. Du har jevnlig kontakt med klientenes økonomi og er rapporteringspliktig ved mistenkelige forhold. For mange regnskapsbyråer er KYC-arbeid en ekstrabelastning som havner i fanget på én person – uten system, uten struktur, og med stor risiko for mangler.',
+    body:'1. MANGELFULL RISIKOVURDERING – Mange bedrifter mangler en strukturert risikovurdering per kunde. KYC Flow gir deg sjekklister og risikoindikatorer som sikrer at ingenting glipper.\n\n2. UTDATERT KUNDEINFORMASJON – Dokumentasjon som er innhentet ved oppstart, men aldri oppdatert. KYC Flow overvåker og varsler automatisk ved endringer.\n\n3. MANGLENDE IDENTITETSKONTROLL – Identifisering av kunden uten tilstrekkelig dokumentasjon. Med BankID-integrasjon er identitetskontrollen enkel og lovmessig.\n\n4. INGEN KONTROLL AV REELLE RETTIGHETSHAVERE – Eierstrukturen bak et selskap er ikke alltid åpenbar. Eierkartet i KYC Flow visualiserer eierskapsstrukturer grafisk.\n\n5. DÅRLIG DOKUMENTASJON – Spredte arkiver og manglende sporbarhet. KYC Flow arkiverer alt automatisk og gjør dataene tilgjengelige som PDF-rapporter.',
+    cta:'Unngå alle 5 feilene – prøv KYC Flow gratis'},
+  'b-1':{seg:'Bank og finans',nr:1,
+    h:'Er du rapporteringspliktig bedrift? Dette må du vite om KYC',
+    ingress:'Som aktør i bank- og finanssektoren er du underlagt hvitvaskingsloven – hvitvaskingsloven stiller strenge krav til en rekke norske virksomheter – uavhengig av størrelse. Mange SMB-bedrifter er usikre på hva de faktisk er pliktige til å gjøre. Her får du en klar oversikt.',
+    seg_intro:'For banker og finansinstitusjoner er KYC et kjernekrav – men kravene strekker seg langt ut over de store aktørene. Også mindre sparebanker, låneformidlere og andre finansforetak er fullt underlagt hvitvaskingsloven. Compliance-belastningen øker år for år, og ressursene er knappe.',
+    body:'Hvitvaskingsloven pålegger rapporteringspliktige virksomheter å gjennomføre risikovurdering, kundetiltak (KYC), løpende overvåkning, intern kontroll og rapportering til Økokrim. Alt skal dokumenteres og kan etterprøves av Finanstilsynet.\n\nFor mange finansforetak er dette krevende å håndtere uten dedikerte ressurser eller systemer. KYC Flow fra Stø gjør dette arbeidet enkelt: du bestiller selv i portalen, og kan starte kundekontroll samme dag – uten utvikling eller integrasjon.\n\nMed KYC Flow får du overvåkning av kunder mot PEP- og sanksjonslister, automatisk dokumentasjon, risikovurdering, eierkart og KYC-skjemaer signert med BankID. Alt samlet på ett sted.',
+    cta:'Kom i gang med KYC Flow – fra kr 1 300/mnd'},
+  'b-4':{seg:'Bank og finans',nr:4,
+    h:'Hva skjer hvis du ikke overholder hvitvaskingsloven?',
+    ingress:'Som aktør i bank- og finanssektoren er du underlagt hvitvaskingsloven – manglende etterlevelse kan få alvorlige konsekvenser – fra bøter og pålegg til tap av tillatelse. Slik unngår du å havne i faresonen.',
+    seg_intro:'For banker og finansinstitusjoner er KYC et kjernekrav – men kravene strekker seg langt ut over de store aktørene. Også mindre sparebanker, låneformidlere og andre finansforetak er fullt underlagt hvitvaskingsloven. Compliance-belastningen øker år for år, og ressursene er knappe.',
+    body:'Finanstilsynet har de siste årene intensivert tilsynsarbeidet med AML og KYC. Brudd på hvitvaskingsloven kan medføre overtredelsesgebyr, pålegg om retting og i alvorlige tilfeller tilbakekall av konsesjon eller autorisasjon.\n\nDe vanligste feilene tilsynet avdekker er: manglende risikovurdering, ufullstendig dokumentasjon av kundetiltak og manglende rutiner for løpende overvåkning.\n\nKYC Flow fra Stø er bygget for å hjelpe deg å unngå nettopp disse feilene. Systemet sikrer at du alltid har oppdatert dokumentasjon, at risikovurderinger gjennomføres systematisk og at alle kundeforhold er løpende overvåket. Alt er tilgjengelig som nedlastbare PDF-rapporter ved et eventuelt tilsyn.',
+    cta:'Sikre etterlevelsen med KYC Flow – fra kr 3 900/mnd'},
+  'b-9':{seg:'Bank og finans',nr:9,
+    h:'Er dine kunder på en sanksjonsliste? Slik holder du kontroll',
+    ingress:'Som aktør i bank- og finanssektoren er du underlagt hvitvaskingsloven – sanksjonskontroll er et lovkrav og en praktisk utfordring. Listene oppdateres kontinuerlig, og det er ditt ansvar å holde oversikten. Slik gjør du det enkelt.',
+    seg_intro:'For banker og finansinstitusjoner er KYC et kjernekrav – men kravene strekker seg langt ut over de store aktørene. Også mindre sparebanker, låneformidlere og andre finansforetak er fullt underlagt hvitvaskingsloven. Compliance-belastningen øker år for år, og ressursene er knappe.',
+    body:'Internasjonale sanksjonslister som FN, EU og OFAC oppdateres jevnlig. En kunde som var sanksjonsfri ved oppstart av kundeforholdet kan havne på listen dagen etter.\n\nMange SMB-bedrifter gjennomfører sanksjonskontroll manuelt og sporadisk – og oppdager ikke endringer i tide. Det er både ressurskrevende og risikabelt.\n\nKYC Flow overvåker automatisk alle dine kunder og kontaktpersoner mot internasjonale PEP-lister og sanksjonslister – og varsler deg umiddelbart ved treff. Ingen manuell sjekk nødvendig.\n\nDu slipper å bekymre deg for om listene er oppdaterte. Det er Støs ansvar – du fokuserer på virksomheten din.',
+    cta:'Aktiver automatisk sanksjonskontroll med KYC Flow'},
+  'v-1':{seg:'Verdipapir',nr:1,
+    h:'Er du rapporteringspliktig bedrift? Dette må du vite om KYC',
+    ingress:'Som verdipapirforetak er du underlagt hvitvaskingsloven – hvitvaskingsloven stiller strenge krav til en rekke norske virksomheter – uavhengig av størrelse. Mange SMB-bedrifter er usikre på hva de faktisk er pliktige til å gjøre. Her får du en klar oversikt.',
+    seg_intro:'Verdipapirforetak, forvaltningsselskaper og investeringsrådgivere er underlagt hvitvaskingsloven med særlig strenge krav. Bransjen er hardt regulert, og kravene til kundekontroll er blant de mest omfattende. Kravene til KYC i verdipapirmarkedet er komplekse, og mange mindre foretak mangler ressurser til å håndtere dem systematisk.',
+    body:'Hvitvaskingsloven pålegger rapporteringspliktige virksomheter å gjennomføre risikovurdering, kundetiltak (KYC), løpende overvåkning, intern kontroll og rapportering til Økokrim. Alt skal dokumenteres og kan etterprøves av Finanstilsynet.\n\nFor verdipapirforetak er dette krevende å håndtere uten dedikerte ressurser. KYC Flow fra Stø gjør dette arbeidet enkelt: du bestiller selv i portalen, og kan starte kundekontroll samme dag – uten utvikling eller integrasjon.\n\nMed KYC Flow får du overvåkning av kunder mot PEP- og sanksjonslister, automatisk dokumentasjon, risikovurdering, eierkart og KYC-skjemaer signert med BankID. Alt samlet på ett sted.',
+    cta:'Kom i gang med KYC Flow – fra kr 2 900/mnd'},
+  'v-6':{seg:'Verdipapir',nr:6,
+    h:'KYC Flow: Komplett kundekontroll fra dag én – uten teknisk integrasjon',
+    ingress:'Som verdipapirforetak er du underlagt hvitvaskingsloven – mange KYC-systemer krever lang implementeringstid og IT-ressurser. KYC Flow er annerledes: du bestiller selv, og er i gang samme dag.',
+    seg_intro:'Verdipapirforetak, forvaltningsselskaper og investeringsrådgivere er underlagt hvitvaskingsloven med særlig strenge krav. Bransjen er hardt regulert, og kravene til kundekontroll er blant de mest omfattende. Kravene til KYC i verdipapirmarkedet er komplekse, og mange mindre foretak mangler ressurser til å håndtere dem systematisk.',
+    body:'En av de største barrierene for å ta i bruk et KYC-system er implementeringskompleksiteten. For verdipapirforetak uten egen IT-avdeling kan dette føles uoverkommelig.\n\nKYC Flow er designet for å løse akkurat dette: ingen utvikling, ingen integrasjon, ingen langvarig onboarding. Du velger pakke, betaler i portalen og får umiddelbart tilgang via en unik påloggingslenke.\n\nFra det øyeblikket har du tilgang til overvåkning mot PEP- og sanksjonslister, data fra nordiske registre, KYC-skjemaer med BankID-signatur, automatisk dokumentasjon og rapportering, risikovurdering og eierkart.\n\nKYC Flow er bygget av folka bak BankID og BankAxept. Du kan stole på sikkerheten og datakvaliteten.',
+    cta:'Bestill KYC Flow og vær i gang i dag'},
+  'v-10':{seg:'Verdipapir',nr:10,
+    h:'Forstå risikovurdering i KYC – og gjør det riktig første gang',
+    ingress:'Som verdipapirforetak er du underlagt hvitvaskingsloven – risikovurdering er et av kjerneelementene i hvitvaskingsloven. Mange bedrifter gjennomfører den feil – eller ikke i det hele tatt. Slik gjør du det riktig.',
+    seg_intro:'Verdipapirforetak, forvaltningsselskaper og investeringsrådgivere er underlagt hvitvaskingsloven med særlig strenge krav. Bransjen er hardt regulert, og kravene til kundekontroll er blant de mest omfattende. Kravene til KYC i verdipapirmarkedet er komplekse, og mange mindre foretak mangler ressurser til å håndtere dem systematisk.',
+    body:'Hvitvaskingsloven krever at du vurderer risikoen ved hvert enkelt kundeforhold. Risikovurderingen skal baseres på: kundens bransje og forretningsmodell, geografi (land med høy korrupsjonsrisiko), om kunden er politisk eksponert (PEP), eierstruktur og reelle rettighetshavere, type transaksjon og transaksjonsvolum.\n\nKYC Flow gir deg en strukturert og systemstøttet risikovurderingsprosess med sjekklister og risikoindikatorer. Systemet hjelper deg å vurdere risikoen riktig – og dokumenterer vurderingen automatisk.\n\nMed KYC Flow gjennomfører du risikovurdering på under 10 minutter per kunde. Alt lagres og er tilgjengelig ved tilsyn.',
+    cta:'Gjør risikovurdering riktig med KYC Flow – fra kr 2 900/mnd'}
+};
+
+function swTab(t){
+  ['post','art'].forEach(function(n){
+    var tab = document.getElementById('tab-'+n);
+    var pane = document.getElementById('d-'+n);
+    if(tab) tab.style.borderBottomColor = n===t ? '#7FE832' : 'transparent';
+    if(tab) tab.style.color = n===t ? '#fff' : 'rgba(255,255,255,.35)';
+    if(pane) pane.style.display = n===t ? 'block' : 'none';
+  });
+}
+
+function renderArticle(seg, artNr){
+  var key = seg+'-'+artNr;
+  var a = ART_CONTENT[key];
+  if(!a) return '<div style="padding:20px;color:var(--muted)">Artikkelinnhold ikke tilgjengelig for dette utvalget.</div>';
+  var bodyPs = a.body.split('\n\n').map(function(p){return '<p style="margin-bottom:12px;font-size:14px;color:#2A2A28;line-height:1.8">'+p+'</p>';}).join('');
+
+  // Render as stoe.no blog post
+  return '<div style="background:#F3EFE8;min-height:100%">'+
+
+    // Relationship note at top
+    '<div style="background:#1C3D1C;padding:10px 16px;display:flex;align-items:center;gap:8px">'+
+      '<div style="width:6px;height:6px;border-radius:50%;background:#7FE832;flex-shrink:0"></div>'+
+      '<div style="font-size:10px;color:rgba(255,255,255,.7)">Nyhetsbrevet og LinkedIn-posten lenker til denne artikkelen på stoe.no — den driver trafikken inn i leadsfunnelen</div>'+
+    '</div>'+
+
+    // Blog post rendered as stoe.no page
+    '<div style="max-width:520px;margin:0 auto;background:#fff;box-shadow:0 2px 16px rgba(0,0,0,.08)">'+
+
+      // Site nav
+      '<div style="background:#1A1A18;padding:10px 20px;display:flex;align-items:center;justify-content:space-between">'+
+        '<div style="font-size:14px;font-weight:800;color:#fff;letter-spacing:-.02em">Stø<span style="color:#7FE832">.</span></div>'+
+        '<div style="font-size:9px;color:rgba(255,255,255,.3);letter-spacing:.08em;text-transform:uppercase">stoe.no / KYC / Artikler</div>'+
+      '</div>'+
+
+      // Hero image
+      '<div style="height:160px;background:linear-gradient(135deg,#1C3D1C 0%,#2A4E2A 60%,#1A3428 100%);position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;padding:20px">'+
+        '<div style="position:absolute;inset:0;background:url("https://stoe.no/images/8gh06hji/production/29e4887eaff9d3581d0549dbd0c546485e8e0888-2500x1875.jpg?w=520&fm=webp&q=85&fit=crop") center/cover;opacity:.25"></div>'+
+        '<div style="font-size:8px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#7FE832;margin-bottom:6px;position:relative;z-index:1">KYC · '+a.seg+'</div>'+
+        '<div style="font-size:7px;font-weight:600;color:rgba(255,255,255,.4);position:relative;z-index:1;letter-spacing:.06em">ARTIKKEL · ART. '+a.nr+'</div>'+
+      '</div>'+
+
+      // Article content
+      '<div style="padding:24px 24px 32px">'+
+
+        // Title
+        '<h1 style="font-size:22px;font-weight:800;color:#1A1A18;line-height:1.2;margin-bottom:12px;letter-spacing:-.02em">'+a.h+'</h1>'+
+
+        // Segment ingress
+        '<p style="font-size:14px;color:#5A6B52;line-height:1.75;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #E0D8CC;font-style:italic">'+a.ingress+'</p>'+
+
+        // Segment intro box
+        '<div style="background:#FAF0E6;border-left:3px solid #7FE832;padding:12px 14px;margin-bottom:18px;border-radius:0 4px 4px 0">'+
+          '<div style="font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#1C3D1C;margin-bottom:5px">Om din bransje</div>'+
+          '<div style="font-size:12px;color:#5A6B52;line-height:1.7">'+a.seg_intro+'</div>'+
+        '</div>'+
+
+        // Body text
+        bodyPs+
+
+        // CTA button
+        '<div style="margin-top:20px;padding-top:20px;border-top:1px solid #E0D8CC">'+
+          '<div style="background:#1C3D1C;color:#fff;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:12px 20px;border-radius:4px;display:inline-block;cursor:pointer">'+a.cta+' →</div>'+
+        '</div>'+
+
+      '</div>'+
+
+      // Site footer
+      '<div style="background:#1A1A18;padding:10px 20px;display:flex;justify-content:space-between;align-items:center">'+
+        '<div style="font-size:10px;font-weight:800;color:rgba(255,255,255,.3)">Stø<span style="color:#7FE832">.</span></div>'+
+        '<div style="font-size:9px;color:rgba(255,255,255,.2)">Biskop Gunnerus\u2019 gate 14 · 0185 Oslo</div>'+
+      '</div>'+
+
+    '</div>'+
+  '</div>';
+}
+
+buildGrid(); }
+function nextWk(){ if(currentWk<23) currentWk++; 
+// ── FULL ARTICLE CONTENT from Bjørn's xlsx ───────────────────────────────
+const ART_CONTENT = {
+  'r-1':{seg:'Regnskap og revisjon',nr:1,
+    h:'Er du rapporteringspliktig bedrift? Dette må du vite om KYC',
+    ingress:'Som regnskapsfører eller revisor er du underlagt hvitvaskingsloven – hvitvaskingsloven stiller strenge krav til en rekke norske virksomheter – uavhengig av størrelse. Mange SMB-bedrifter er usikre på hva de faktisk er pliktige til å gjøre. Her får du en klar oversikt.',
+    seg_intro:'Regnskapsførere og revisorer er blant de mest utsatte yrkesgruppene i hvitvaskingslovens øyne. Du har jevnlig kontakt med klientenes økonomi og er rapporteringspliktig ved mistenkelige forhold. For mange regnskapsbyråer er KYC-arbeid en ekstrabelastning som havner i fanget på én person – uten system, uten struktur, og med stor risiko for mangler.',
+    body:'Hvitvaskingsloven pålegger rapporteringspliktige virksomheter å gjennomføre risikovurdering, kundetiltak (KYC), løpende overvåkning, intern kontroll og rapportering til Økokrim. Alt skal dokumenteres og kan etterprøves av Finanstilsynet.\n\nFor mange regnskapsbyråer er dette krevende å håndtere uten dedikerte ressurser eller systemer. KYC Flow fra Stø gjør dette arbeidet enkelt: du bestiller selv i portalen, og kan starte kundekontroll samme dag – uten utvikling eller integrasjon.\n\nMed KYC Flow får du overvåkning av kunder mot PEP- og sanksjonslister, automatisk dokumentasjon, risikovurdering, eierkart og KYC-skjemaer signert med BankID. Alt samlet på ett sted.',
+    cta:'Kom i gang med KYC Flow – fra kr 1 300/mnd'},
+  'r-3':{seg:'Regnskap og revisjon',nr:3,
+    h:'Derfor er automatisk overvåkning av kunder viktigere enn du tror',
+    ingress:'Som regnskapsfører eller revisor er du underlagt hvitvaskingsloven – det holder ikke å gjøre én kundekontroll ved oppstart av kundeforholdet. Hvitvaskingsloven krever løpende overvåkning. Her er hva det betyr i praksis – og hvordan du gjør det enkelt.',
+    seg_intro:'Regnskapsførere og revisorer er blant de mest utsatte yrkesgruppene i hvitvaskingslovens øyne. Du har jevnlig kontakt med klientenes økonomi og er rapporteringspliktig ved mistenkelige forhold. For mange regnskapsbyråer er KYC-arbeid en ekstrabelastning som havner i fanget på én person – uten system, uten struktur, og med stor risiko for mangler.',
+    body:'Løpende overvåkning er et av de mest oversette kravene i hvitvaskingsloven. Mange bedrifter gjennomfører én grundig kontroll ved etablering av kundeforholdet – men glemmer at kundenes risikoprofil kan endre seg over tid.\n\nEn kunde som i dag er lav-risiko kan bli PEP, havne på en sanksjonsliste eller endre eierstruktur. Uten løpende overvåkning oppdager du det ikke.\n\nKYC Flow overvåker automatisk alle dine kunder mot norske og internasjonale PEP-lister, sanksjonslister og Nordiske registre. Du varsles umiddelbart ved relevante endringer – og alt dokumenteres automatisk i systemet.',
+    cta:'Aktiver automatisk overvåkning med KYC Flow'},
+  'r-5':{seg:'Regnskap og revisjon',nr:5,
+    h:'5 vanlige KYC-feil – og hvordan du enkelt unngår dem',
+    ingress:'Som regnskapsfører eller revisor er du underlagt hvitvaskingsloven – de fleste feilene som avdekkes i KYC-tilsyn er de samme, gang på gang. Her er de fem vanligste – og hva du konkret kan gjøre for å unngå dem.',
+    seg_intro:'Regnskapsførere og revisorer er blant de mest utsatte yrkesgruppene i hvitvaskingslovens øyne. Du har jevnlig kontakt med klientenes økonomi og er rapporteringspliktig ved mistenkelige forhold. For mange regnskapsbyråer er KYC-arbeid en ekstrabelastning som havner i fanget på én person – uten system, uten struktur, og med stor risiko for mangler.',
+    body:'1. MANGELFULL RISIKOVURDERING – Mange bedrifter mangler en strukturert risikovurdering per kunde. KYC Flow gir deg sjekklister og risikoindikatorer som sikrer at ingenting glipper.\n\n2. UTDATERT KUNDEINFORMASJON – Dokumentasjon som er innhentet ved oppstart, men aldri oppdatert. KYC Flow overvåker og varsler automatisk ved endringer.\n\n3. MANGLENDE IDENTITETSKONTROLL – Identifisering av kunden uten tilstrekkelig dokumentasjon. Med BankID-integrasjon er identitetskontrollen enkel og lovmessig.\n\n4. INGEN KONTROLL AV REELLE RETTIGHETSHAVERE – Eierstrukturen bak et selskap er ikke alltid åpenbar. Eierkartet i KYC Flow visualiserer eierskapsstrukturer grafisk.\n\n5. DÅRLIG DOKUMENTASJON – Spredte arkiver og manglende sporbarhet. KYC Flow arkiverer alt automatisk og gjør dataene tilgjengelige som PDF-rapporter.',
+    cta:'Unngå alle 5 feilene – prøv KYC Flow gratis'},
+  'b-1':{seg:'Bank og finans',nr:1,
+    h:'Er du rapporteringspliktig bedrift? Dette må du vite om KYC',
+    ingress:'Som aktør i bank- og finanssektoren er du underlagt hvitvaskingsloven – hvitvaskingsloven stiller strenge krav til en rekke norske virksomheter – uavhengig av størrelse. Mange SMB-bedrifter er usikre på hva de faktisk er pliktige til å gjøre. Her får du en klar oversikt.',
+    seg_intro:'For banker og finansinstitusjoner er KYC et kjernekrav – men kravene strekker seg langt ut over de store aktørene. Også mindre sparebanker, låneformidlere og andre finansforetak er fullt underlagt hvitvaskingsloven. Compliance-belastningen øker år for år, og ressursene er knappe.',
+    body:'Hvitvaskingsloven pålegger rapporteringspliktige virksomheter å gjennomføre risikovurdering, kundetiltak (KYC), løpende overvåkning, intern kontroll og rapportering til Økokrim. Alt skal dokumenteres og kan etterprøves av Finanstilsynet.\n\nFor mange finansforetak er dette krevende å håndtere uten dedikerte ressurser eller systemer. KYC Flow fra Stø gjør dette arbeidet enkelt: du bestiller selv i portalen, og kan starte kundekontroll samme dag – uten utvikling eller integrasjon.\n\nMed KYC Flow får du overvåkning av kunder mot PEP- og sanksjonslister, automatisk dokumentasjon, risikovurdering, eierkart og KYC-skjemaer signert med BankID. Alt samlet på ett sted.',
+    cta:'Kom i gang med KYC Flow – fra kr 1 300/mnd'},
+  'b-4':{seg:'Bank og finans',nr:4,
+    h:'Hva skjer hvis du ikke overholder hvitvaskingsloven?',
+    ingress:'Som aktør i bank- og finanssektoren er du underlagt hvitvaskingsloven – manglende etterlevelse kan få alvorlige konsekvenser – fra bøter og pålegg til tap av tillatelse. Slik unngår du å havne i faresonen.',
+    seg_intro:'For banker og finansinstitusjoner er KYC et kjernekrav – men kravene strekker seg langt ut over de store aktørene. Også mindre sparebanker, låneformidlere og andre finansforetak er fullt underlagt hvitvaskingsloven. Compliance-belastningen øker år for år, og ressursene er knappe.',
+    body:'Finanstilsynet har de siste årene intensivert tilsynsarbeidet med AML og KYC. Brudd på hvitvaskingsloven kan medføre overtredelsesgebyr, pålegg om retting og i alvorlige tilfeller tilbakekall av konsesjon eller autorisasjon.\n\nDe vanligste feilene tilsynet avdekker er: manglende risikovurdering, ufullstendig dokumentasjon av kundetiltak og manglende rutiner for løpende overvåkning.\n\nKYC Flow fra Stø er bygget for å hjelpe deg å unngå nettopp disse feilene. Systemet sikrer at du alltid har oppdatert dokumentasjon, at risikovurderinger gjennomføres systematisk og at alle kundeforhold er løpende overvåket. Alt er tilgjengelig som nedlastbare PDF-rapporter ved et eventuelt tilsyn.',
+    cta:'Sikre etterlevelsen med KYC Flow – fra kr 3 900/mnd'},
+  'b-9':{seg:'Bank og finans',nr:9,
+    h:'Er dine kunder på en sanksjonsliste? Slik holder du kontroll',
+    ingress:'Som aktør i bank- og finanssektoren er du underlagt hvitvaskingsloven – sanksjonskontroll er et lovkrav og en praktisk utfordring. Listene oppdateres kontinuerlig, og det er ditt ansvar å holde oversikten. Slik gjør du det enkelt.',
+    seg_intro:'For banker og finansinstitusjoner er KYC et kjernekrav – men kravene strekker seg langt ut over de store aktørene. Også mindre sparebanker, låneformidlere og andre finansforetak er fullt underlagt hvitvaskingsloven. Compliance-belastningen øker år for år, og ressursene er knappe.',
+    body:'Internasjonale sanksjonslister som FN, EU og OFAC oppdateres jevnlig. En kunde som var sanksjonsfri ved oppstart av kundeforholdet kan havne på listen dagen etter.\n\nMange SMB-bedrifter gjennomfører sanksjonskontroll manuelt og sporadisk – og oppdager ikke endringer i tide. Det er både ressurskrevende og risikabelt.\n\nKYC Flow overvåker automatisk alle dine kunder og kontaktpersoner mot internasjonale PEP-lister og sanksjonslister – og varsler deg umiddelbart ved treff. Ingen manuell sjekk nødvendig.\n\nDu slipper å bekymre deg for om listene er oppdaterte. Det er Støs ansvar – du fokuserer på virksomheten din.',
+    cta:'Aktiver automatisk sanksjonskontroll med KYC Flow'},
+  'v-1':{seg:'Verdipapir',nr:1,
+    h:'Er du rapporteringspliktig bedrift? Dette må du vite om KYC',
+    ingress:'Som verdipapirforetak er du underlagt hvitvaskingsloven – hvitvaskingsloven stiller strenge krav til en rekke norske virksomheter – uavhengig av størrelse. Mange SMB-bedrifter er usikre på hva de faktisk er pliktige til å gjøre. Her får du en klar oversikt.',
+    seg_intro:'Verdipapirforetak, forvaltningsselskaper og investeringsrådgivere er underlagt hvitvaskingsloven med særlig strenge krav. Bransjen er hardt regulert, og kravene til kundekontroll er blant de mest omfattende. Kravene til KYC i verdipapirmarkedet er komplekse, og mange mindre foretak mangler ressurser til å håndtere dem systematisk.',
+    body:'Hvitvaskingsloven pålegger rapporteringspliktige virksomheter å gjennomføre risikovurdering, kundetiltak (KYC), løpende overvåkning, intern kontroll og rapportering til Økokrim. Alt skal dokumenteres og kan etterprøves av Finanstilsynet.\n\nFor verdipapirforetak er dette krevende å håndtere uten dedikerte ressurser. KYC Flow fra Stø gjør dette arbeidet enkelt: du bestiller selv i portalen, og kan starte kundekontroll samme dag – uten utvikling eller integrasjon.\n\nMed KYC Flow får du overvåkning av kunder mot PEP- og sanksjonslister, automatisk dokumentasjon, risikovurdering, eierkart og KYC-skjemaer signert med BankID. Alt samlet på ett sted.',
+    cta:'Kom i gang med KYC Flow – fra kr 2 900/mnd'},
+  'v-6':{seg:'Verdipapir',nr:6,
+    h:'KYC Flow: Komplett kundekontroll fra dag én – uten teknisk integrasjon',
+    ingress:'Som verdipapirforetak er du underlagt hvitvaskingsloven – mange KYC-systemer krever lang implementeringstid og IT-ressurser. KYC Flow er annerledes: du bestiller selv, og er i gang samme dag.',
+    seg_intro:'Verdipapirforetak, forvaltningsselskaper og investeringsrådgivere er underlagt hvitvaskingsloven med særlig strenge krav. Bransjen er hardt regulert, og kravene til kundekontroll er blant de mest omfattende. Kravene til KYC i verdipapirmarkedet er komplekse, og mange mindre foretak mangler ressurser til å håndtere dem systematisk.',
+    body:'En av de største barrierene for å ta i bruk et KYC-system er implementeringskompleksiteten. For verdipapirforetak uten egen IT-avdeling kan dette føles uoverkommelig.\n\nKYC Flow er designet for å løse akkurat dette: ingen utvikling, ingen integrasjon, ingen langvarig onboarding. Du velger pakke, betaler i portalen og får umiddelbart tilgang via en unik påloggingslenke.\n\nFra det øyeblikket har du tilgang til overvåkning mot PEP- og sanksjonslister, data fra nordiske registre, KYC-skjemaer med BankID-signatur, automatisk dokumentasjon og rapportering, risikovurdering og eierkart.\n\nKYC Flow er bygget av folka bak BankID og BankAxept. Du kan stole på sikkerheten og datakvaliteten.',
+    cta:'Bestill KYC Flow og vær i gang i dag'},
+  'v-10':{seg:'Verdipapir',nr:10,
+    h:'Forstå risikovurdering i KYC – og gjør det riktig første gang',
+    ingress:'Som verdipapirforetak er du underlagt hvitvaskingsloven – risikovurdering er et av kjerneelementene i hvitvaskingsloven. Mange bedrifter gjennomfører den feil – eller ikke i det hele tatt. Slik gjør du det riktig.',
+    seg_intro:'Verdipapirforetak, forvaltningsselskaper og investeringsrådgivere er underlagt hvitvaskingsloven med særlig strenge krav. Bransjen er hardt regulert, og kravene til kundekontroll er blant de mest omfattende. Kravene til KYC i verdipapirmarkedet er komplekse, og mange mindre foretak mangler ressurser til å håndtere dem systematisk.',
+    body:'Hvitvaskingsloven krever at du vurderer risikoen ved hvert enkelt kundeforhold. Risikovurderingen skal baseres på: kundens bransje og forretningsmodell, geografi (land med høy korrupsjonsrisiko), om kunden er politisk eksponert (PEP), eierstruktur og reelle rettighetshavere, type transaksjon og transaksjonsvolum.\n\nKYC Flow gir deg en strukturert og systemstøttet risikovurderingsprosess med sjekklister og risikoindikatorer. Systemet hjelper deg å vurdere risikoen riktig – og dokumenterer vurderingen automatisk.\n\nMed KYC Flow gjennomfører du risikovurdering på under 10 minutter per kunde. Alt lagres og er tilgjengelig ved tilsyn.',
+    cta:'Gjør risikovurdering riktig med KYC Flow – fra kr 2 900/mnd'}
+};
+
+function swTab(t){
+  ['post','art'].forEach(function(n){
+    var tab = document.getElementById('tab-'+n);
+    var pane = document.getElementById('d-'+n);
+    if(tab) tab.style.borderBottomColor = n===t ? '#7FE832' : 'transparent';
+    if(tab) tab.style.color = n===t ? '#fff' : 'rgba(255,255,255,.35)';
+    if(pane) pane.style.display = n===t ? 'block' : 'none';
+  });
+}
+
+function renderArticle(seg, artNr){
+  var key = seg+'-'+artNr;
+  var a = ART_CONTENT[key];
+  if(!a) return '<div style="padding:20px;color:var(--muted)">Artikkelinnhold ikke tilgjengelig for dette utvalget.</div>';
+  var bodyPs = a.body.split('\n\n').map(function(p){return '<p style="margin-bottom:12px;font-size:14px;color:#2A2A28;line-height:1.8">'+p+'</p>';}).join('');
+
+  // Render as stoe.no blog post
+  return '<div style="background:#F3EFE8;min-height:100%">'+
+
+    // Relationship note at top
+    '<div style="background:#1C3D1C;padding:10px 16px;display:flex;align-items:center;gap:8px">'+
+      '<div style="width:6px;height:6px;border-radius:50%;background:#7FE832;flex-shrink:0"></div>'+
+      '<div style="font-size:10px;color:rgba(255,255,255,.7)">Nyhetsbrevet og LinkedIn-posten lenker til denne artikkelen på stoe.no — den driver trafikken inn i leadsfunnelen</div>'+
+    '</div>'+
+
+    // Blog post rendered as stoe.no page
+    '<div style="max-width:520px;margin:0 auto;background:#fff;box-shadow:0 2px 16px rgba(0,0,0,.08)">'+
+
+      // Site nav
+      '<div style="background:#1A1A18;padding:10px 20px;display:flex;align-items:center;justify-content:space-between">'+
+        '<div style="font-size:14px;font-weight:800;color:#fff;letter-spacing:-.02em">Stø<span style="color:#7FE832">.</span></div>'+
+        '<div style="font-size:9px;color:rgba(255,255,255,.3);letter-spacing:.08em;text-transform:uppercase">stoe.no / KYC / Artikler</div>'+
+      '</div>'+
+
+      // Hero image
+      '<div style="height:160px;background:linear-gradient(135deg,#1C3D1C 0%,#2A4E2A 60%,#1A3428 100%);position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;padding:20px">'+
+        '<div style="position:absolute;inset:0;background:url("https://stoe.no/images/8gh06hji/production/29e4887eaff9d3581d0549dbd0c546485e8e0888-2500x1875.jpg?w=520&fm=webp&q=85&fit=crop") center/cover;opacity:.25"></div>'+
+        '<div style="font-size:8px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#7FE832;margin-bottom:6px;position:relative;z-index:1">KYC · '+a.seg+'</div>'+
+        '<div style="font-size:7px;font-weight:600;color:rgba(255,255,255,.4);position:relative;z-index:1;letter-spacing:.06em">ARTIKKEL · ART. '+a.nr+'</div>'+
+      '</div>'+
+
+      // Article content
+      '<div style="padding:24px 24px 32px">'+
+
+        // Title
+        '<h1 style="font-size:22px;font-weight:800;color:#1A1A18;line-height:1.2;margin-bottom:12px;letter-spacing:-.02em">'+a.h+'</h1>'+
+
+        // Segment ingress
+        '<p style="font-size:14px;color:#5A6B52;line-height:1.75;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #E0D8CC;font-style:italic">'+a.ingress+'</p>'+
+
+        // Segment intro box
+        '<div style="background:#FAF0E6;border-left:3px solid #7FE832;padding:12px 14px;margin-bottom:18px;border-radius:0 4px 4px 0">'+
+          '<div style="font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#1C3D1C;margin-bottom:5px">Om din bransje</div>'+
+          '<div style="font-size:12px;color:#5A6B52;line-height:1.7">'+a.seg_intro+'</div>'+
+        '</div>'+
+
+        // Body text
+        bodyPs+
+
+        // CTA button
+        '<div style="margin-top:20px;padding-top:20px;border-top:1px solid #E0D8CC">'+
+          '<div style="background:#1C3D1C;color:#fff;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:12px 20px;border-radius:4px;display:inline-block;cursor:pointer">'+a.cta+' →</div>'+
+        '</div>'+
+
+      '</div>'+
+
+      // Site footer
+      '<div style="background:#1A1A18;padding:10px 20px;display:flex;justify-content:space-between;align-items:center">'+
+        '<div style="font-size:10px;font-weight:800;color:rgba(255,255,255,.3)">Stø<span style="color:#7FE832">.</span></div>'+
+        '<div style="font-size:9px;color:rgba(255,255,255,.2)">Biskop Gunnerus\u2019 gate 14 · 0185 Oslo</div>'+
+      '</div>'+
+
+    '</div>'+
+  '</div>';
+}
+
+buildGrid(); }
+function CD(){ document.getElementById('ovl').classList.remove('open'); }
+function CB(e){ if(e.target===document.getElementById('ovl')) CD(); }
+
+function fSeg(s,btn){
+  activeSeg=s;
+  document.querySelectorAll('.sb').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  
+// ── FULL ARTICLE CONTENT from Bjørn's xlsx ───────────────────────────────
+const ART_CONTENT = {
+  'r-1':{seg:'Regnskap og revisjon',nr:1,
+    h:'Er du rapporteringspliktig bedrift? Dette må du vite om KYC',
+    ingress:'Som regnskapsfører eller revisor er du underlagt hvitvaskingsloven – hvitvaskingsloven stiller strenge krav til en rekke norske virksomheter – uavhengig av størrelse. Mange SMB-bedrifter er usikre på hva de faktisk er pliktige til å gjøre. Her får du en klar oversikt.',
+    seg_intro:'Regnskapsførere og revisorer er blant de mest utsatte yrkesgruppene i hvitvaskingslovens øyne. Du har jevnlig kontakt med klientenes økonomi og er rapporteringspliktig ved mistenkelige forhold. For mange regnskapsbyråer er KYC-arbeid en ekstrabelastning som havner i fanget på én person – uten system, uten struktur, og med stor risiko for mangler.',
+    body:'Hvitvaskingsloven pålegger rapporteringspliktige virksomheter å gjennomføre risikovurdering, kundetiltak (KYC), løpende overvåkning, intern kontroll og rapportering til Økokrim. Alt skal dokumenteres og kan etterprøves av Finanstilsynet.\n\nFor mange regnskapsbyråer er dette krevende å håndtere uten dedikerte ressurser eller systemer. KYC Flow fra Stø gjør dette arbeidet enkelt: du bestiller selv i portalen, og kan starte kundekontroll samme dag – uten utvikling eller integrasjon.\n\nMed KYC Flow får du overvåkning av kunder mot PEP- og sanksjonslister, automatisk dokumentasjon, risikovurdering, eierkart og KYC-skjemaer signert med BankID. Alt samlet på ett sted.',
+    cta:'Kom i gang med KYC Flow – fra kr 1 300/mnd'},
+  'r-3':{seg:'Regnskap og revisjon',nr:3,
+    h:'Derfor er automatisk overvåkning av kunder viktigere enn du tror',
+    ingress:'Som regnskapsfører eller revisor er du underlagt hvitvaskingsloven – det holder ikke å gjøre én kundekontroll ved oppstart av kundeforholdet. Hvitvaskingsloven krever løpende overvåkning. Her er hva det betyr i praksis – og hvordan du gjør det enkelt.',
+    seg_intro:'Regnskapsførere og revisorer er blant de mest utsatte yrkesgruppene i hvitvaskingslovens øyne. Du har jevnlig kontakt med klientenes økonomi og er rapporteringspliktig ved mistenkelige forhold. For mange regnskapsbyråer er KYC-arbeid en ekstrabelastning som havner i fanget på én person – uten system, uten struktur, og med stor risiko for mangler.',
+    body:'Løpende overvåkning er et av de mest oversette kravene i hvitvaskingsloven. Mange bedrifter gjennomfører én grundig kontroll ved etablering av kundeforholdet – men glemmer at kundenes risikoprofil kan endre seg over tid.\n\nEn kunde som i dag er lav-risiko kan bli PEP, havne på en sanksjonsliste eller endre eierstruktur. Uten løpende overvåkning oppdager du det ikke.\n\nKYC Flow overvåker automatisk alle dine kunder mot norske og internasjonale PEP-lister, sanksjonslister og Nordiske registre. Du varsles umiddelbart ved relevante endringer – og alt dokumenteres automatisk i systemet.',
+    cta:'Aktiver automatisk overvåkning med KYC Flow'},
+  'r-5':{seg:'Regnskap og revisjon',nr:5,
+    h:'5 vanlige KYC-feil – og hvordan du enkelt unngår dem',
+    ingress:'Som regnskapsfører eller revisor er du underlagt hvitvaskingsloven – de fleste feilene som avdekkes i KYC-tilsyn er de samme, gang på gang. Her er de fem vanligste – og hva du konkret kan gjøre for å unngå dem.',
+    seg_intro:'Regnskapsførere og revisorer er blant de mest utsatte yrkesgruppene i hvitvaskingslovens øyne. Du har jevnlig kontakt med klientenes økonomi og er rapporteringspliktig ved mistenkelige forhold. For mange regnskapsbyråer er KYC-arbeid en ekstrabelastning som havner i fanget på én person – uten system, uten struktur, og med stor risiko for mangler.',
+    body:'1. MANGELFULL RISIKOVURDERING – Mange bedrifter mangler en strukturert risikovurdering per kunde. KYC Flow gir deg sjekklister og risikoindikatorer som sikrer at ingenting glipper.\n\n2. UTDATERT KUNDEINFORMASJON – Dokumentasjon som er innhentet ved oppstart, men aldri oppdatert. KYC Flow overvåker og varsler automatisk ved endringer.\n\n3. MANGLENDE IDENTITETSKONTROLL – Identifisering av kunden uten tilstrekkelig dokumentasjon. Med BankID-integrasjon er identitetskontrollen enkel og lovmessig.\n\n4. INGEN KONTROLL AV REELLE RETTIGHETSHAVERE – Eierstrukturen bak et selskap er ikke alltid åpenbar. Eierkartet i KYC Flow visualiserer eierskapsstrukturer grafisk.\n\n5. DÅRLIG DOKUMENTASJON – Spredte arkiver og manglende sporbarhet. KYC Flow arkiverer alt automatisk og gjør dataene tilgjengelige som PDF-rapporter.',
+    cta:'Unngå alle 5 feilene – prøv KYC Flow gratis'},
+  'b-1':{seg:'Bank og finans',nr:1,
+    h:'Er du rapporteringspliktig bedrift? Dette må du vite om KYC',
+    ingress:'Som aktør i bank- og finanssektoren er du underlagt hvitvaskingsloven – hvitvaskingsloven stiller strenge krav til en rekke norske virksomheter – uavhengig av størrelse. Mange SMB-bedrifter er usikre på hva de faktisk er pliktige til å gjøre. Her får du en klar oversikt.',
+    seg_intro:'For banker og finansinstitusjoner er KYC et kjernekrav – men kravene strekker seg langt ut over de store aktørene. Også mindre sparebanker, låneformidlere og andre finansforetak er fullt underlagt hvitvaskingsloven. Compliance-belastningen øker år for år, og ressursene er knappe.',
+    body:'Hvitvaskingsloven pålegger rapporteringspliktige virksomheter å gjennomføre risikovurdering, kundetiltak (KYC), løpende overvåkning, intern kontroll og rapportering til Økokrim. Alt skal dokumenteres og kan etterprøves av Finanstilsynet.\n\nFor mange finansforetak er dette krevende å håndtere uten dedikerte ressurser eller systemer. KYC Flow fra Stø gjør dette arbeidet enkelt: du bestiller selv i portalen, og kan starte kundekontroll samme dag – uten utvikling eller integrasjon.\n\nMed KYC Flow får du overvåkning av kunder mot PEP- og sanksjonslister, automatisk dokumentasjon, risikovurdering, eierkart og KYC-skjemaer signert med BankID. Alt samlet på ett sted.',
+    cta:'Kom i gang med KYC Flow – fra kr 1 300/mnd'},
+  'b-4':{seg:'Bank og finans',nr:4,
+    h:'Hva skjer hvis du ikke overholder hvitvaskingsloven?',
+    ingress:'Som aktør i bank- og finanssektoren er du underlagt hvitvaskingsloven – manglende etterlevelse kan få alvorlige konsekvenser – fra bøter og pålegg til tap av tillatelse. Slik unngår du å havne i faresonen.',
+    seg_intro:'For banker og finansinstitusjoner er KYC et kjernekrav – men kravene strekker seg langt ut over de store aktørene. Også mindre sparebanker, låneformidlere og andre finansforetak er fullt underlagt hvitvaskingsloven. Compliance-belastningen øker år for år, og ressursene er knappe.',
+    body:'Finanstilsynet har de siste årene intensivert tilsynsarbeidet med AML og KYC. Brudd på hvitvaskingsloven kan medføre overtredelsesgebyr, pålegg om retting og i alvorlige tilfeller tilbakekall av konsesjon eller autorisasjon.\n\nDe vanligste feilene tilsynet avdekker er: manglende risikovurdering, ufullstendig dokumentasjon av kundetiltak og manglende rutiner for løpende overvåkning.\n\nKYC Flow fra Stø er bygget for å hjelpe deg å unngå nettopp disse feilene. Systemet sikrer at du alltid har oppdatert dokumentasjon, at risikovurderinger gjennomføres systematisk og at alle kundeforhold er løpende overvåket. Alt er tilgjengelig som nedlastbare PDF-rapporter ved et eventuelt tilsyn.',
+    cta:'Sikre etterlevelsen med KYC Flow – fra kr 3 900/mnd'},
+  'b-9':{seg:'Bank og finans',nr:9,
+    h:'Er dine kunder på en sanksjonsliste? Slik holder du kontroll',
+    ingress:'Som aktør i bank- og finanssektoren er du underlagt hvitvaskingsloven – sanksjonskontroll er et lovkrav og en praktisk utfordring. Listene oppdateres kontinuerlig, og det er ditt ansvar å holde oversikten. Slik gjør du det enkelt.',
+    seg_intro:'For banker og finansinstitusjoner er KYC et kjernekrav – men kravene strekker seg langt ut over de store aktørene. Også mindre sparebanker, låneformidlere og andre finansforetak er fullt underlagt hvitvaskingsloven. Compliance-belastningen øker år for år, og ressursene er knappe.',
+    body:'Internasjonale sanksjonslister som FN, EU og OFAC oppdateres jevnlig. En kunde som var sanksjonsfri ved oppstart av kundeforholdet kan havne på listen dagen etter.\n\nMange SMB-bedrifter gjennomfører sanksjonskontroll manuelt og sporadisk – og oppdager ikke endringer i tide. Det er både ressurskrevende og risikabelt.\n\nKYC Flow overvåker automatisk alle dine kunder og kontaktpersoner mot internasjonale PEP-lister og sanksjonslister – og varsler deg umiddelbart ved treff. Ingen manuell sjekk nødvendig.\n\nDu slipper å bekymre deg for om listene er oppdaterte. Det er Støs ansvar – du fokuserer på virksomheten din.',
+    cta:'Aktiver automatisk sanksjonskontroll med KYC Flow'},
+  'v-1':{seg:'Verdipapir',nr:1,
+    h:'Er du rapporteringspliktig bedrift? Dette må du vite om KYC',
+    ingress:'Som verdipapirforetak er du underlagt hvitvaskingsloven – hvitvaskingsloven stiller strenge krav til en rekke norske virksomheter – uavhengig av størrelse. Mange SMB-bedrifter er usikre på hva de faktisk er pliktige til å gjøre. Her får du en klar oversikt.',
+    seg_intro:'Verdipapirforetak, forvaltningsselskaper og investeringsrådgivere er underlagt hvitvaskingsloven med særlig strenge krav. Bransjen er hardt regulert, og kravene til kundekontroll er blant de mest omfattende. Kravene til KYC i verdipapirmarkedet er komplekse, og mange mindre foretak mangler ressurser til å håndtere dem systematisk.',
+    body:'Hvitvaskingsloven pålegger rapporteringspliktige virksomheter å gjennomføre risikovurdering, kundetiltak (KYC), løpende overvåkning, intern kontroll og rapportering til Økokrim. Alt skal dokumenteres og kan etterprøves av Finanstilsynet.\n\nFor verdipapirforetak er dette krevende å håndtere uten dedikerte ressurser. KYC Flow fra Stø gjør dette arbeidet enkelt: du bestiller selv i portalen, og kan starte kundekontroll samme dag – uten utvikling eller integrasjon.\n\nMed KYC Flow får du overvåkning av kunder mot PEP- og sanksjonslister, automatisk dokumentasjon, risikovurdering, eierkart og KYC-skjemaer signert med BankID. Alt samlet på ett sted.',
+    cta:'Kom i gang med KYC Flow – fra kr 2 900/mnd'},
+  'v-6':{seg:'Verdipapir',nr:6,
+    h:'KYC Flow: Komplett kundekontroll fra dag én – uten teknisk integrasjon',
+    ingress:'Som verdipapirforetak er du underlagt hvitvaskingsloven – mange KYC-systemer krever lang implementeringstid og IT-ressurser. KYC Flow er annerledes: du bestiller selv, og er i gang samme dag.',
+    seg_intro:'Verdipapirforetak, forvaltningsselskaper og investeringsrådgivere er underlagt hvitvaskingsloven med særlig strenge krav. Bransjen er hardt regulert, og kravene til kundekontroll er blant de mest omfattende. Kravene til KYC i verdipapirmarkedet er komplekse, og mange mindre foretak mangler ressurser til å håndtere dem systematisk.',
+    body:'En av de største barrierene for å ta i bruk et KYC-system er implementeringskompleksiteten. For verdipapirforetak uten egen IT-avdeling kan dette føles uoverkommelig.\n\nKYC Flow er designet for å løse akkurat dette: ingen utvikling, ingen integrasjon, ingen langvarig onboarding. Du velger pakke, betaler i portalen og får umiddelbart tilgang via en unik påloggingslenke.\n\nFra det øyeblikket har du tilgang til overvåkning mot PEP- og sanksjonslister, data fra nordiske registre, KYC-skjemaer med BankID-signatur, automatisk dokumentasjon og rapportering, risikovurdering og eierkart.\n\nKYC Flow er bygget av folka bak BankID og BankAxept. Du kan stole på sikkerheten og datakvaliteten.',
+    cta:'Bestill KYC Flow og vær i gang i dag'},
+  'v-10':{seg:'Verdipapir',nr:10,
+    h:'Forstå risikovurdering i KYC – og gjør det riktig første gang',
+    ingress:'Som verdipapirforetak er du underlagt hvitvaskingsloven – risikovurdering er et av kjerneelementene i hvitvaskingsloven. Mange bedrifter gjennomfører den feil – eller ikke i det hele tatt. Slik gjør du det riktig.',
+    seg_intro:'Verdipapirforetak, forvaltningsselskaper og investeringsrådgivere er underlagt hvitvaskingsloven med særlig strenge krav. Bransjen er hardt regulert, og kravene til kundekontroll er blant de mest omfattende. Kravene til KYC i verdipapirmarkedet er komplekse, og mange mindre foretak mangler ressurser til å håndtere dem systematisk.',
+    body:'Hvitvaskingsloven krever at du vurderer risikoen ved hvert enkelt kundeforhold. Risikovurderingen skal baseres på: kundens bransje og forretningsmodell, geografi (land med høy korrupsjonsrisiko), om kunden er politisk eksponert (PEP), eierstruktur og reelle rettighetshavere, type transaksjon og transaksjonsvolum.\n\nKYC Flow gir deg en strukturert og systemstøttet risikovurderingsprosess med sjekklister og risikoindikatorer. Systemet hjelper deg å vurdere risikoen riktig – og dokumenterer vurderingen automatisk.\n\nMed KYC Flow gjennomfører du risikovurdering på under 10 minutter per kunde. Alt lagres og er tilgjengelig ved tilsyn.',
+    cta:'Gjør risikovurdering riktig med KYC Flow – fra kr 2 900/mnd'}
+};
+
+function swTab(t){
+  ['post','art'].forEach(function(n){
+    var tab = document.getElementById('tab-'+n);
+    var pane = document.getElementById('d-'+n);
+    if(tab) tab.style.borderBottomColor = n===t ? '#7FE832' : 'transparent';
+    if(tab) tab.style.color = n===t ? '#fff' : 'rgba(255,255,255,.35)';
+    if(pane) pane.style.display = n===t ? 'block' : 'none';
+  });
+}
+
+function renderArticle(seg, artNr){
+  var key = seg+'-'+artNr;
+  var a = ART_CONTENT[key];
+  if(!a) return '<div style="padding:20px;color:var(--muted)">Artikkelinnhold ikke tilgjengelig for dette utvalget.</div>';
+  var bodyPs = a.body.split('\n\n').map(function(p){return '<p style="margin-bottom:12px;font-size:14px;color:#2A2A28;line-height:1.8">'+p+'</p>';}).join('');
+
+  // Render as stoe.no blog post
+  return '<div style="background:#F3EFE8;min-height:100%">'+
+
+    // Relationship note at top
+    '<div style="background:#1C3D1C;padding:10px 16px;display:flex;align-items:center;gap:8px">'+
+      '<div style="width:6px;height:6px;border-radius:50%;background:#7FE832;flex-shrink:0"></div>'+
+      '<div style="font-size:10px;color:rgba(255,255,255,.7)">Nyhetsbrevet og LinkedIn-posten lenker til denne artikkelen på stoe.no — den driver trafikken inn i leadsfunnelen</div>'+
+    '</div>'+
+
+    // Blog post rendered as stoe.no page
+    '<div style="max-width:520px;margin:0 auto;background:#fff;box-shadow:0 2px 16px rgba(0,0,0,.08)">'+
+
+      // Site nav
+      '<div style="background:#1A1A18;padding:10px 20px;display:flex;align-items:center;justify-content:space-between">'+
+        '<div style="font-size:14px;font-weight:800;color:#fff;letter-spacing:-.02em">Stø<span style="color:#7FE832">.</span></div>'+
+        '<div style="font-size:9px;color:rgba(255,255,255,.3);letter-spacing:.08em;text-transform:uppercase">stoe.no / KYC / Artikler</div>'+
+      '</div>'+
+
+      // Hero image
+      '<div style="height:160px;background:linear-gradient(135deg,#1C3D1C 0%,#2A4E2A 60%,#1A3428 100%);position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;padding:20px">'+
+        '<div style="position:absolute;inset:0;background:url("https://stoe.no/images/8gh06hji/production/29e4887eaff9d3581d0549dbd0c546485e8e0888-2500x1875.jpg?w=520&fm=webp&q=85&fit=crop") center/cover;opacity:.25"></div>'+
+        '<div style="font-size:8px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#7FE832;margin-bottom:6px;position:relative;z-index:1">KYC · '+a.seg+'</div>'+
+        '<div style="font-size:7px;font-weight:600;color:rgba(255,255,255,.4);position:relative;z-index:1;letter-spacing:.06em">ARTIKKEL · ART. '+a.nr+'</div>'+
+      '</div>'+
+
+      // Article content
+      '<div style="padding:24px 24px 32px">'+
+
+        // Title
+        '<h1 style="font-size:22px;font-weight:800;color:#1A1A18;line-height:1.2;margin-bottom:12px;letter-spacing:-.02em">'+a.h+'</h1>'+
+
+        // Segment ingress
+        '<p style="font-size:14px;color:#5A6B52;line-height:1.75;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #E0D8CC;font-style:italic">'+a.ingress+'</p>'+
+
+        // Segment intro box
+        '<div style="background:#FAF0E6;border-left:3px solid #7FE832;padding:12px 14px;margin-bottom:18px;border-radius:0 4px 4px 0">'+
+          '<div style="font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#1C3D1C;margin-bottom:5px">Om din bransje</div>'+
+          '<div style="font-size:12px;color:#5A6B52;line-height:1.7">'+a.seg_intro+'</div>'+
+        '</div>'+
+
+        // Body text
+        bodyPs+
+
+        // CTA button
+        '<div style="margin-top:20px;padding-top:20px;border-top:1px solid #E0D8CC">'+
+          '<div style="background:#1C3D1C;color:#fff;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:12px 20px;border-radius:4px;display:inline-block;cursor:pointer">'+a.cta+' →</div>'+
+        '</div>'+
+
+      '</div>'+
+
+      // Site footer
+      '<div style="background:#1A1A18;padding:10px 20px;display:flex;justify-content:space-between;align-items:center">'+
+        '<div style="font-size:10px;font-weight:800;color:rgba(255,255,255,.3)">Stø<span style="color:#7FE832">.</span></div>'+
+        '<div style="font-size:9px;color:rgba(255,255,255,.2)">Biskop Gunnerus\u2019 gate 14 · 0185 Oslo</div>'+
+      '</div>'+
+
+    '</div>'+
+  '</div>';
+}
+
+buildGrid();
+}
+function fCh(c,btn){
+  if(hiddenChs.has(c)){hiddenChs.delete(c);btn.classList.add('on');}
+  else{hiddenChs.add(c);btn.classList.remove('on');}
+  
+// ── FULL ARTICLE CONTENT from Bjørn's xlsx ───────────────────────────────
+const ART_CONTENT = {
+  'r-1':{seg:'Regnskap og revisjon',nr:1,
+    h:'Er du rapporteringspliktig bedrift? Dette må du vite om KYC',
+    ingress:'Som regnskapsfører eller revisor er du underlagt hvitvaskingsloven – hvitvaskingsloven stiller strenge krav til en rekke norske virksomheter – uavhengig av størrelse. Mange SMB-bedrifter er usikre på hva de faktisk er pliktige til å gjøre. Her får du en klar oversikt.',
+    seg_intro:'Regnskapsførere og revisorer er blant de mest utsatte yrkesgruppene i hvitvaskingslovens øyne. Du har jevnlig kontakt med klientenes økonomi og er rapporteringspliktig ved mistenkelige forhold. For mange regnskapsbyråer er KYC-arbeid en ekstrabelastning som havner i fanget på én person – uten system, uten struktur, og med stor risiko for mangler.',
+    body:'Hvitvaskingsloven pålegger rapporteringspliktige virksomheter å gjennomføre risikovurdering, kundetiltak (KYC), løpende overvåkning, intern kontroll og rapportering til Økokrim. Alt skal dokumenteres og kan etterprøves av Finanstilsynet.\n\nFor mange regnskapsbyråer er dette krevende å håndtere uten dedikerte ressurser eller systemer. KYC Flow fra Stø gjør dette arbeidet enkelt: du bestiller selv i portalen, og kan starte kundekontroll samme dag – uten utvikling eller integrasjon.\n\nMed KYC Flow får du overvåkning av kunder mot PEP- og sanksjonslister, automatisk dokumentasjon, risikovurdering, eierkart og KYC-skjemaer signert med BankID. Alt samlet på ett sted.',
+    cta:'Kom i gang med KYC Flow – fra kr 1 300/mnd'},
+  'r-3':{seg:'Regnskap og revisjon',nr:3,
+    h:'Derfor er automatisk overvåkning av kunder viktigere enn du tror',
+    ingress:'Som regnskapsfører eller revisor er du underlagt hvitvaskingsloven – det holder ikke å gjøre én kundekontroll ved oppstart av kundeforholdet. Hvitvaskingsloven krever løpende overvåkning. Her er hva det betyr i praksis – og hvordan du gjør det enkelt.',
+    seg_intro:'Regnskapsførere og revisorer er blant de mest utsatte yrkesgruppene i hvitvaskingslovens øyne. Du har jevnlig kontakt med klientenes økonomi og er rapporteringspliktig ved mistenkelige forhold. For mange regnskapsbyråer er KYC-arbeid en ekstrabelastning som havner i fanget på én person – uten system, uten struktur, og med stor risiko for mangler.',
+    body:'Løpende overvåkning er et av de mest oversette kravene i hvitvaskingsloven. Mange bedrifter gjennomfører én grundig kontroll ved etablering av kundeforholdet – men glemmer at kundenes risikoprofil kan endre seg over tid.\n\nEn kunde som i dag er lav-risiko kan bli PEP, havne på en sanksjonsliste eller endre eierstruktur. Uten løpende overvåkning oppdager du det ikke.\n\nKYC Flow overvåker automatisk alle dine kunder mot norske og internasjonale PEP-lister, sanksjonslister og Nordiske registre. Du varsles umiddelbart ved relevante endringer – og alt dokumenteres automatisk i systemet.',
+    cta:'Aktiver automatisk overvåkning med KYC Flow'},
+  'r-5':{seg:'Regnskap og revisjon',nr:5,
+    h:'5 vanlige KYC-feil – og hvordan du enkelt unngår dem',
+    ingress:'Som regnskapsfører eller revisor er du underlagt hvitvaskingsloven – de fleste feilene som avdekkes i KYC-tilsyn er de samme, gang på gang. Her er de fem vanligste – og hva du konkret kan gjøre for å unngå dem.',
+    seg_intro:'Regnskapsførere og revisorer er blant de mest utsatte yrkesgruppene i hvitvaskingslovens øyne. Du har jevnlig kontakt med klientenes økonomi og er rapporteringspliktig ved mistenkelige forhold. For mange regnskapsbyråer er KYC-arbeid en ekstrabelastning som havner i fanget på én person – uten system, uten struktur, og med stor risiko for mangler.',
+    body:'1. MANGELFULL RISIKOVURDERING – Mange bedrifter mangler en strukturert risikovurdering per kunde. KYC Flow gir deg sjekklister og risikoindikatorer som sikrer at ingenting glipper.\n\n2. UTDATERT KUNDEINFORMASJON – Dokumentasjon som er innhentet ved oppstart, men aldri oppdatert. KYC Flow overvåker og varsler automatisk ved endringer.\n\n3. MANGLENDE IDENTITETSKONTROLL – Identifisering av kunden uten tilstrekkelig dokumentasjon. Med BankID-integrasjon er identitetskontrollen enkel og lovmessig.\n\n4. INGEN KONTROLL AV REELLE RETTIGHETSHAVERE – Eierstrukturen bak et selskap er ikke alltid åpenbar. Eierkartet i KYC Flow visualiserer eierskapsstrukturer grafisk.\n\n5. DÅRLIG DOKUMENTASJON – Spredte arkiver og manglende sporbarhet. KYC Flow arkiverer alt automatisk og gjør dataene tilgjengelige som PDF-rapporter.',
+    cta:'Unngå alle 5 feilene – prøv KYC Flow gratis'},
+  'b-1':{seg:'Bank og finans',nr:1,
+    h:'Er du rapporteringspliktig bedrift? Dette må du vite om KYC',
+    ingress:'Som aktør i bank- og finanssektoren er du underlagt hvitvaskingsloven – hvitvaskingsloven stiller strenge krav til en rekke norske virksomheter – uavhengig av størrelse. Mange SMB-bedrifter er usikre på hva de faktisk er pliktige til å gjøre. Her får du en klar oversikt.',
+    seg_intro:'For banker og finansinstitusjoner er KYC et kjernekrav – men kravene strekker seg langt ut over de store aktørene. Også mindre sparebanker, låneformidlere og andre finansforetak er fullt underlagt hvitvaskingsloven. Compliance-belastningen øker år for år, og ressursene er knappe.',
+    body:'Hvitvaskingsloven pålegger rapporteringspliktige virksomheter å gjennomføre risikovurdering, kundetiltak (KYC), løpende overvåkning, intern kontroll og rapportering til Økokrim. Alt skal dokumenteres og kan etterprøves av Finanstilsynet.\n\nFor mange finansforetak er dette krevende å håndtere uten dedikerte ressurser eller systemer. KYC Flow fra Stø gjør dette arbeidet enkelt: du bestiller selv i portalen, og kan starte kundekontroll samme dag – uten utvikling eller integrasjon.\n\nMed KYC Flow får du overvåkning av kunder mot PEP- og sanksjonslister, automatisk dokumentasjon, risikovurdering, eierkart og KYC-skjemaer signert med BankID. Alt samlet på ett sted.',
+    cta:'Kom i gang med KYC Flow – fra kr 1 300/mnd'},
+  'b-4':{seg:'Bank og finans',nr:4,
+    h:'Hva skjer hvis du ikke overholder hvitvaskingsloven?',
+    ingress:'Som aktør i bank- og finanssektoren er du underlagt hvitvaskingsloven – manglende etterlevelse kan få alvorlige konsekvenser – fra bøter og pålegg til tap av tillatelse. Slik unngår du å havne i faresonen.',
+    seg_intro:'For banker og finansinstitusjoner er KYC et kjernekrav – men kravene strekker seg langt ut over de store aktørene. Også mindre sparebanker, låneformidlere og andre finansforetak er fullt underlagt hvitvaskingsloven. Compliance-belastningen øker år for år, og ressursene er knappe.',
+    body:'Finanstilsynet har de siste årene intensivert tilsynsarbeidet med AML og KYC. Brudd på hvitvaskingsloven kan medføre overtredelsesgebyr, pålegg om retting og i alvorlige tilfeller tilbakekall av konsesjon eller autorisasjon.\n\nDe vanligste feilene tilsynet avdekker er: manglende risikovurdering, ufullstendig dokumentasjon av kundetiltak og manglende rutiner for løpende overvåkning.\n\nKYC Flow fra Stø er bygget for å hjelpe deg å unngå nettopp disse feilene. Systemet sikrer at du alltid har oppdatert dokumentasjon, at risikovurderinger gjennomføres systematisk og at alle kundeforhold er løpende overvåket. Alt er tilgjengelig som nedlastbare PDF-rapporter ved et eventuelt tilsyn.',
+    cta:'Sikre etterlevelsen med KYC Flow – fra kr 3 900/mnd'},
+  'b-9':{seg:'Bank og finans',nr:9,
+    h:'Er dine kunder på en sanksjonsliste? Slik holder du kontroll',
+    ingress:'Som aktør i bank- og finanssektoren er du underlagt hvitvaskingsloven – sanksjonskontroll er et lovkrav og en praktisk utfordring. Listene oppdateres kontinuerlig, og det er ditt ansvar å holde oversikten. Slik gjør du det enkelt.',
+    seg_intro:'For banker og finansinstitusjoner er KYC et kjernekrav – men kravene strekker seg langt ut over de store aktørene. Også mindre sparebanker, låneformidlere og andre finansforetak er fullt underlagt hvitvaskingsloven. Compliance-belastningen øker år for år, og ressursene er knappe.',
+    body:'Internasjonale sanksjonslister som FN, EU og OFAC oppdateres jevnlig. En kunde som var sanksjonsfri ved oppstart av kundeforholdet kan havne på listen dagen etter.\n\nMange SMB-bedrifter gjennomfører sanksjonskontroll manuelt og sporadisk – og oppdager ikke endringer i tide. Det er både ressurskrevende og risikabelt.\n\nKYC Flow overvåker automatisk alle dine kunder og kontaktpersoner mot internasjonale PEP-lister og sanksjonslister – og varsler deg umiddelbart ved treff. Ingen manuell sjekk nødvendig.\n\nDu slipper å bekymre deg for om listene er oppdaterte. Det er Støs ansvar – du fokuserer på virksomheten din.',
+    cta:'Aktiver automatisk sanksjonskontroll med KYC Flow'},
+  'v-1':{seg:'Verdipapir',nr:1,
+    h:'Er du rapporteringspliktig bedrift? Dette må du vite om KYC',
+    ingress:'Som verdipapirforetak er du underlagt hvitvaskingsloven – hvitvaskingsloven stiller strenge krav til en rekke norske virksomheter – uavhengig av størrelse. Mange SMB-bedrifter er usikre på hva de faktisk er pliktige til å gjøre. Her får du en klar oversikt.',
+    seg_intro:'Verdipapirforetak, forvaltningsselskaper og investeringsrådgivere er underlagt hvitvaskingsloven med særlig strenge krav. Bransjen er hardt regulert, og kravene til kundekontroll er blant de mest omfattende. Kravene til KYC i verdipapirmarkedet er komplekse, og mange mindre foretak mangler ressurser til å håndtere dem systematisk.',
+    body:'Hvitvaskingsloven pålegger rapporteringspliktige virksomheter å gjennomføre risikovurdering, kundetiltak (KYC), løpende overvåkning, intern kontroll og rapportering til Økokrim. Alt skal dokumenteres og kan etterprøves av Finanstilsynet.\n\nFor verdipapirforetak er dette krevende å håndtere uten dedikerte ressurser. KYC Flow fra Stø gjør dette arbeidet enkelt: du bestiller selv i portalen, og kan starte kundekontroll samme dag – uten utvikling eller integrasjon.\n\nMed KYC Flow får du overvåkning av kunder mot PEP- og sanksjonslister, automatisk dokumentasjon, risikovurdering, eierkart og KYC-skjemaer signert med BankID. Alt samlet på ett sted.',
+    cta:'Kom i gang med KYC Flow – fra kr 2 900/mnd'},
+  'v-6':{seg:'Verdipapir',nr:6,
+    h:'KYC Flow: Komplett kundekontroll fra dag én – uten teknisk integrasjon',
+    ingress:'Som verdipapirforetak er du underlagt hvitvaskingsloven – mange KYC-systemer krever lang implementeringstid og IT-ressurser. KYC Flow er annerledes: du bestiller selv, og er i gang samme dag.',
+    seg_intro:'Verdipapirforetak, forvaltningsselskaper og investeringsrådgivere er underlagt hvitvaskingsloven med særlig strenge krav. Bransjen er hardt regulert, og kravene til kundekontroll er blant de mest omfattende. Kravene til KYC i verdipapirmarkedet er komplekse, og mange mindre foretak mangler ressurser til å håndtere dem systematisk.',
+    body:'En av de største barrierene for å ta i bruk et KYC-system er implementeringskompleksiteten. For verdipapirforetak uten egen IT-avdeling kan dette føles uoverkommelig.\n\nKYC Flow er designet for å løse akkurat dette: ingen utvikling, ingen integrasjon, ingen langvarig onboarding. Du velger pakke, betaler i portalen og får umiddelbart tilgang via en unik påloggingslenke.\n\nFra det øyeblikket har du tilgang til overvåkning mot PEP- og sanksjonslister, data fra nordiske registre, KYC-skjemaer med BankID-signatur, automatisk dokumentasjon og rapportering, risikovurdering og eierkart.\n\nKYC Flow er bygget av folka bak BankID og BankAxept. Du kan stole på sikkerheten og datakvaliteten.',
+    cta:'Bestill KYC Flow og vær i gang i dag'},
+  'v-10':{seg:'Verdipapir',nr:10,
+    h:'Forstå risikovurdering i KYC – og gjør det riktig første gang',
+    ingress:'Som verdipapirforetak er du underlagt hvitvaskingsloven – risikovurdering er et av kjerneelementene i hvitvaskingsloven. Mange bedrifter gjennomfører den feil – eller ikke i det hele tatt. Slik gjør du det riktig.',
+    seg_intro:'Verdipapirforetak, forvaltningsselskaper og investeringsrådgivere er underlagt hvitvaskingsloven med særlig strenge krav. Bransjen er hardt regulert, og kravene til kundekontroll er blant de mest omfattende. Kravene til KYC i verdipapirmarkedet er komplekse, og mange mindre foretak mangler ressurser til å håndtere dem systematisk.',
+    body:'Hvitvaskingsloven krever at du vurderer risikoen ved hvert enkelt kundeforhold. Risikovurderingen skal baseres på: kundens bransje og forretningsmodell, geografi (land med høy korrupsjonsrisiko), om kunden er politisk eksponert (PEP), eierstruktur og reelle rettighetshavere, type transaksjon og transaksjonsvolum.\n\nKYC Flow gir deg en strukturert og systemstøttet risikovurderingsprosess med sjekklister og risikoindikatorer. Systemet hjelper deg å vurdere risikoen riktig – og dokumenterer vurderingen automatisk.\n\nMed KYC Flow gjennomfører du risikovurdering på under 10 minutter per kunde. Alt lagres og er tilgjengelig ved tilsyn.',
+    cta:'Gjør risikovurdering riktig med KYC Flow – fra kr 2 900/mnd'}
+};
+
+function swTab(t){
+  ['post','art'].forEach(function(n){
+    var tab = document.getElementById('tab-'+n);
+    var pane = document.getElementById('d-'+n);
+    if(tab) tab.style.borderBottomColor = n===t ? '#7FE832' : 'transparent';
+    if(tab) tab.style.color = n===t ? '#fff' : 'rgba(255,255,255,.35)';
+    if(pane) pane.style.display = n===t ? 'block' : 'none';
+  });
+}
+
+function renderArticle(seg, artNr){
+  var key = seg+'-'+artNr;
+  var a = ART_CONTENT[key];
+  if(!a) return '<div style="padding:20px;color:var(--muted)">Artikkelinnhold ikke tilgjengelig for dette utvalget.</div>';
+  var bodyPs = a.body.split('\n\n').map(function(p){return '<p style="margin-bottom:12px;font-size:14px;color:#2A2A28;line-height:1.8">'+p+'</p>';}).join('');
+
+  // Render as stoe.no blog post
+  return '<div style="background:#F3EFE8;min-height:100%">'+
+
+    // Relationship note at top
+    '<div style="background:#1C3D1C;padding:10px 16px;display:flex;align-items:center;gap:8px">'+
+      '<div style="width:6px;height:6px;border-radius:50%;background:#7FE832;flex-shrink:0"></div>'+
+      '<div style="font-size:10px;color:rgba(255,255,255,.7)">Nyhetsbrevet og LinkedIn-posten lenker til denne artikkelen på stoe.no — den driver trafikken inn i leadsfunnelen</div>'+
+    '</div>'+
+
+    // Blog post rendered as stoe.no page
+    '<div style="max-width:520px;margin:0 auto;background:#fff;box-shadow:0 2px 16px rgba(0,0,0,.08)">'+
+
+      // Site nav
+      '<div style="background:#1A1A18;padding:10px 20px;display:flex;align-items:center;justify-content:space-between">'+
+        '<div style="font-size:14px;font-weight:800;color:#fff;letter-spacing:-.02em">Stø<span style="color:#7FE832">.</span></div>'+
+        '<div style="font-size:9px;color:rgba(255,255,255,.3);letter-spacing:.08em;text-transform:uppercase">stoe.no / KYC / Artikler</div>'+
+      '</div>'+
+
+      // Hero image
+      '<div style="height:160px;background:linear-gradient(135deg,#1C3D1C 0%,#2A4E2A 60%,#1A3428 100%);position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;padding:20px">'+
+        '<div style="position:absolute;inset:0;background:url("https://stoe.no/images/8gh06hji/production/29e4887eaff9d3581d0549dbd0c546485e8e0888-2500x1875.jpg?w=520&fm=webp&q=85&fit=crop") center/cover;opacity:.25"></div>'+
+        '<div style="font-size:8px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#7FE832;margin-bottom:6px;position:relative;z-index:1">KYC · '+a.seg+'</div>'+
+        '<div style="font-size:7px;font-weight:600;color:rgba(255,255,255,.4);position:relative;z-index:1;letter-spacing:.06em">ARTIKKEL · ART. '+a.nr+'</div>'+
+      '</div>'+
+
+      // Article content
+      '<div style="padding:24px 24px 32px">'+
+
+        // Title
+        '<h1 style="font-size:22px;font-weight:800;color:#1A1A18;line-height:1.2;margin-bottom:12px;letter-spacing:-.02em">'+a.h+'</h1>'+
+
+        // Segment ingress
+        '<p style="font-size:14px;color:#5A6B52;line-height:1.75;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #E0D8CC;font-style:italic">'+a.ingress+'</p>'+
+
+        // Segment intro box
+        '<div style="background:#FAF0E6;border-left:3px solid #7FE832;padding:12px 14px;margin-bottom:18px;border-radius:0 4px 4px 0">'+
+          '<div style="font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#1C3D1C;margin-bottom:5px">Om din bransje</div>'+
+          '<div style="font-size:12px;color:#5A6B52;line-height:1.7">'+a.seg_intro+'</div>'+
+        '</div>'+
+
+        // Body text
+        bodyPs+
+
+        // CTA button
+        '<div style="margin-top:20px;padding-top:20px;border-top:1px solid #E0D8CC">'+
+          '<div style="background:#1C3D1C;color:#fff;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:12px 20px;border-radius:4px;display:inline-block;cursor:pointer">'+a.cta+' →</div>'+
+        '</div>'+
+
+      '</div>'+
+
+      // Site footer
+      '<div style="background:#1A1A18;padding:10px 20px;display:flex;justify-content:space-between;align-items:center">'+
+        '<div style="font-size:10px;font-weight:800;color:rgba(255,255,255,.3)">Stø<span style="color:#7FE832">.</span></div>'+
+        '<div style="font-size:9px;color:rgba(255,255,255,.2)">Biskop Gunnerus\u2019 gate 14 · 0185 Oslo</div>'+
+      '</div>'+
+
+    '</div>'+
+  '</div>';
+}
+
+buildGrid();
+}
+
+
+// ── FULL ARTICLE CONTENT from Bjørn's xlsx ───────────────────────────────
+const ART_CONTENT = {
+  'r-1':{seg:'Regnskap og revisjon',nr:1,
+    h:'Er du rapporteringspliktig bedrift? Dette må du vite om KYC',
+    ingress:'Som regnskapsfører eller revisor er du underlagt hvitvaskingsloven – hvitvaskingsloven stiller strenge krav til en rekke norske virksomheter – uavhengig av størrelse. Mange SMB-bedrifter er usikre på hva de faktisk er pliktige til å gjøre. Her får du en klar oversikt.',
+    seg_intro:'Regnskapsførere og revisorer er blant de mest utsatte yrkesgruppene i hvitvaskingslovens øyne. Du har jevnlig kontakt med klientenes økonomi og er rapporteringspliktig ved mistenkelige forhold. For mange regnskapsbyråer er KYC-arbeid en ekstrabelastning som havner i fanget på én person – uten system, uten struktur, og med stor risiko for mangler.',
+    body:'Hvitvaskingsloven pålegger rapporteringspliktige virksomheter å gjennomføre risikovurdering, kundetiltak (KYC), løpende overvåkning, intern kontroll og rapportering til Økokrim. Alt skal dokumenteres og kan etterprøves av Finanstilsynet.\n\nFor mange regnskapsbyråer er dette krevende å håndtere uten dedikerte ressurser eller systemer. KYC Flow fra Stø gjør dette arbeidet enkelt: du bestiller selv i portalen, og kan starte kundekontroll samme dag – uten utvikling eller integrasjon.\n\nMed KYC Flow får du overvåkning av kunder mot PEP- og sanksjonslister, automatisk dokumentasjon, risikovurdering, eierkart og KYC-skjemaer signert med BankID. Alt samlet på ett sted.',
+    cta:'Kom i gang med KYC Flow – fra kr 1 300/mnd'},
+  'r-3':{seg:'Regnskap og revisjon',nr:3,
+    h:'Derfor er automatisk overvåkning av kunder viktigere enn du tror',
+    ingress:'Som regnskapsfører eller revisor er du underlagt hvitvaskingsloven – det holder ikke å gjøre én kundekontroll ved oppstart av kundeforholdet. Hvitvaskingsloven krever løpende overvåkning. Her er hva det betyr i praksis – og hvordan du gjør det enkelt.',
+    seg_intro:'Regnskapsførere og revisorer er blant de mest utsatte yrkesgruppene i hvitvaskingslovens øyne. Du har jevnlig kontakt med klientenes økonomi og er rapporteringspliktig ved mistenkelige forhold. For mange regnskapsbyråer er KYC-arbeid en ekstrabelastning som havner i fanget på én person – uten system, uten struktur, og med stor risiko for mangler.',
+    body:'Løpende overvåkning er et av de mest oversette kravene i hvitvaskingsloven. Mange bedrifter gjennomfører én grundig kontroll ved etablering av kundeforholdet – men glemmer at kundenes risikoprofil kan endre seg over tid.\n\nEn kunde som i dag er lav-risiko kan bli PEP, havne på en sanksjonsliste eller endre eierstruktur. Uten løpende overvåkning oppdager du det ikke.\n\nKYC Flow overvåker automatisk alle dine kunder mot norske og internasjonale PEP-lister, sanksjonslister og Nordiske registre. Du varsles umiddelbart ved relevante endringer – og alt dokumenteres automatisk i systemet.',
+    cta:'Aktiver automatisk overvåkning med KYC Flow'},
+  'r-5':{seg:'Regnskap og revisjon',nr:5,
+    h:'5 vanlige KYC-feil – og hvordan du enkelt unngår dem',
+    ingress:'Som regnskapsfører eller revisor er du underlagt hvitvaskingsloven – de fleste feilene som avdekkes i KYC-tilsyn er de samme, gang på gang. Her er de fem vanligste – og hva du konkret kan gjøre for å unngå dem.',
+    seg_intro:'Regnskapsførere og revisorer er blant de mest utsatte yrkesgruppene i hvitvaskingslovens øyne. Du har jevnlig kontakt med klientenes økonomi og er rapporteringspliktig ved mistenkelige forhold. For mange regnskapsbyråer er KYC-arbeid en ekstrabelastning som havner i fanget på én person – uten system, uten struktur, og med stor risiko for mangler.',
+    body:'1. MANGELFULL RISIKOVURDERING – Mange bedrifter mangler en strukturert risikovurdering per kunde. KYC Flow gir deg sjekklister og risikoindikatorer som sikrer at ingenting glipper.\n\n2. UTDATERT KUNDEINFORMASJON – Dokumentasjon som er innhentet ved oppstart, men aldri oppdatert. KYC Flow overvåker og varsler automatisk ved endringer.\n\n3. MANGLENDE IDENTITETSKONTROLL – Identifisering av kunden uten tilstrekkelig dokumentasjon. Med BankID-integrasjon er identitetskontrollen enkel og lovmessig.\n\n4. INGEN KONTROLL AV REELLE RETTIGHETSHAVERE – Eierstrukturen bak et selskap er ikke alltid åpenbar. Eierkartet i KYC Flow visualiserer eierskapsstrukturer grafisk.\n\n5. DÅRLIG DOKUMENTASJON – Spredte arkiver og manglende sporbarhet. KYC Flow arkiverer alt automatisk og gjør dataene tilgjengelige som PDF-rapporter.',
+    cta:'Unngå alle 5 feilene – prøv KYC Flow gratis'},
+  'b-1':{seg:'Bank og finans',nr:1,
+    h:'Er du rapporteringspliktig bedrift? Dette må du vite om KYC',
+    ingress:'Som aktør i bank- og finanssektoren er du underlagt hvitvaskingsloven – hvitvaskingsloven stiller strenge krav til en rekke norske virksomheter – uavhengig av størrelse. Mange SMB-bedrifter er usikre på hva de faktisk er pliktige til å gjøre. Her får du en klar oversikt.',
+    seg_intro:'For banker og finansinstitusjoner er KYC et kjernekrav – men kravene strekker seg langt ut over de store aktørene. Også mindre sparebanker, låneformidlere og andre finansforetak er fullt underlagt hvitvaskingsloven. Compliance-belastningen øker år for år, og ressursene er knappe.',
+    body:'Hvitvaskingsloven pålegger rapporteringspliktige virksomheter å gjennomføre risikovurdering, kundetiltak (KYC), løpende overvåkning, intern kontroll og rapportering til Økokrim. Alt skal dokumenteres og kan etterprøves av Finanstilsynet.\n\nFor mange finansforetak er dette krevende å håndtere uten dedikerte ressurser eller systemer. KYC Flow fra Stø gjør dette arbeidet enkelt: du bestiller selv i portalen, og kan starte kundekontroll samme dag – uten utvikling eller integrasjon.\n\nMed KYC Flow får du overvåkning av kunder mot PEP- og sanksjonslister, automatisk dokumentasjon, risikovurdering, eierkart og KYC-skjemaer signert med BankID. Alt samlet på ett sted.',
+    cta:'Kom i gang med KYC Flow – fra kr 1 300/mnd'},
+  'b-4':{seg:'Bank og finans',nr:4,
+    h:'Hva skjer hvis du ikke overholder hvitvaskingsloven?',
+    ingress:'Som aktør i bank- og finanssektoren er du underlagt hvitvaskingsloven – manglende etterlevelse kan få alvorlige konsekvenser – fra bøter og pålegg til tap av tillatelse. Slik unngår du å havne i faresonen.',
+    seg_intro:'For banker og finansinstitusjoner er KYC et kjernekrav – men kravene strekker seg langt ut over de store aktørene. Også mindre sparebanker, låneformidlere og andre finansforetak er fullt underlagt hvitvaskingsloven. Compliance-belastningen øker år for år, og ressursene er knappe.',
+    body:'Finanstilsynet har de siste årene intensivert tilsynsarbeidet med AML og KYC. Brudd på hvitvaskingsloven kan medføre overtredelsesgebyr, pålegg om retting og i alvorlige tilfeller tilbakekall av konsesjon eller autorisasjon.\n\nDe vanligste feilene tilsynet avdekker er: manglende risikovurdering, ufullstendig dokumentasjon av kundetiltak og manglende rutiner for løpende overvåkning.\n\nKYC Flow fra Stø er bygget for å hjelpe deg å unngå nettopp disse feilene. Systemet sikrer at du alltid har oppdatert dokumentasjon, at risikovurderinger gjennomføres systematisk og at alle kundeforhold er løpende overvåket. Alt er tilgjengelig som nedlastbare PDF-rapporter ved et eventuelt tilsyn.',
+    cta:'Sikre etterlevelsen med KYC Flow – fra kr 3 900/mnd'},
+  'b-9':{seg:'Bank og finans',nr:9,
+    h:'Er dine kunder på en sanksjonsliste? Slik holder du kontroll',
+    ingress:'Som aktør i bank- og finanssektoren er du underlagt hvitvaskingsloven – sanksjonskontroll er et lovkrav og en praktisk utfordring. Listene oppdateres kontinuerlig, og det er ditt ansvar å holde oversikten. Slik gjør du det enkelt.',
+    seg_intro:'For banker og finansinstitusjoner er KYC et kjernekrav – men kravene strekker seg langt ut over de store aktørene. Også mindre sparebanker, låneformidlere og andre finansforetak er fullt underlagt hvitvaskingsloven. Compliance-belastningen øker år for år, og ressursene er knappe.',
+    body:'Internasjonale sanksjonslister som FN, EU og OFAC oppdateres jevnlig. En kunde som var sanksjonsfri ved oppstart av kundeforholdet kan havne på listen dagen etter.\n\nMange SMB-bedrifter gjennomfører sanksjonskontroll manuelt og sporadisk – og oppdager ikke endringer i tide. Det er både ressurskrevende og risikabelt.\n\nKYC Flow overvåker automatisk alle dine kunder og kontaktpersoner mot internasjonale PEP-lister og sanksjonslister – og varsler deg umiddelbart ved treff. Ingen manuell sjekk nødvendig.\n\nDu slipper å bekymre deg for om listene er oppdaterte. Det er Støs ansvar – du fokuserer på virksomheten din.',
+    cta:'Aktiver automatisk sanksjonskontroll med KYC Flow'},
+  'v-1':{seg:'Verdipapir',nr:1,
+    h:'Er du rapporteringspliktig bedrift? Dette må du vite om KYC',
+    ingress:'Som verdipapirforetak er du underlagt hvitvaskingsloven – hvitvaskingsloven stiller strenge krav til en rekke norske virksomheter – uavhengig av størrelse. Mange SMB-bedrifter er usikre på hva de faktisk er pliktige til å gjøre. Her får du en klar oversikt.',
+    seg_intro:'Verdipapirforetak, forvaltningsselskaper og investeringsrådgivere er underlagt hvitvaskingsloven med særlig strenge krav. Bransjen er hardt regulert, og kravene til kundekontroll er blant de mest omfattende. Kravene til KYC i verdipapirmarkedet er komplekse, og mange mindre foretak mangler ressurser til å håndtere dem systematisk.',
+    body:'Hvitvaskingsloven pålegger rapporteringspliktige virksomheter å gjennomføre risikovurdering, kundetiltak (KYC), løpende overvåkning, intern kontroll og rapportering til Økokrim. Alt skal dokumenteres og kan etterprøves av Finanstilsynet.\n\nFor verdipapirforetak er dette krevende å håndtere uten dedikerte ressurser. KYC Flow fra Stø gjør dette arbeidet enkelt: du bestiller selv i portalen, og kan starte kundekontroll samme dag – uten utvikling eller integrasjon.\n\nMed KYC Flow får du overvåkning av kunder mot PEP- og sanksjonslister, automatisk dokumentasjon, risikovurdering, eierkart og KYC-skjemaer signert med BankID. Alt samlet på ett sted.',
+    cta:'Kom i gang med KYC Flow – fra kr 2 900/mnd'},
+  'v-6':{seg:'Verdipapir',nr:6,
+    h:'KYC Flow: Komplett kundekontroll fra dag én – uten teknisk integrasjon',
+    ingress:'Som verdipapirforetak er du underlagt hvitvaskingsloven – mange KYC-systemer krever lang implementeringstid og IT-ressurser. KYC Flow er annerledes: du bestiller selv, og er i gang samme dag.',
+    seg_intro:'Verdipapirforetak, forvaltningsselskaper og investeringsrådgivere er underlagt hvitvaskingsloven med særlig strenge krav. Bransjen er hardt regulert, og kravene til kundekontroll er blant de mest omfattende. Kravene til KYC i verdipapirmarkedet er komplekse, og mange mindre foretak mangler ressurser til å håndtere dem systematisk.',
+    body:'En av de største barrierene for å ta i bruk et KYC-system er implementeringskompleksiteten. For verdipapirforetak uten egen IT-avdeling kan dette føles uoverkommelig.\n\nKYC Flow er designet for å løse akkurat dette: ingen utvikling, ingen integrasjon, ingen langvarig onboarding. Du velger pakke, betaler i portalen og får umiddelbart tilgang via en unik påloggingslenke.\n\nFra det øyeblikket har du tilgang til overvåkning mot PEP- og sanksjonslister, data fra nordiske registre, KYC-skjemaer med BankID-signatur, automatisk dokumentasjon og rapportering, risikovurdering og eierkart.\n\nKYC Flow er bygget av folka bak BankID og BankAxept. Du kan stole på sikkerheten og datakvaliteten.',
+    cta:'Bestill KYC Flow og vær i gang i dag'},
+  'v-10':{seg:'Verdipapir',nr:10,
+    h:'Forstå risikovurdering i KYC – og gjør det riktig første gang',
+    ingress:'Som verdipapirforetak er du underlagt hvitvaskingsloven – risikovurdering er et av kjerneelementene i hvitvaskingsloven. Mange bedrifter gjennomfører den feil – eller ikke i det hele tatt. Slik gjør du det riktig.',
+    seg_intro:'Verdipapirforetak, forvaltningsselskaper og investeringsrådgivere er underlagt hvitvaskingsloven med særlig strenge krav. Bransjen er hardt regulert, og kravene til kundekontroll er blant de mest omfattende. Kravene til KYC i verdipapirmarkedet er komplekse, og mange mindre foretak mangler ressurser til å håndtere dem systematisk.',
+    body:'Hvitvaskingsloven krever at du vurderer risikoen ved hvert enkelt kundeforhold. Risikovurderingen skal baseres på: kundens bransje og forretningsmodell, geografi (land med høy korrupsjonsrisiko), om kunden er politisk eksponert (PEP), eierstruktur og reelle rettighetshavere, type transaksjon og transaksjonsvolum.\n\nKYC Flow gir deg en strukturert og systemstøttet risikovurderingsprosess med sjekklister og risikoindikatorer. Systemet hjelper deg å vurdere risikoen riktig – og dokumenterer vurderingen automatisk.\n\nMed KYC Flow gjennomfører du risikovurdering på under 10 minutter per kunde. Alt lagres og er tilgjengelig ved tilsyn.',
+    cta:'Gjør risikovurdering riktig med KYC Flow – fra kr 2 900/mnd'}
+};
+
+function swTab(t){
+  ['post','art'].forEach(function(n){
+    var tab = document.getElementById('tab-'+n);
+    var pane = document.getElementById('d-'+n);
+    if(tab) tab.style.borderBottomColor = n===t ? '#7FE832' : 'transparent';
+    if(tab) tab.style.color = n===t ? '#fff' : 'rgba(255,255,255,.35)';
+    if(pane) pane.style.display = n===t ? 'block' : 'none';
+  });
+}
+
+function renderArticle(seg, artNr){
+  var key = seg+'-'+artNr;
+  var a = ART_CONTENT[key];
+  if(!a) return '<div style="padding:20px;color:var(--muted)">Artikkelinnhold ikke tilgjengelig for dette utvalget.</div>';
+  var bodyPs = a.body.split('\n\n').map(function(p){return '<p style="margin-bottom:12px;font-size:14px;color:#2A2A28;line-height:1.8">'+p+'</p>';}).join('');
+
+  // Render as stoe.no blog post
+  return '<div style="background:#F3EFE8;min-height:100%">'+
+
+    // Relationship note at top
+    '<div style="background:#1C3D1C;padding:10px 16px;display:flex;align-items:center;gap:8px">'+
+      '<div style="width:6px;height:6px;border-radius:50%;background:#7FE832;flex-shrink:0"></div>'+
+      '<div style="font-size:10px;color:rgba(255,255,255,.7)">Nyhetsbrevet og LinkedIn-posten lenker til denne artikkelen på stoe.no — den driver trafikken inn i leadsfunnelen</div>'+
+    '</div>'+
+
+    // Blog post rendered as stoe.no page
+    '<div style="max-width:520px;margin:0 auto;background:#fff;box-shadow:0 2px 16px rgba(0,0,0,.08)">'+
+
+      // Site nav
+      '<div style="background:#1A1A18;padding:10px 20px;display:flex;align-items:center;justify-content:space-between">'+
+        '<div style="font-size:14px;font-weight:800;color:#fff;letter-spacing:-.02em">Stø<span style="color:#7FE832">.</span></div>'+
+        '<div style="font-size:9px;color:rgba(255,255,255,.3);letter-spacing:.08em;text-transform:uppercase">stoe.no / KYC / Artikler</div>'+
+      '</div>'+
+
+      // Hero image
+      '<div style="height:160px;background:linear-gradient(135deg,#1C3D1C 0%,#2A4E2A 60%,#1A3428 100%);position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;padding:20px">'+
+        '<div style="position:absolute;inset:0;background:url("https://stoe.no/images/8gh06hji/production/29e4887eaff9d3581d0549dbd0c546485e8e0888-2500x1875.jpg?w=520&fm=webp&q=85&fit=crop") center/cover;opacity:.25"></div>'+
+        '<div style="font-size:8px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#7FE832;margin-bottom:6px;position:relative;z-index:1">KYC · '+a.seg+'</div>'+
+        '<div style="font-size:7px;font-weight:600;color:rgba(255,255,255,.4);position:relative;z-index:1;letter-spacing:.06em">ARTIKKEL · ART. '+a.nr+'</div>'+
+      '</div>'+
+
+      // Article content
+      '<div style="padding:24px 24px 32px">'+
+
+        // Title
+        '<h1 style="font-size:22px;font-weight:800;color:#1A1A18;line-height:1.2;margin-bottom:12px;letter-spacing:-.02em">'+a.h+'</h1>'+
+
+        // Segment ingress
+        '<p style="font-size:14px;color:#5A6B52;line-height:1.75;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #E0D8CC;font-style:italic">'+a.ingress+'</p>'+
+
+        // Segment intro box
+        '<div style="background:#FAF0E6;border-left:3px solid #7FE832;padding:12px 14px;margin-bottom:18px;border-radius:0 4px 4px 0">'+
+          '<div style="font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#1C3D1C;margin-bottom:5px">Om din bransje</div>'+
+          '<div style="font-size:12px;color:#5A6B52;line-height:1.7">'+a.seg_intro+'</div>'+
+        '</div>'+
+
+        // Body text
+        bodyPs+
+
+        // CTA button
+        '<div style="margin-top:20px;padding-top:20px;border-top:1px solid #E0D8CC">'+
+          '<div style="background:#1C3D1C;color:#fff;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:12px 20px;border-radius:4px;display:inline-block;cursor:pointer">'+a.cta+' →</div>'+
+        '</div>'+
+
+      '</div>'+
+
+      // Site footer
+      '<div style="background:#1A1A18;padding:10px 20px;display:flex;justify-content:space-between;align-items:center">'+
+        '<div style="font-size:10px;font-weight:800;color:rgba(255,255,255,.3)">Stø<span style="color:#7FE832">.</span></div>'+
+        '<div style="font-size:9px;color:rgba(255,255,255,.2)">Biskop Gunnerus\u2019 gate 14 · 0185 Oslo</div>'+
+      '</div>'+
+
+    '</div>'+
+  '</div>';
+}
+
+buildGrid();
+</script>
+</body>
+</html>

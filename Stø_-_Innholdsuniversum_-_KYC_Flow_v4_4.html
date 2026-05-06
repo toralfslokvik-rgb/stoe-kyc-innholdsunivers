@@ -1,0 +1,2521 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stø · KYC Flow — Innholdsuniversum</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:#F3EFE8;color:#1A1A18;-webkit-font-smoothing:antialiased;font-size:14px}
+:root{--g:#1C3D1C;--g2:#2A4E2A;--a:#7FE832;--dark:#1A1A18;--cream:#F3EFE8;--cream2:#FAF0E6;--w:#fff;--border:#E0D8CC;--muted:#7A7A72;--stone:#5A6B52}
+
+/* ── NAV ── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:300;height:52px;background:var(--dark);border-bottom:1px solid rgba(127,232,50,.1);display:flex;align-items:center;padding:0 18px;gap:10px}
+.nav-logo{font-size:18px;font-weight:800;color:#fff;letter-spacing:-.02em;flex-shrink:0}
+.nav-logo span{color:var(--a)}
+.nav-sep{width:1px;height:16px;background:rgba(255,255,255,.1);flex-shrink:0}
+.nav-sub{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3);white-space:nowrap}
+
+/* View toggle */
+.view-toggle{display:flex;gap:4px;margin-left:auto;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:5px;padding:3px}
+.vt-btn{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:5px 12px;border-radius:3px;border:none;background:transparent;color:rgba(255,255,255,.35);cursor:pointer;transition:all .15s;white-space:nowrap}
+.vt-btn:hover{color:rgba(255,255,255,.7)}
+.vt-btn.on{background:rgba(127,232,50,.15);color:#fff;border:1px solid rgba(127,232,50,.25)}
+
+/* ── BODY PADDING ── */
+.body-wrap{margin-top:52px;display:flex;height:calc(100vh - 52px);overflow:hidden}
+
+/* ══════════════════════════════════
+   VIEW 1: HIERARKISK (SEGMENT)
+══════════════════════════════════ */
+#view-seg{display:flex;width:100%;height:100%;overflow:hidden}
+
+/* Left panel — segment + article picker */
+.seg-panel{width:280px;flex-shrink:0;background:var(--dark);border-right:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;overflow-y:auto}
+.seg-panel::-webkit-scrollbar{width:3px}
+.seg-panel::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1)}
+
+.seg-section{border-bottom:1px solid rgba(255,255,255,.06)}
+.seg-hd{padding:14px 16px 10px;display:flex;align-items:center;gap:8px}
+.seg-hd-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.seg-hd-txt{font-size:11px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:.04em}
+.seg-hd-price{font-size:9px;color:rgba(255,255,255,.25);margin-left:auto}
+
+.art-item{padding:8px 16px 8px 32px;cursor:pointer;transition:background .1s;display:flex;align-items:center;gap:8px;border-left:2px solid transparent}
+.art-item:hover{background:rgba(255,255,255,.04)}
+.art-item.on{background:rgba(127,232,50,.08);border-left-color:var(--a)}
+.art-item-nr{font-size:8px;font-weight:700;color:rgba(255,255,255,.25);flex-shrink:0;width:28px}
+.art-item-ttl{font-size:11px;color:rgba(255,255,255,.55);line-height:1.35}
+.art-item.on .art-item-ttl{color:#fff}
+.art-item.on .art-item-nr{color:var(--a)}
+
+/* Right panel — journey */
+.journey-panel{flex:1;overflow-y:auto;background:#F3EFE8;padding:24px 24px 80px}
+.journey-panel::-webkit-scrollbar{width:4px}
+.journey-panel::-webkit-scrollbar-thumb{background:var(--border)}
+
+.journey-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;color:var(--muted)}
+.journey-empty-icon{font-size:48px;margin-bottom:16px;opacity:.4}
+.journey-empty-ttl{font-size:16px;font-weight:700;color:var(--dark);margin-bottom:6px}
+.journey-empty-sub{font-size:12px;color:var(--muted)}
+
+/* Journey header */
+.journey-hd{background:var(--dark);border-radius:8px;padding:20px 24px;margin-bottom:20px;position:relative;overflow:hidden}
+.journey-hd::after{content:'KYC Flow';position:absolute;right:-10px;bottom:-16px;font-size:64px;font-weight:800;color:rgba(127,232,50,.04);pointer-events:none;letter-spacing:-.04em}
+.journey-hd-seg{font-size:8px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--a);margin-bottom:6px}
+.journey-hd-art{font-size:20px;font-weight:800;color:#fff;line-height:1.2;margin-bottom:6px;letter-spacing:-.01em;position:relative;z-index:1}
+.journey-hd-ing{font-size:12px;color:rgba(255,255,255,.45);line-height:1.65;max-width:600px;position:relative;z-index:1}
+
+/* Channel filter tabs */
+.ch-tabs{display:flex;gap:4px;margin-bottom:20px;flex-wrap:wrap}
+.ch-tab{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:6px 14px;border-radius:4px;border:1px solid var(--border);background:var(--w);color:var(--muted);cursor:pointer;transition:all .15s}
+.ch-tab:hover{border-color:var(--g);color:var(--g)}
+.ch-tab.on{background:var(--g);color:#fff;border-color:var(--g)}
+
+/* Journey steps */
+.journey-steps{display:flex;flex-direction:column;gap:16px}
+.journey-step{border-radius:8px;overflow:hidden;border:1px solid var(--border);background:var(--w)}
+.journey-step.hidden{display:none}
+
+.step-hd{display:flex;align-items:center;padding:12px 16px;gap:10px;border-bottom:1px solid var(--border);background:var(--cream2)}
+.step-num{width:22px;height:22px;border-radius:50%;background:var(--g);color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-ch{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.step-ttl{font-size:12px;font-weight:700;color:var(--dark);flex:1}
+.step-seg-tag{font-size:7px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:2px}
+
+/* Copy button */
+.copy-btn{display:flex;align-items:center;gap:4px;font-size:8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:3px;border:1px solid var(--border);background:var(--w);color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap;margin-left:auto}
+.copy-btn:hover{background:var(--g);color:#fff;border-color:var(--g)}
+.copy-btn.copied{background:rgba(127,232,50,.15);color:var(--g);border-color:rgba(127,232,50,.3)}
+
+.step-body{padding:16px}
+
+/* Content blocks */
+.cb{background:var(--cream);border:1px solid var(--border);border-radius:5px;padding:12px 14px;margin-bottom:10px;position:relative}
+.cb:last-child{margin-bottom:0}
+.cb-lbl{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
+.cb-txt{font-size:12px;color:var(--dark);line-height:1.7}
+.cb-url{font-size:11px;color:var(--g);font-family:monospace}
+.cb-cta{display:inline-block;background:var(--g);color:#fff;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:8px 16px;border-radius:3px;margin-top:8px}
+
+/* Article block */
+.art-block{background:#fff;border:1px solid var(--border);border-radius:5px;overflow:hidden;margin-bottom:10px}
+.art-block-hd{background:var(--g);padding:10px 14px;display:flex;align-items:center;justify-content:space-between}
+.art-block-ttl{font-size:12px;font-weight:700;color:#fff}
+.art-block-body{padding:14px}
+.art-block-seg-intro{font-size:11px;color:var(--stone);line-height:1.7;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border);font-style:italic}
+.art-block-body-txt{font-size:12px;color:var(--dark);line-height:1.75}
+.art-block-body-txt p{margin-bottom:10px}
+
+/* ══════════════════════════════════
+   VIEW 2: KANBAN
+══════════════════════════════════ */
+#view-kanban{display:none;width:100%;height:100%}
+.cw{padding:18px 18px 80px;overflow-x:auto;overflow-y:auto;height:100%}
+.canvas{display:flex;gap:12px;width:max-content;align-items:flex-start}
+.col{width:280px;display:flex;flex-direction:column;gap:7px}
+.ph{border-radius:7px;padding:15px 13px 13px;border:1px solid rgba(255,255,255,.04);position:relative}
+.ph-n{font-size:8px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:4px}
+.ph-t{font-size:18px;font-weight:800;color:#fff;line-height:1.15;letter-spacing:-.01em}
+.ph-bar{height:2px;border-radius:1px;width:20px;margin-top:8px;background:var(--a)}
+.ph-c{position:absolute;bottom:10px;right:10px;font-size:9px;font-weight:700;color:rgba(255,255,255,.15)}
+.card{border-radius:6px;overflow:hidden;cursor:pointer;transition:transform .12s,box-shadow .12s;border:1px solid rgba(0,0,0,.06)}
+.card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.12)}
+.card.hidden{display:none}
+.cs{height:3px}
+.ci{padding:9px 11px 10px}
+.ct{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.cn{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.mvp{font-size:7px;font-weight:700;padding:2px 5px;border-radius:2px;background:rgba(127,232,50,.15);color:#1C3D1C;border:1px solid rgba(127,232,50,.3)}
+.ctitle{font-size:12px;font-weight:700;color:var(--dark);line-height:1.3;margin-bottom:3px}
+.cdesc{font-size:10px;color:var(--muted);line-height:1.5;margin-bottom:5px}
+.csegs{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:5px}
+.cs-tag{font-size:7px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 5px;border-radius:2px}
+.cft{display:flex;align-items:center;justify-content:space-between;padding-top:5px;border-top:1px solid rgba(0,0,0,.06)}
+.cf{font-size:8px;color:var(--muted)}
+.card-ann{background:#FDF3F3}.card-ann .cs{background:#C03030}.card-ann .cn{color:#C03030}
+.card-lp{background:#EDE8F8}.card-lp .cs{background:#4A2A8E}.card-lp .cn{color:#4A2A8E}
+.card-em{background:#E8EFF8}.card-em .cs{background:#1A3A7A}.card-em .cn{color:#1A3A7A}
+.card-sal{background:#FDF3DC}.card-sal .cs{background:#854F0B}.card-sal .cn{color:#854F0B}
+.card-meet{background:#E6F4EE}.card-meet .cs{background:#1D7A4F}.card-meet .cn{color:#1D7A4F}
+.cs-r{background:#EAF3DE;color:#2A4E2A}
+.cs-b{background:#DEE9F3;color:#1A2A4E}
+.cs-v{background:#F3EAD2;color:#3A2A1A}
+
+/* Kanban channel filter */
+.kan-filters{display:flex;align-items:center;gap:5px;padding:10px 18px;background:var(--dark);border-bottom:1px solid rgba(255,255,255,.05);flex-wrap:wrap}
+.kf-lbl{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.25);flex-shrink:0;margin-right:4px}
+.kf-btn{font-size:9px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:4px 10px;border-radius:3px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);color:rgba(255,255,255,.5);cursor:pointer;transition:all .15s}
+.kf-btn:hover{color:rgba(255,255,255,.8)}
+.kf-btn.on{background:rgba(127,232,50,.12);border-color:rgba(127,232,50,.25);color:#fff}
+.kf-sep{width:1px;height:14px;background:rgba(255,255,255,.08)}
+
+/* ── OVERLAY / DRAWER (kanban) ── */
+.ovl{display:none;position:fixed;inset:0;z-index:600;background:rgba(26,26,24,.55);backdrop-filter:blur(6px)}
+.ovl.open{display:block}
+.drw{position:absolute;top:0;right:0;bottom:0;width:min(760px,97vw);background:#fff;display:flex;flex-direction:column;box-shadow:-12px 0 60px rgba(0,0,0,.2)}
+.drw-hd{background:var(--g);display:flex;align-items:stretch}
+.tabs{display:flex;flex:1;padding:0 16px}
+.tab{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:14px 14px;cursor:pointer;border-bottom:2px solid transparent;color:rgba(255,255,255,.35);transition:all .15s}
+.tab:hover{color:rgba(255,255,255,.7)}
+.tab.on{color:#fff;border-bottom-color:var(--a)}
+.drw-x{padding:0 16px;font-size:18px;color:rgba(255,255,255,.35);cursor:pointer;background:none;border:none;display:flex;align-items:center;transition:color .15s}
+.drw-x:hover{color:#fff}
+.drw-sc{overflow-y:auto;flex:1}
+.drw-sc::-webkit-scrollbar{width:3px}
+.drw-sc::-webkit-scrollbar-thumb{background:var(--border)}
+.info{padding:26px 30px 48px}
+.ibadge{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:3px;margin-bottom:12px}
+.ititle{font-size:24px;font-weight:800;color:var(--dark);line-height:1.15;margin-bottom:9px;letter-spacing:-.02em}
+.ingress{font-size:13px;color:var(--stone);line-height:1.75;margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--border)}
+.isec-lbl{font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--g);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.isec-lbl::after{content:'';flex:1;height:1px;background:var(--border)}
+.imeta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px}
+.imet{background:var(--cream);border:1px solid var(--border);border-radius:4px;padding:9px 11px}
+.imet-l{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.imet-v{font-size:11px;color:var(--dark);line-height:1.5}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:#F3EFE8;color:#1A1A18;-webkit-font-smoothing:antialiased;font-size:14px}
+:root{--g:#1C3D1C;--g2:#2A4E2A;--a:#7FE832;--dark:#1A1A18;--cream:#F3EFE8;--cream2:#FAF0E6;--w:#fff;--border:#E0D8CC;--muted:#7A7A72;--stone:#5A6B52}
+
+.nav{position:fixed;top:0;left:0;right:0;z-index:300;height:50px;background:var(--dark);border-bottom:1px solid rgba(127,232,50,.1);display:flex;align-items:center;padding:0 18px;gap:12px}
+.nav-logo{font-size:18px;font-weight:800;color:#fff;letter-spacing:-.02em;flex-shrink:0}
+.nav-logo span{color:var(--a)}
+.nav-sep{width:1px;height:16px;background:rgba(255,255,255,.1)}
+.nav-sub{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3);white-space:nowrap}
+.nav-r{display:flex;align-items:center;gap:5px;margin-left:auto;flex-wrap:wrap}
+.sb{font-size:9px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:5px 10px;border-radius:3px;border:1px solid rgba(255,255,255,.12);background:transparent;color:rgba(255,255,255,.4);cursor:pointer;transition:all .15s;white-space:nowrap}
+.sb:hover{color:rgba(255,255,255,.8)}
+.sb.on{color:#fff;background:rgba(127,232,50,.15);border-color:rgba(127,232,50,.3)}
+.nd{width:1px;height:18px;background:rgba(255,255,255,.08)}
+.cb{font-size:9px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:5px 10px;border-radius:3px;border:1px solid rgba(255,255,255,.1);background:transparent;color:rgba(255,255,255,.3);cursor:pointer;transition:all .15s;white-space:nowrap}
+.cb:hover{color:rgba(255,255,255,.7)}
+.cb.on{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2);color:#fff}
+
+.cw{margin-top:50px;padding:18px 18px 70px;overflow:auto;min-height:calc(100vh - 50px)}
+.canvas{display:flex;gap:12px;width:max-content;align-items:flex-start}
+
+.col{width:280px;display:flex;flex-direction:column;gap:7px}
+.ph{border-radius:7px;padding:15px 13px 13px;border:1px solid rgba(255,255,255,.04)}
+.ph-n{font-size:8px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:4px}
+.ph-t{font-size:18px;font-weight:800;color:#fff;line-height:1.15;letter-spacing:-.01em}
+.ph-bar{height:2px;border-radius:1px;width:20px;margin-top:8px;background:var(--a)}
+.ph-c{position:absolute;bottom:10px;right:10px;font-size:9px;font-weight:700;color:rgba(255,255,255,.15)}
+
+.card{border-radius:6px;overflow:hidden;cursor:pointer;transition:transform .12s,box-shadow .12s;border:1px solid rgba(0,0,0,.06)}
+.card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.12)}
+.card.hidden{display:none}
+.cs{height:3px}
+.ci{padding:9px 11px 10px}
+.ct{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.cn{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.mvp{font-size:7px;font-weight:700;padding:2px 5px;border-radius:2px;background:rgba(127,232,50,.15);color:#1C3D1C;border:1px solid rgba(127,232,50,.3);letter-spacing:.04em}
+.ctitle{font-size:12px;font-weight:700;color:var(--dark);line-height:1.3;margin-bottom:3px}
+.cdesc{font-size:10px;color:var(--muted);line-height:1.5;margin-bottom:5px}
+.csegs{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:5px}
+.cs-tag{font-size:7px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 5px;border-radius:2px}
+.cft{display:flex;align-items:center;justify-content:space-between;padding-top:5px;border-top:1px solid rgba(0,0,0,.06)}
+.cf{font-size:8px;color:var(--muted)}
+
+.card-ann{background:#FDF3F3}.card-ann .cs{background:#C03030}.card-ann .cn{color:#C03030}
+.card-lp{background:#EDE8F8}.card-lp .cs{background:#4A2A8E}.card-lp .cn{color:#4A2A8E}
+.card-em{background:#E8EFF8}.card-em .cs{background:#1A3A7A}.card-em .cn{color:#1A3A7A}
+.card-sal{background:#FDF3DC}.card-sal .cs{background:#854F0B}.card-sal .cn{color:#854F0B}
+.card-meet{background:#E6F4EE}.card-meet .cs{background:#1D7A4F}.card-meet .cn{color:#1D7A4F}
+.cs-r{background:#EAF3DE;color:#2A4E2A}
+.cs-b{background:#DEE9F3;color:#1A2A4E}
+.cs-v{background:#F3EAD2;color:#3A2A1A}
+
+/* OVERLAY */
+.ovl{display:none;position:fixed;inset:0;z-index:600;background:rgba(26,26,24,.55);backdrop-filter:blur(6px)}
+.ovl.open{display:block}
+.drw{position:absolute;top:0;right:0;bottom:0;width:min(760px,97vw);background:#fff;display:flex;flex-direction:column;box-shadow:-12px 0 60px rgba(0,0,0,.2)}
+.drw-hd{background:var(--g);display:flex;align-items:stretch}
+.tabs{display:flex;flex:1;padding:0 16px}
+.tab{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:14px 14px;cursor:pointer;border-bottom:2px solid transparent;color:rgba(255,255,255,.35);transition:all .15s}
+.tab:hover{color:rgba(255,255,255,.7)}
+.tab.on{color:#fff;border-bottom-color:var(--a)}
+.drw-x{padding:0 16px;font-size:18px;color:rgba(255,255,255,.35);cursor:pointer;background:none;border:none;display:flex;align-items:center;transition:color .15s}
+.drw-x:hover{color:#fff}
+.drw-sc{overflow-y:auto;flex:1}
+.drw-sc::-webkit-scrollbar{width:3px}
+.drw-sc::-webkit-scrollbar-thumb{background:var(--border)}
+
+/* INFO PANE */
+.info{padding:26px 30px 48px}
+.ibadge{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:3px;margin-bottom:12px}
+.ititle{font-size:24px;font-weight:800;color:var(--dark);line-height:1.15;margin-bottom:9px;letter-spacing:-.02em}
+.ingress{font-size:13px;color:var(--stone);line-height:1.75;margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--border)}
+.isec-lbl{font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--g);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.isec-lbl::after{content:'';flex:1;height:1px;background:var(--border)}
+.imeta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px}
+.imet{background:var(--cream);border:1px solid var(--border);border-radius:4px;padding:9px 11px}
+.imet-l{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.imet-v{font-size:11px;color:var(--dark);line-height:1.5}
+
+/* ARTICLE PANE */
+.artpane{padding:26px 30px 48px}
+.art-h{font-size:22px;font-weight:800;color:var(--dark);line-height:1.2;margin-bottom:10px;letter-spacing:-.02em}
+.art-seg{font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:3px;display:inline-block;margin-bottom:14px}
+.art-ingress{font-size:14px;color:var(--stone);line-height:1.75;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border);font-style:italic}
+.art-seg-intro{background:var(--cream2);border-left:3px solid var(--a);padding:12px 15px;margin-bottom:16px;border-radius:0 4px 4px 0}
+.art-seg-intro-lbl{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--g);margin-bottom:5px}
+.art-seg-intro-txt{font-size:12px;color:var(--stone);line-height:1.7}
+.art-body{font-size:13px;color:var(--dark);line-height:1.8;margin-bottom:18px}
+.art-body p{margin-bottom:12px}
+.art-cta-wrap{background:var(--g);border-radius:5px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
+.art-cta-txt{font-size:11px;color:rgba(255,255,255,.65)}
+.art-cta-btn{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;background:var(--a);color:var(--dark);padding:8px 16px;border-radius:3px;cursor:pointer}
+.art-consistency{margin-top:20px;background:#F8F4EE;border:1px solid var(--border);border-radius:5px;padding:14px 16px}
+.art-con-lbl{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--g);margin-bottom:10px}
+.art-con-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.art-con-item{background:#fff;border:1px solid var(--border);border-radius:4px;padding:8px 10px}
+.art-con-item-l{font-size:8px;font-weight:700;color:var(--muted);margin-bottom:2px;letter-spacing:.06em;text-transform:uppercase}
+.art-con-item-v{font-size:10px;color:var(--dark);line-height:1.4}
+
+/* EMAIL PREVIEW */
+.ep{background:#E8E4DC;padding:18px;min-height:100%}
+.ef{max-width:520px;margin:0 auto;background:#fff;box-shadow:0 3px 18px rgba(0,0,0,.1)}
+.ef-logo{background:#fff;padding:14px 26px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.ef-logo-t{font-size:15px;font-weight:800;color:var(--g);letter-spacing:-.02em}
+.ef-logo-t span{color:var(--a)}
+.ef-logo-s{font-size:8px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.ef-meta{background:var(--g);padding:10px 26px;display:flex;align-items:center;justify-content:space-between}
+.ef-subj{font-size:11px;font-style:italic;color:rgba(255,255,255,.85);font-weight:600}
+.ef-to{font-size:9px;color:rgba(255,255,255,.4)}
+.ef-hero{background:linear-gradient(135deg,var(--g) 0%,var(--g2) 60%,#1A3428 100%);padding:24px 26px;position:relative;overflow:hidden}
+.ef-hero::after{content:'KYC';position:absolute;right:-5px;bottom:-14px;font-size:56px;font-weight:800;color:rgba(127,232,50,.05);pointer-events:none}
+.ef-hero-tag{font-size:8px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--a);margin-bottom:5px}
+.ef-hero-h{font-size:15px;font-weight:800;color:#fff;line-height:1.25;max-width:360px;position:relative;z-index:1}
+.ef-body{padding:20px 26px;border-bottom:1px solid var(--border)}
+.ef-p{font-size:12px;color:var(--stone);line-height:1.75;margin-bottom:9px}
+.ef-arts{display:flex;flex-direction:column;gap:0;margin:12px 0;border:1px solid var(--border);border-radius:4px;overflow:hidden}
+.ef-art{padding:10px 13px;border-bottom:1px solid var(--border);background:#fff}
+.ef-art:last-child{border-bottom:none}
+.ef-art-tag{font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--a);margin-bottom:2px}
+.ef-art-ttl{font-size:12px;font-weight:700;color:var(--dark);margin-bottom:2px;line-height:1.3}
+.ef-art-txt{font-size:11px;color:var(--stone);margin-bottom:4px;line-height:1.5}
+.ef-art-lnk{font-size:10px;color:var(--g);font-weight:600;text-decoration:underline}
+.ef-hl{background:var(--cream2);border-left:3px solid var(--a);padding:9px 13px;margin:10px 0;border-radius:0 3px 3px 0;font-size:11px;color:var(--stone);line-height:1.65;font-style:italic}
+.ef-cta-w{padding:14px 26px;text-align:center;background:var(--cream2);border-bottom:1px solid var(--border)}
+.ef-cta{display:inline-block;background:var(--g);color:#fff;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:10px 22px;border-radius:4px}
+.ef-feats{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:14px 26px;border-bottom:1px solid var(--border)}
+.ef-feat{background:var(--cream2);border-radius:3px;padding:9px 11px}
+.ef-feat-t{font-size:11px;font-weight:700;color:var(--dark);margin-bottom:1px}
+.ef-feat-s{font-size:10px;color:var(--muted)}
+.ef-foot{padding:10px 26px;background:var(--cream);text-align:center}
+.ef-foot-t{font-size:9px;color:var(--muted);line-height:1.7}
+
+/* AD PREVIEW */
+.adp{background:#E0E0DC;padding:18px;min-height:100%;display:flex;flex-direction:column;gap:14px}
+.adp-lbl{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.ad-g{background:#fff;border:1px solid #DFE1E5;border-radius:8px;padding:13px 16px;max-width:540px}
+.ad-g-url{font-size:10px;color:#188038;margin-bottom:3px}
+.ad-g-sp{display:inline-block;font-size:9px;font-weight:700;color:#188038;border:1px solid #188038;border-radius:2px;padding:1px 3px;margin-right:5px}
+.ad-g-h{font-size:16px;color:#1A0DAB;margin-bottom:4px;line-height:1.3}
+.ad-g-d{font-size:12px;color:#545454;line-height:1.55}
+.ad-g-chips{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap}
+.ad-chip{font-size:10px;background:#F0F0F0;padding:2px 7px;border-radius:10px;color:#666}
+.ad-li{max-width:460px;background:#fff;border:1px solid #E0DFDC;border-radius:8px;overflow:hidden}
+.ad-li-hd{padding:9px 13px;display:flex;justify-content:space-between;align-items:center}
+.ad-li-meta{font-size:10px;color:#666}
+.ad-li-sp{font-size:9px;background:#F0F0F0;padding:2px 6px;border-radius:3px;color:#666}
+.ad-li-img{background:linear-gradient(135deg,var(--g),var(--g2));height:170px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px;text-align:center;position:relative;overflow:hidden}
+.ad-li-img::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,rgba(127,232,50,.02) 0px,rgba(127,232,50,.02) 1px,transparent 1px,transparent 10px)}
+.ad-li-tag{font-size:8px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--a);margin-bottom:6px;position:relative;z-index:1}
+.ad-li-h{font-size:17px;font-weight:800;color:#fff;line-height:1.2;position:relative;z-index:1;letter-spacing:-.01em}
+.ad-li-bd{padding:11px 13px}
+.ad-li-hl{font-size:12px;font-weight:700;color:#191919;margin-bottom:3px}
+.ad-li-desc{font-size:11px;color:#555;line-height:1.5;margin-bottom:9px}
+.ad-li-cta{display:inline-block;background:var(--g);color:#fff;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:8px 16px;border-radius:4px}
+.ad-link{margin:0 13px 11px;border:1px solid #E0DFDC;border-radius:4px;overflow:hidden}
+.ad-link-dom{background:var(--cream);padding:5px 9px;font-size:10px;color:var(--muted);border-bottom:1px solid var(--border)}
+.ad-link-ttl{padding:5px 9px;font-size:11px;font-weight:700;color:var(--dark)}
+.ad-link-d{padding:0 9px 7px;font-size:10px;color:var(--stone)}
+.li-react{padding:7px 13px;border-top:1px solid #E0DFDC;display:flex;justify-content:space-between;font-size:11px;color:#888}
+
+/* LP PREVIEW */
+.lpp{background:#EDE8E0;padding:18px;min-height:100%}
+.lpf{max-width:520px;margin:0 auto;background:#fff;border-radius:5px;overflow:hidden;border:1px solid var(--border)}
+.lp-nav{background:var(--dark);padding:11px 20px;display:flex;align-items:center;justify-content:space-between}
+.lp-nav-logo{font-size:13px;font-weight:800;color:#fff}
+.lp-nav-logo span{color:var(--a)}
+.lp-nav-cta{font-size:9px;font-weight:700;color:var(--a);letter-spacing:.05em;text-transform:uppercase}
+.lp-hero{background:linear-gradient(145deg,var(--g) 0%,var(--g2) 50%,#1A3428 100%);padding:28px 26px;position:relative;overflow:hidden}
+.lp-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:150px;height:150px;border-radius:50%;background:rgba(127,232,50,.05)}
+.lp-hero-tag{font-size:8px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--a);margin-bottom:8px}
+.lp-hero-h{font-size:20px;font-weight:800;color:#fff;line-height:1.2;margin-bottom:8px;letter-spacing:-.02em;position:relative;z-index:1;max-width:360px}
+.lp-hero-s{font-size:11px;color:rgba(255,255,255,.55);line-height:1.65;margin-bottom:16px;max-width:320px;position:relative;z-index:1}
+.lp-wb{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:5px;padding:10px 13px;display:flex;align-items:center;gap:10px;margin-bottom:14px;position:relative;z-index:1}
+.lp-play{width:32px;height:32px;border-radius:50%;background:var(--a);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px}
+.lp-wb-t{font-size:11px;font-weight:700;color:#fff;margin-bottom:1px}
+.lp-wb-m{font-size:9px;color:rgba(255,255,255,.45);display:flex;gap:10px}
+.lp-form{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:5px;padding:14px;position:relative;z-index:1}
+.lp-form-lbl{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:8px}
+.lp-inp{width:100%;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);border-radius:3px;padding:7px 10px;font-size:11px;color:#fff;font-family:inherit;margin-bottom:5px}
+.lp-inp::placeholder{color:rgba(255,255,255,.3)}
+.lp-sel{width:100%;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);border-radius:3px;padding:7px 10px;font-size:11px;color:rgba(255,255,255,.65);font-family:inherit;margin-bottom:5px}
+.lp-btn{width:100%;background:var(--a);color:var(--dark);border:none;border-radius:3px;padding:10px;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;font-family:inherit;margin-top:2px}
+.lp-fine{font-size:9px;color:rgba(255,255,255,.25);margin-top:6px;line-height:1.5}
+.lp-checks{display:flex;flex-direction:column;gap:4px;margin-top:12px}
+.lp-check{font-size:11px;color:rgba(255,255,255,.6);display:flex;align-items:flex-start;gap:6px}
+.lp-check-ico{color:var(--a);font-weight:700;flex-shrink:0}
+.lp-trust{background:var(--cream2);padding:10px 20px;display:flex;justify-content:center;gap:16px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.lp-trust-i{font-size:10px;color:var(--muted);display:flex;align-items:center;gap:4px}
+.lp-spk{display:flex;align-items:center;gap:10px;background:var(--cream2);border:1px solid var(--border);border-radius:4px;padding:10px 13px;margin:12px 20px}
+.lp-spk-av{width:36px;height:36px;border-radius:50%;background:var(--g);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--a);flex-shrink:0}
+.lp-spk-n{font-size:11px;font-weight:700;color:var(--dark)}
+.lp-spk-t{font-size:10px;color:var(--muted)}
+.lp-foot{background:var(--dark);padding:11px 20px;display:flex;justify-content:space-between;align-items:center}
+.lp-foot-logo{font-size:11px;font-weight:800;color:rgba(255,255,255,.35)}
+.lp-foot-logo span{color:var(--a)}
+.lp-foot-t{font-size:9px;color:rgba(255,255,255,.2)}
+
+/* SALES EMAIL */
+.sep{background:#EBE7DE;padding:18px;min-height:100%}
+
+/* MEETING */
+.meep{background:#E4EEE8;padding:18px;min-height:100%}
+.meef{max-width:520px;margin:0 auto;background:#fff;box-shadow:0 3px 18px rgba(0,0,0,.1)}
+.meet-hd{background:var(--g);padding:18px 26px}
+.meet-logo{font-size:14px;font-weight:800;color:#fff;margin-bottom:3px}
+.meet-logo span{color:var(--a)}
+.meet-sub{font-size:9px;color:rgba(255,255,255,.4);letter-spacing:.08em;text-transform:uppercase}
+.meet-c{background:rgba(127,232,50,.12);border:1px solid rgba(127,232,50,.25);border-radius:4px;padding:11px 13px;margin-top:12px}
+.meet-c-tag{font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--a);margin-bottom:3px}
+.meet-c-t{font-size:13px;font-weight:700;color:#fff}
+.meet-c-m{font-size:10px;color:rgba(255,255,255,.5);margin-top:2px}
+.meet-add{font-size:10px;font-weight:600;color:var(--a);text-decoration:underline;cursor:pointer;display:inline-block;margin-top:6px}
+.meet-d{display:flex;align-items:flex-start;gap:13px;padding:18px 26px;border-bottom:1px solid var(--border)}
+.meet-d-av{width:48px;height:48px;border-radius:50%;background:var(--g2);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:var(--a);flex-shrink:0}
+.meet-d-n{font-size:13px;font-weight:700;color:var(--dark);margin-bottom:2px}
+.meet-d-t{font-size:10px;color:var(--muted);margin-bottom:6px}
+.meet-d-bio{font-size:11px;color:var(--stone);line-height:1.6}
+.meet-ag{padding:16px 26px;border-bottom:1px solid var(--border)}
+.meet-ag-lbl{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--g);margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.meet-ag-lbl::after{content:'';flex:1;height:1px;background:var(--border)}
+.meet-step{display:flex;gap:11px;margin-bottom:9px}
+.meet-step-t{font-size:10px;font-weight:700;color:var(--a);flex-shrink:0;width:28px}
+.meet-step-ttl{font-size:12px;font-weight:700;color:var(--dark);margin-bottom:1px}
+.meet-step-txt{font-size:11px;color:var(--stone);line-height:1.5}
+.meet-prep{padding:12px 26px;background:var(--cream2);border-bottom:1px solid var(--border)}
+.meet-prep-lbl{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.meet-prep-txt{font-size:11px;color:var(--stone);line-height:1.65;font-style:italic}
+.meet-cta-w{padding:14px 26px;text-align:center}
+.meet-cta{display:inline-block;background:var(--g);color:#fff;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:10px 20px;border-radius:4px}
+.meet-ph{font-size:11px;color:var(--muted);margin-top:7px}
+.meet-sig{padding:12px 26px;border-top:1px solid var(--border);font-size:10px;color:var(--muted)}
+
+/* ── CMS EDIT MODE ── */
+.cms-bar{position:fixed;bottom:0;left:0;right:0;z-index:400;background:#111;border-top:2px solid rgba(127,232,50,.25);padding:10px 18px;display:flex;align-items:center;gap:10px;box-shadow:0 -4px 24px rgba(0,0,0,.4)}
+.cms-logo{font-size:13px;font-weight:800;color:rgba(255,255,255,.25);letter-spacing:-.01em;flex-shrink:0}
+.cms-logo span{color:#7FE832}
+.cms-sep{width:1px;height:16px;background:rgba(255,255,255,.1);flex-shrink:0}
+.cms-status{font-size:10px;color:rgba(255,255,255,.3);flex:1}
+.cms-count{font-size:11px;font-weight:700;color:#7FE832;background:rgba(127,232,50,.1);border:1px solid rgba(127,232,50,.2);padding:4px 10px;border-radius:3px;display:none}
+.cms-count.on{display:inline-block}
+.cms-btn{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:8px 16px;border-radius:4px;border:none;cursor:pointer;transition:all .15s;white-space:nowrap}
+.cms-btn-edit{background:rgba(255,255,255,.08);color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.12)}
+.cms-btn-edit:hover{background:rgba(255,255,255,.14);color:#fff}
+.cms-btn-edit.active{background:rgba(127,232,50,.15);color:#7FE832;border-color:rgba(127,232,50,.3)}
+.cms-btn-export{background:#1C3D1C;color:#7FE832;border:1px solid rgba(127,232,50,.3)}
+.cms-btn-export:hover{background:#2A4E2A}
+.cms-btn-export.on{display:inline-block}
+
+/* Editable elements */
+body.edit-mode .editable{outline:1px dashed rgba(127,232,50,.3);outline-offset:2px;border-radius:2px;cursor:text;transition:outline .1s,background .1s}
+body.edit-mode .editable:hover{outline:2px solid rgba(127,232,50,.6);background:rgba(127,232,50,.05)}
+body.edit-mode .editable:focus{outline:2px solid #7FE832;background:rgba(127,232,50,.08);outline-offset:2px}
+
+/* Changed indicator */
+.editable.changed{outline:1px solid rgba(127,232,50,.5) !important;background:rgba(127,232,50,.06) !important}
+.editable.changed::after{content:'✎';position:absolute;top:-8px;right:-8px;font-size:10px;color:#7FE832;background:#1C3D1C;border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;line-height:16px;text-align:center;font-style:normal}
+.editable{position:relative}
+
+/* Export modal */
+.cms-modal{display:none;position:fixed;inset:0;z-index:700;background:rgba(26,26,24,.7);backdrop-filter:blur(8px)}
+.cms-modal.open{display:flex;align-items:center;justify-content:center}
+.cms-modal-box{background:#1A1A18;border:1px solid rgba(127,232,50,.2);border-radius:8px;width:min(640px,92vw);max-height:80vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.cms-modal-hd{background:#1C3D1C;padding:16px 20px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between}
+.cms-modal-ttl{font-size:14px;font-weight:800;color:#fff}
+.cms-modal-x{background:none;border:none;color:rgba(255,255,255,.4);font-size:18px;cursor:pointer;padding:0}
+.cms-modal-x:hover{color:#fff}
+.cms-modal-body{padding:20px;overflow-y:auto}
+.cms-modal-desc{font-size:12px;color:rgba(255,255,255,.5);margin-bottom:14px;line-height:1.6}
+.cms-modal-changes{background:#111;border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:14px;font-family:monospace;font-size:11px;color:#7FE832;white-space:pre-wrap;word-break:break-word;max-height:300px;overflow-y:auto;margin-bottom:14px;line-height:1.7}
+.cms-modal-actions{display:flex;gap:10px}
+.cms-copy-btn{flex:1;background:#7FE832;color:#1A1A18;border:none;border-radius:4px;padding:11px;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.cms-copy-btn:hover{background:#6dd428}
+.cms-copy-btn.copied{background:#1C3D1C;color:#7FE832}
+.cms-close-btn{background:rgba(255,255,255,.06);color:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.1);border-radius:4px;padding:11px 16px;font-size:10px;font-weight:700;cursor:pointer}
+.cms-close-btn:hover{color:#fff}
+
+
+/* ── GITHUB PUBLISH ── */
+.gh-settings{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:800;background:#1A1A18;border:1px solid rgba(127,232,50,.3);border-radius:8px;width:min(480px,92vw);box-shadow:0 20px 60px rgba(0,0,0,.6);display:none}
+.gh-settings.open{display:block}
+.gh-settings-hd{background:#1C3D1C;padding:14px 18px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between}
+.gh-settings-ttl{font-size:13px;font-weight:800;color:#fff}
+.gh-settings-x{background:none;border:none;color:rgba(255,255,255,.4);font-size:16px;cursor:pointer}
+.gh-settings-x:hover{color:#fff}
+.gh-settings-body{padding:20px}
+.gh-settings-desc{font-size:11px;color:rgba(255,255,255,.45);margin-bottom:16px;line-height:1.65}
+.gh-field{margin-bottom:12px}
+.gh-field-lbl{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:5px}
+.gh-field-inp{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:4px;padding:9px 12px;font-size:12px;color:#fff;font-family:monospace;outline:none;transition:border .15s}
+.gh-field-inp:focus{border-color:rgba(127,232,50,.4);background:rgba(127,232,50,.05)}
+.gh-field-inp::placeholder{color:rgba(255,255,255,.2)}
+.gh-field-hint{font-size:9px;color:rgba(255,255,255,.25);margin-top:4px}
+.gh-save-btn{width:100%;background:#7FE832;color:#1A1A18;border:none;border-radius:4px;padding:11px;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;margin-top:4px;transition:background .15s}
+.gh-save-btn:hover{background:#6dd428}
+.gh-status{font-size:10px;margin-top:10px;text-align:center;min-height:16px}
+.gh-status.ok{color:#7FE832}
+.gh-status.err{color:#F87171}
+
+/* Publish button in cms-bar */
+.cms-btn-publish{background:rgba(127,232,50,.15);color:#7FE832;border:1px solid rgba(127,232,50,.3);display:none}
+.cms-btn-publish:hover{background:rgba(127,232,50,.25)}
+.cms-btn-publish.on{display:inline-block}
+.cms-btn-publish.publishing{background:rgba(127,232,50,.08);color:rgba(127,232,50,.5)}
+.cms-btn-setup{background:transparent;color:rgba(255,255,255,.3);border:1px solid rgba(255,255,255,.1)}
+.cms-btn-setup:hover{color:rgba(255,255,255,.6);border-color:rgba(255,255,255,.2)}
+.gh-overlay{position:fixed;inset:0;z-index:799;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);display:none}
+.gh-overlay.open{display:block}
+
+
+/* ── CMS EDIT MODE ── */
+.cms-bar{position:fixed;bottom:0;left:0;right:0;z-index:400;background:#111;border-top:2px solid rgba(127,232,50,.25);padding:10px 18px;display:flex;align-items:center;gap:10px;box-shadow:0 -4px 24px rgba(0,0,0,.4)}
+.cms-logo{font-size:13px;font-weight:800;color:rgba(255,255,255,.25);letter-spacing:-.01em;flex-shrink:0}
+.cms-logo span{color:#7FE832}
+.cms-sep{width:1px;height:16px;background:rgba(255,255,255,.1);flex-shrink:0}
+.cms-status{font-size:10px;color:rgba(255,255,255,.3);flex:1}
+.cms-count{font-size:11px;font-weight:700;color:#7FE832;background:rgba(127,232,50,.1);border:1px solid rgba(127,232,50,.2);padding:4px 10px;border-radius:3px;display:none}
+.cms-count.on{display:inline-block}
+.cms-btn{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:8px 16px;border-radius:4px;border:none;cursor:pointer;transition:all .15s;white-space:nowrap}
+.cms-btn-edit{background:rgba(255,255,255,.08);color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.12)}
+.cms-btn-edit:hover{background:rgba(255,255,255,.14);color:#fff}
+.cms-btn-edit.active{background:rgba(127,232,50,.15);color:#7FE832;border-color:rgba(127,232,50,.3)}
+.cms-btn-export{background:#1C3D1C;color:#7FE832;border:1px solid rgba(127,232,50,.3)}
+.cms-btn-export:hover{background:#2A4E2A}
+.cms-btn-export.on{display:inline-block}
+
+/* Editable elements */
+body.edit-mode .editable{outline:1px dashed rgba(127,232,50,.3);outline-offset:2px;border-radius:2px;cursor:text;transition:outline .1s,background .1s}
+body.edit-mode .editable:hover{outline:2px solid rgba(127,232,50,.6);background:rgba(127,232,50,.05)}
+body.edit-mode .editable:focus{outline:2px solid #7FE832;background:rgba(127,232,50,.08);outline-offset:2px}
+
+/* Changed indicator */
+.editable.changed{outline:1px solid rgba(127,232,50,.5) !important;background:rgba(127,232,50,.06) !important}
+.editable.changed::after{content:'✎';position:absolute;top:-8px;right:-8px;font-size:10px;color:#7FE832;background:#1C3D1C;border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;line-height:16px;text-align:center;font-style:normal}
+.editable{position:relative}
+
+/* Export modal */
+.cms-modal{display:none;position:fixed;inset:0;z-index:700;background:rgba(26,26,24,.7);backdrop-filter:blur(8px)}
+.cms-modal.open{display:flex;align-items:center;justify-content:center}
+.cms-modal-box{background:#1A1A18;border:1px solid rgba(127,232,50,.2);border-radius:8px;width:min(640px,92vw);max-height:80vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.cms-modal-hd{background:#1C3D1C;padding:16px 20px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between}
+.cms-modal-ttl{font-size:14px;font-weight:800;color:#fff}
+.cms-modal-x{background:none;border:none;color:rgba(255,255,255,.4);font-size:18px;cursor:pointer;padding:0}
+.cms-modal-x:hover{color:#fff}
+.cms-modal-body{padding:20px;overflow-y:auto}
+.cms-modal-desc{font-size:12px;color:rgba(255,255,255,.5);margin-bottom:14px;line-height:1.6}
+.cms-modal-changes{background:#111;border:1px solid rgba(255,255,255,.08);border-radius:5px;padding:14px;font-family:monospace;font-size:11px;color:#7FE832;white-space:pre-wrap;word-break:break-word;max-height:300px;overflow-y:auto;margin-bottom:14px;line-height:1.7}
+.cms-modal-actions{display:flex;gap:10px}
+.cms-copy-btn{flex:1;background:#7FE832;color:#1A1A18;border:none;border-radius:4px;padding:11px;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.cms-copy-btn:hover{background:#6dd428}
+.cms-copy-btn.copied{background:#1C3D1C;color:#7FE832}
+.cms-close-btn{background:rgba(255,255,255,.06);color:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.1);border-radius:4px;padding:11px 16px;font-size:10px;font-weight:700;cursor:pointer}
+.cms-close-btn:hover{color:#fff}
+
+
+/* ── GITHUB PUBLISH ── */
+.gh-settings{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:800;background:#1A1A18;border:1px solid rgba(127,232,50,.3);border-radius:8px;width:min(480px,92vw);box-shadow:0 20px 60px rgba(0,0,0,.6);display:none}
+.gh-settings.open{display:block}
+.gh-settings-hd{background:#1C3D1C;padding:14px 18px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between}
+.gh-settings-ttl{font-size:13px;font-weight:800;color:#fff}
+.gh-settings-x{background:none;border:none;color:rgba(255,255,255,.4);font-size:16px;cursor:pointer}
+.gh-settings-x:hover{color:#fff}
+.gh-settings-body{padding:20px}
+.gh-settings-desc{font-size:11px;color:rgba(255,255,255,.45);margin-bottom:16px;line-height:1.65}
+.gh-field{margin-bottom:12px}
+.gh-field-lbl{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:5px}
+.gh-field-inp{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:4px;padding:9px 12px;font-size:12px;color:#fff;font-family:monospace;outline:none;transition:border .15s}
+.gh-field-inp:focus{border-color:rgba(127,232,50,.4);background:rgba(127,232,50,.05)}
+.gh-field-inp::placeholder{color:rgba(255,255,255,.2)}
+.gh-field-hint{font-size:9px;color:rgba(255,255,255,.25);margin-top:4px}
+.gh-save-btn{width:100%;background:#7FE832;color:#1A1A18;border:none;border-radius:4px;padding:11px;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;margin-top:4px;transition:background .15s}
+.gh-save-btn:hover{background:#6dd428}
+.gh-status{font-size:10px;margin-top:10px;text-align:center;min-height:16px}
+.gh-status.ok{color:#7FE832}
+.gh-status.err{color:#F87171}
+
+/* Publish button in cms-bar */
+.cms-btn-publish{background:rgba(127,232,50,.15);color:#7FE832;border:1px solid rgba(127,232,50,.3);display:none}
+.cms-btn-publish:hover{background:rgba(127,232,50,.25)}
+.cms-btn-publish.on{display:inline-block}
+.cms-btn-publish.publishing{background:rgba(127,232,50,.08);color:rgba(127,232,50,.5)}
+.cms-btn-setup{background:transparent;color:rgba(255,255,255,.3);border:1px solid rgba(255,255,255,.1)}
+.cms-btn-setup:hover{color:rgba(255,255,255,.6);border-color:rgba(255,255,255,.2)}
+.gh-overlay{position:fixed;inset:0;z-index:799;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);display:none}
+.gh-overlay.open{display:block}
+
+/* ── GITHUB PUBLISH ── */
+.gh-settings{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:800;background:#1A1A18;border:1px solid rgba(127,232,50,.3);border-radius:8px;width:min(480px,92vw);box-shadow:0 20px 60px rgba(0,0,0,.6);display:none}
+.gh-settings.open{display:block}
+.gh-settings-hd{background:#1C3D1C;padding:14px 18px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between}
+.gh-settings-ttl{font-size:13px;font-weight:800;color:#fff}
+.gh-settings-x{background:none;border:none;color:rgba(255,255,255,.4);font-size:16px;cursor:pointer}
+.gh-settings-x:hover{color:#fff}
+.gh-settings-body{padding:20px}
+.gh-settings-desc{font-size:11px;color:rgba(255,255,255,.45);margin-bottom:16px;line-height:1.65}
+.gh-field{margin-bottom:12px}
+.gh-field-lbl{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:5px}
+.gh-field-inp{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:4px;padding:9px 12px;font-size:12px;color:#fff;font-family:monospace;outline:none;transition:border .15s}
+.gh-field-inp:focus{border-color:rgba(127,232,50,.4);background:rgba(127,232,50,.05)}
+.gh-field-inp::placeholder{color:rgba(255,255,255,.2)}
+.gh-field-hint{font-size:9px;color:rgba(255,255,255,.25);margin-top:4px}
+.gh-save-btn{width:100%;background:#7FE832;color:#1A1A18;border:none;border-radius:4px;padding:11px;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;margin-top:4px;transition:background .15s}
+.gh-save-btn:hover{background:#6dd428}
+.gh-status{font-size:10px;margin-top:10px;text-align:center;min-height:16px}
+.gh-status.ok{color:#7FE832}
+.gh-status.err{color:#F87171}
+
+/* Publish button in cms-bar */
+.cms-btn-publish{background:rgba(127,232,50,.15);color:#7FE832;border:1px solid rgba(127,232,50,.3);display:none}
+.cms-btn-publish:hover{background:rgba(127,232,50,.25)}
+.cms-btn-publish.on{display:inline-block}
+.cms-btn-publish.publishing{background:rgba(127,232,50,.08);color:rgba(127,232,50,.5)}
+.cms-btn-setup{background:transparent;color:rgba(255,255,255,.3);border:1px solid rgba(255,255,255,.1)}
+.cms-btn-setup:hover{color:rgba(255,255,255,.6);border-color:rgba(255,255,255,.2)}
+.gh-overlay{position:fixed;inset:0;z-index:799;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);display:none}
+.gh-overlay.open{display:block}
+
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo">Stø<span>.</span></div>
+  <div class="nav-sep"></div>
+  <div class="nav-sub">Innholdsuniversum · KYC Flow</div>
+  <div class="view-toggle">
+    <button class="vt-btn on" onclick="setView('seg',this)">📂 Segment-visning</button>
+    <button class="vt-btn" onclick="setView('kanban',this)">🗂 Kanban-board</button>
+  </div>
+</nav>
+
+<div class="body-wrap">
+
+<!-- ══════════════════════════════════
+     VIEW 1: SEGMENT-VISNING
+══════════════════════════════════ -->
+<div id="view-seg">
+
+  <!-- LEFT: Segment + Article picker -->
+  <div class="seg-panel">
+
+    <!-- Regnskap -->
+    <div class="seg-section">
+      <div class="seg-hd">
+        <div class="seg-hd-dot" style="background:#7FE832"></div>
+        <div class="seg-hd-txt">Regnskap og revisjon</div>
+      </div>
+      <div class="art-item" onclick="selectArt('r','1')" data-seg="r" data-art="1">
+        <div class="art-item-nr">Art. 1</div>
+        <div class="art-item-ttl">Er du rapporteringspliktig?</div>
+      </div>
+      <div class="art-item" onclick="selectArt('r','3')" data-seg="r" data-art="3">
+        <div class="art-item-nr">Art. 3</div>
+        <div class="art-item-ttl">Automatisk overvåkning av kunder</div>
+      </div>
+      <div class="art-item" onclick="selectArt('r','5')" data-seg="r" data-art="5">
+        <div class="art-item-nr">Art. 5</div>
+        <div class="art-item-ttl">5 vanlige KYC-feil</div>
+      </div>
+    </div>
+
+    <!-- Bank -->
+    <div class="seg-section">
+      <div class="seg-hd">
+        <div class="seg-hd-dot" style="background:#7AB0F5"></div>
+        <div class="seg-hd-txt">Bank og finans</div>
+      </div>
+      <div class="art-item" onclick="selectArt('b','1')" data-seg="b" data-art="1">
+        <div class="art-item-nr">Art. 1</div>
+        <div class="art-item-ttl">Er du rapporteringspliktig?</div>
+      </div>
+      <div class="art-item" onclick="selectArt('b','4')" data-seg="b" data-art="4">
+        <div class="art-item-nr">Art. 4</div>
+        <div class="art-item-ttl">Hva skjer hvis du ikke overholder?</div>
+      </div>
+      <div class="art-item" onclick="selectArt('b','9')" data-seg="b" data-art="9">
+        <div class="art-item-nr">Art. 9</div>
+        <div class="art-item-ttl">Er dine kunder på en sanksjonsliste?</div>
+      </div>
+    </div>
+
+    <!-- Verdipapir -->
+    <div class="seg-section">
+      <div class="seg-hd">
+        <div class="seg-hd-dot" style="background:#F5C97A"></div>
+        <div class="seg-hd-txt">Verdipapir</div>
+      </div>
+      <div class="art-item" onclick="selectArt('v','1')" data-seg="v" data-art="1">
+        <div class="art-item-nr">Art. 1</div>
+        <div class="art-item-ttl">Er du rapporteringspliktig?</div>
+      </div>
+      <div class="art-item" onclick="selectArt('v','6')" data-seg="v" data-art="6">
+        <div class="art-item-nr">Art. 6</div>
+        <div class="art-item-ttl">Komplett kundekontroll fra dag én</div>
+      </div>
+      <div class="art-item" onclick="selectArt('v','10')" data-seg="v" data-art="10">
+        <div class="art-item-nr">Art. 10</div>
+        <div class="art-item-ttl">Forstå risikovurdering i KYC</div>
+      </div>
+    </div>
+
+  </div><!-- /seg-panel -->
+
+  <!-- RIGHT: Journey -->
+  <div class="journey-panel" id="journey-panel">
+    <div class="journey-empty">
+      <div class="journey-empty-icon">👈</div>
+      <div class="journey-empty-ttl">Velg et segment og artikkel</div>
+      <div class="journey-empty-sub">Se hele kundereisen — fra annonse til møtebekreftelse</div>
+    </div>
+  </div>
+
+</div><!-- /view-seg -->
+
+<!-- ══════════════════════════════════
+     VIEW 2: KANBAN
+══════════════════════════════════ -->
+<div id="view-kanban">
+
+  <!-- Kanban filters -->
+  <div class="kan-filters">
+    <div class="kf-lbl">Segment</div>
+    <button class="kf-btn on" onclick="kfSeg('all',this)">Alle</button>
+    <button class="kf-btn" onclick="kfSeg('r',this)">Regnskap</button>
+    <button class="kf-btn" onclick="kfSeg('b',this)">Bank</button>
+    <button class="kf-btn" onclick="kfSeg('v',this)">Verdipapir</button>
+    <div class="kf-sep"></div>
+    <div class="kf-lbl">Kanal</div>
+    <button class="kf-btn on" onclick="kfCh('ann',this)">Google Ads</button>
+    <button class="kf-btn on" onclick="kfCh('li',this)">LinkedIn</button>
+    <button class="kf-btn on" onclick="kfCh('lp',this)">Landingsside</button>
+    <button class="kf-btn on" onclick="kfCh('em',this)">E-post</button>
+    <button class="kf-btn on" onclick="kfCh('sal',this)">Salg</button>
+    <button class="kf-btn on" onclick="kfCh('meet',this)">Møte</button>
+  </div>
+
+  <div class="cw"><div class="canvas" id="canvas">
+
+    <!-- FASE 1 -->
+    <div class="col">
+      <div class="ph" style="background:linear-gradient(135deg,#1A2A1A,#2A3A2A)">
+        <div class="ph-n">Fase 1</div>
+        <div class="ph-t">Betalt annonsering</div>
+        <div class="ph-bar"></div>
+        <div class="ph-c">Google + LinkedIn</div>
+      </div>
+      <div class="card card-ann" data-ch="ann" data-seg="r" onclick="kOpen('g-r-a')">
+        <div class="cs"></div><div class="ci">
+          <div class="ct"><div class="cn">Google Ads · Var A</div><span class="mvp">Compliance</span></div>
+          <div class="ctitle">Er du rapporteringspliktig? — KYC for regnskapsførere</div>
+          <div class="cdesc">Hook fra Art. 1.</div>
+          <div class="csegs"><span class="cs-tag cs-r">Regnskap</span></div>
+          <div class="cft"><span class="cf">Art. 1 → LP → E-post</span></div>
+        </div>
+      </div>
+      <div class="card card-ann" data-ch="ann" data-seg="r" onclick="kOpen('g-r-b')">
+        <div class="cs"></div><div class="ci">
+          <div class="ct"><div class="cn">Google Ads · Var B</div><span class="mvp">Effektivitet</span></div>
+          <div class="ctitle">5 vanlige KYC-feil — og hvordan du enkelt unngår dem</div>
+          <div class="cdesc">Hook fra Art. 5. Test mot Variant A.</div>
+          <div class="csegs"><span class="cs-tag cs-r">Regnskap</span></div>
+          <div class="cft"><span class="cf">Art. 5 → LP → E-post</span></div>
+        </div>
+      </div>
+      <div class="card card-ann" data-ch="li" data-seg="r" onclick="kOpen('li-r')">
+        <div class="cs"></div><div class="ci">
+          <div class="ct"><div class="cn">LinkedIn Ads</div></div>
+          <div class="ctitle">Automatisk overvåkning av kunder — viktigere enn du tror</div>
+          <div class="cdesc">Hook fra Art. 3. Løpende overvåkning.</div>
+          <div class="csegs"><span class="cs-tag cs-r">Regnskap</span></div>
+        </div>
+      </div>
+      <div class="card card-ann" data-ch="ann" data-seg="b" onclick="kOpen('g-b-a')">
+        <div class="cs"></div><div class="ci">
+          <div class="ct"><div class="cn">Google Ads · Var A</div><span class="mvp">Konsekvenser</span></div>
+          <div class="ctitle">Hva skjer hvis du ikke overholder hvitvaskingsloven?</div>
+          <div class="cdesc">Hook fra Art. 4.</div>
+          <div class="csegs"><span class="cs-tag cs-b">Bank</span></div>
+        </div>
+      </div>
+      <div class="card card-ann" data-ch="li" data-seg="b" onclick="kOpen('li-b')">
+        <div class="cs"></div><div class="ci">
+          <div class="ct"><div class="cn">LinkedIn Ads</div></div>
+          <div class="ctitle">Er dine kunder på en sanksjonsliste?</div>
+          <div class="cdesc">Hook fra Art. 9. Automatisk sanksjonskontroll.</div>
+          <div class="csegs"><span class="cs-tag cs-b">Bank</span></div>
+        </div>
+      </div>
+      <div class="card card-ann" data-ch="ann" data-seg="v" onclick="kOpen('g-v-a')">
+        <div class="cs"></div><div class="ci">
+          <div class="ct"><div class="cn">Google Ads · Var A</div></div>
+          <div class="ctitle">KYC Flow: Komplett kundekontroll fra dag én — uten teknisk integrasjon</div>
+          <div class="cdesc">Hook fra Art. 6.</div>
+          <div class="csegs"><span class="cs-tag cs-v">Verdipapir</span></div>
+        </div>
+      </div>
+      <div class="card card-ann" data-ch="li" data-seg="v" onclick="kOpen('li-v')">
+        <div class="cs"></div><div class="ci">
+          <div class="ct"><div class="cn">LinkedIn Ads</div></div>
+          <div class="ctitle">Forstå risikovurdering i KYC — og gjør det riktig første gang</div>
+          <div class="cdesc">Hook fra Art. 10.</div>
+          <div class="csegs"><span class="cs-tag cs-v">Verdipapir</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FASE 2 -->
+    <div class="col">
+      <div class="ph" style="background:linear-gradient(135deg,#1A1A3A,#2A2A4A)">
+        <div class="ph-n">Fase 2</div>
+        <div class="ph-t">Landingsside + skjema</div>
+        <div class="ph-bar"></div>
+        <div class="ph-c">Dag 0 · +20 pts</div>
+      </div>
+      <div class="card card-lp" data-ch="lp" data-seg="r" onclick="kOpen('lp-r-web')">
+        <div class="cs"></div><div class="ci">
+          <div class="ct"><div class="cn">LP A · Webinar</div><span class="mvp">MVP</span></div>
+          <div class="ctitle">Er du rapporteringspliktig? Dette må du vite om KYC</div>
+          <div class="csegs"><span class="cs-tag cs-r">Regnskap</span></div>
+          <div class="cft"><span class="cf">stoe.no/kyc/regnskap</span><span class="cf">+20 pts</span></div>
+        </div>
+      </div>
+      <div class="card card-lp" data-ch="lp" data-seg="r" onclick="kOpen('lp-r-wp')">
+        <div class="cs"></div><div class="ci">
+          <div class="ct"><div class="cn">LP B · Guide</div></div>
+          <div class="ctitle">5 vanlige KYC-feil — og hvordan du enkelt unngår dem</div>
+          <div class="csegs"><span class="cs-tag cs-r">Regnskap</span></div>
+        </div>
+      </div>
+      <div class="card card-lp" data-ch="lp" data-seg="b" onclick="kOpen('lp-b-web')">
+        <div class="cs"></div><div class="ci">
+          <div class="ct"><div class="cn">LP A · Webinar</div><span class="mvp">MVP</span></div>
+          <div class="ctitle">Hva skjer hvis du ikke overholder hvitvaskingsloven?</div>
+          <div class="csegs"><span class="cs-tag cs-b">Bank</span></div>
+        </div>
+      </div>
+      <div class="card card-lp" data-ch="lp" data-seg="v" onclick="kOpen('lp-v-web')">
+        <div class="cs"></div><div class="ci">
+          <div class="ct"><div class="cn">LP A · Webinar</div><span class="mvp">MVP</span></div>
+          <div class="ctitle">KYC Flow: Komplett kundekontroll fra dag én</div>
+          <div class="csegs"><span class="cs-tag cs-v">Verdipapir</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FASE 3 -->
+    <div class="col">
+      <div class="ph" style="background:linear-gradient(135deg,#1A2A4A,#2A3A5A)">
+        <div class="ph-n">Fase 3</div>
+        <div class="ph-t">E-post 1+2 Nurture</div>
+        <div class="ph-bar"></div>
+        <div class="ph-c">Dag 2 + Dag 7</div>
+      </div>
+      <div class="card card-em" data-ch="em" data-seg="r" onclick="kOpen('em1-r')">
+        <div class="cs"></div><div class="ci">
+          <div class="ct"><div class="cn">E-post 1 · Dag 2</div><span class="mvp">Art. 1+3+5</span></div>
+          <div class="ctitle">Hva betyr rapporteringsplikten for deg som regnskapsfører?</div>
+          <div class="csegs"><span class="cs-tag cs-r">Regnskap</span></div>
+          <div class="cft"><span class="cf">+10 pts klikk</span></div>
+        </div>
+      </div>
+      <div class="card card-em" data-ch="em" data-seg="r" onclick="kOpen('em2-r')">
+        <div class="cs"></div><div class="ci">
+          <div class="ct"><div class="cn">E-post 2 · Dag 7</div></div>
+          <div class="ctitle">{{lead.Company}} — 5 KYC-feil vi ser igjen og igjen</div>
+          <div class="csegs"><span class="cs-tag cs-r">Regnskap</span></div>
+          <div class="cft"></div>
+        </div>
+      </div>
+      <div class="card card-em" data-ch="em" data-seg="b" onclick="kOpen('em1-b')">
+        <div class="cs"></div><div class="ci">
+          <div class="ct"><div class="cn">E-post 1 · Dag 2</div><span class="mvp">Art. 1+4+9</span></div>
+          <div class="ctitle">Hva skjer hvis du ikke overholder hvitvaskingsloven?</div>
+          <div class="csegs"><span class="cs-tag cs-b">Bank</span></div>
+        </div>
+      </div>
+      <div class="card card-em" data-ch="em" data-seg="v" onclick="kOpen('em1-v')">
+        <div class="cs"></div><div class="ci">
+          <div class="ct"><div class="cn">E-post 1 · Dag 2</div><span class="mvp">Art. 1+6+10</span></div>
+          <div class="ctitle">KYC i verdipapir: rapporteringsplikten og hva den krever</div>
+          <div class="csegs"><span class="cs-tag cs-v">Verdipapir</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FASE 4 -->
+    <div class="col">
+      <div class="ph" style="background:linear-gradient(135deg,#3A2A1A,#4A3A2A)">
+        <div class="ph-n">Fase 4</div>
+        <div class="ph-t">Salgs-e-post SQL</div>
+        <div class="ph-bar"></div>
+        <div class="ph-c">Score ≥ 45</div>
+      </div>
+      <div class="card card-sal" data-ch="sal" data-seg="r" onclick="kOpen('sal-r')">
+        <div class="cs"></div><div class="ci">
+          <div class="ct"><div class="cn">Salgs-e-post</div><span class="mvp">Score ≥ 45</span></div>
+          <div class="ctitle">{{lead.Company}} — unngå alle 5 feilene fra dag én</div>
+          <div class="csegs"><span class="cs-tag cs-r">Regnskap</span></div>
+          <div class="cft"></div>
+        </div>
+      </div>
+      <div class="card card-sal" data-ch="sal" data-seg="b" onclick="kOpen('sal-b')">
+        <div class="cs"></div><div class="ci">
+          <div class="ct"><div class="cn">Salgs-e-post</div><span class="mvp">Score ≥ 45</span></div>
+          <div class="ctitle">{{lead.Company}} — automatisk sanksjonskontroll fra dag én</div>
+          <div class="csegs"><span class="cs-tag cs-b">Bank</span></div>
+          <div class="cft"></div>
+        </div>
+      </div>
+      <div class="card card-sal" data-ch="sal" data-seg="v" onclick="kOpen('sal-v')">
+        <div class="cs"></div><div class="ci">
+          <div class="ct"><div class="cn">Salgs-e-post</div><span class="mvp">Score ≥ 45</span></div>
+          <div class="ctitle">{{lead.Company}} — gjør risikovurdering riktig med KYC Flow</div>
+          <div class="csegs"><span class="cs-tag cs-v">Verdipapir</span></div>
+          <div class="cft"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FASE 5 -->
+    <div class="col">
+      <div class="ph" style="background:linear-gradient(135deg,#1A3A2A,#2A4E3A)">
+        <div class="ph-n">Fase 5</div>
+        <div class="ph-t">Møtebekreftelse</div>
+        <div class="ph-bar"></div>
+        <div class="ph-c">Fra Dennis direkte</div>
+      </div>
+      <div class="card card-meet" data-ch="meet" data-seg="r,b,v" onclick="kOpen('meet')">
+        <div class="cs"></div><div class="ci">
+          <div class="ct"><div class="cn">Møtebekreftelse</div><span class="mvp">Alle segmenter</span></div>
+          <div class="ctitle">Vi sees {{meeting.Date}} — litt om meg og hva vi skal gå gjennom</div>
+          <div class="cdesc">Fra: dennis@stoe.no · Agenda 5+15+10+10 min</div>
+          <div class="csegs"><span class="cs-tag cs-r">Regnskap</span><span class="cs-tag cs-b">Bank</span><span class="cs-tag cs-v">Verdipapir</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div></div><!-- /canvas /cw -->
+
+  <!-- Kanban drawer -->
+  <div class="ovl" id="ovl" onclick="kClose(event)">
+    <div class="drw" id="drw">
+      <div class="drw-hd">
+        <div class="tabs">
+          <div class="tab on" id="kt-info" onclick="kTab('info')">Detaljer</div>
+          <div class="tab" id="kt-prev" onclick="kTab('prev')">Forhåndsvisning</div>
+        </div>
+        <button class="drw-x" onclick="kCD()">✕</button>
+      </div>
+      <div class="drw-sc">
+        <div id="kp-info" class="info"></div>
+        <div id="kp-prev" style="display:none;min-height:100%"></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /view-kanban -->
+
+</div><!-- /body-wrap -->
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────
+const SEG_LABELS = {
+  r: 'Regnskap og revisjon',
+  b: 'Bank og finans',
+  v: 'Verdipapir'
+};
+const SEG_COLORS = {
+  r: '#7FE832', b: '#7AB0F5', v: '#F5C97A'
+};
+const SEG_BG = {
+  r: '#EAF3DE', b: '#DEE9F3', v: '#F3EAD2'
+};
+const SEG_TEXT = {
+  r: '#2A4E2A', b: '#1A2A4E', v: '#3A2A1A'
+};
+
+const ARTS = {
+  'r-1': { nr:1, seg:'r', h:'Er du rapporteringspliktig bedrift? Dette må du vite om KYC',
+    ingress:'Som regnskapsfører eller revisor er du underlagt hvitvaskingsloven – hvitvaskingsloven stiller strenge krav til en rekke norske virksomheter – uavhengig av størrelse.',
+    seg_intro:'Regnskapsførere og revisorer er blant de mest utsatte yrkesgruppene i hvitvaskingslovens øyne. Du har jevnlig kontakt med klientenes økonomi og er rapporteringspliktig ved mistenkelige forhold. For mange regnskapsbyråer er KYC-arbeid en ekstrabelastning som havner i fanget på én person – uten system, uten struktur, og med stor risiko for mangler.',
+    body:'Hvitvaskingsloven pålegger rapporteringspliktige virksomheter å gjennomføre risikovurdering, kundetiltak (KYC), løpende overvåkning, intern kontroll og rapportering til Økokrim. Alt skal dokumenteres og kan etterprøves av Finanstilsynet.\n\nFor mange regnskapsbyråer er dette krevende å håndtere uten dedikerte ressurser. KYC Flow fra Stø gjør dette arbeidet enkelt: du bestiller selv i portalen, og kan starte kundekontroll samme dag – uten utvikling eller integrasjon.\n\nMed KYC Flow får du overvåkning av kunder mot PEP- og sanksjonslister, automatisk dokumentasjon, risikovurdering, eierkart og KYC-skjemaer signert med BankID.',
+    cta:'Kom i gang med KYC Flow' },
+  'r-3': { nr:3, seg:'r', h:'Derfor er automatisk overvåkning av kunder viktigere enn du tror',
+    ingress:'Det holder ikke å gjøre én kundekontroll ved oppstart. Hvitvaskingsloven krever løpende overvåkning.',
+    seg_intro:'Regnskapsførere og revisorer er blant de mest utsatte yrkesgruppene i hvitvaskingslovens øyne. Du har jevnlig kontakt med klientenes økonomi og er rapporteringspliktig ved mistenkelige forhold.',
+    body:'Løpende overvåkning er et av de mest oversette kravene i hvitvaskingsloven. Mange bedrifter gjennomfører én grundig kontroll ved etablering av kundeforholdet – men glemmer at kundenes risikoprofil kan endre seg over tid.\n\nEn kunde som i dag er lav-risiko kan bli PEP, havne på en sanksjonsliste eller endre eierstruktur. Uten løpende overvåkning oppdager du det ikke.\n\nKYC Flow overvåker automatisk alle dine kunder mot norske og internasjonale PEP-lister, sanksjonslister og Nordiske registre. Du varsles umiddelbart ved relevante endringer.',
+    cta:'Aktiver automatisk overvåkning med KYC Flow' },
+  'r-5': { nr:5, seg:'r', h:'5 vanlige KYC-feil – og hvordan du enkelt unngår dem',
+    ingress:'De fleste feilene som avdekkes i KYC-tilsyn er de samme, gang på gang.',
+    seg_intro:'Regnskapsførere og revisorer er blant de mest utsatte yrkesgruppene i hvitvaskingslovens øyne.',
+    body:'1. MANGELFULL RISIKOVURDERING – Mange bedrifter mangler en strukturert risikovurdering per kunde. KYC Flow gir deg sjekklister og risikoindikatorer.\n\n2. UTDATERT KUNDEINFORMASJON – Dokumentasjon innhentet ved oppstart, men aldri oppdatert. KYC Flow overvåker og varsler automatisk.\n\n3. MANGLENDE IDENTITETSKONTROLL – Med BankID-integrasjon er identitetskontrollen enkel og lovmessig.\n\n4. INGEN KONTROLL AV REELLE RETTIGHETSHAVERE – Eierkartet i KYC Flow visualiserer eierskapsstrukturer grafisk.\n\n5. DÅRLIG DOKUMENTASJON – KYC Flow arkiverer alt automatisk og gjør dataene tilgjengelige som PDF-rapporter.',
+    cta:'Unngå alle 5 feilene – prøv KYC Flow gratis' },
+  'b-1': { nr:1, seg:'b', h:'Er du rapporteringspliktig bedrift? Dette må du vite om KYC',
+    ingress:'Som aktør i bank- og finanssektoren er du underlagt hvitvaskingsloven.',
+    seg_intro:'For banker og finansinstitusjoner er KYC et kjernekrav – men kravene strekker seg langt ut over de store aktørene. Også mindre sparebanker, låneformidlere og andre finansforetak er fullt underlagt hvitvaskingsloven. Compliance-belastningen øker år for år.',
+    body:'Hvitvaskingsloven pålegger rapporteringspliktige virksomheter å gjennomføre risikovurdering, kundetiltak (KYC), løpende overvåkning, intern kontroll og rapportering til Økokrim. Alt skal dokumenteres og kan etterprøves av Finanstilsynet.\n\nFor mange finansforetak er dette krevende å håndtere uten dedikerte ressurser. KYC Flow fra Stø gjør dette arbeidet enkelt: du bestiller selv i portalen, og kan starte kundekontroll samme dag – uten utvikling eller integrasjon.',
+    cta:'Kom i gang med KYC Flow' },
+  'b-4': { nr:4, seg:'b', h:'Hva skjer hvis du ikke overholder hvitvaskingsloven?',
+    ingress:'Manglende etterlevelse kan få alvorlige konsekvenser – fra bøter og pålegg til tap av tillatelse.',
+    seg_intro:'For banker og finansinstitusjoner er KYC et kjernekrav. Compliance-belastningen øker år for år, og ressursene er knappe.',
+    body:'Finanstilsynet har de siste årene intensivert tilsynsarbeidet med AML og KYC. Brudd kan medføre overtredelsesgebyr, pålegg om retting og i alvorlige tilfeller tilbakekall av konsesjon eller autorisasjon.\n\nDe vanligste feilene tilsynet avdekker er: manglende risikovurdering, ufullstendig dokumentasjon av kundetiltak og manglende rutiner for løpende overvåkning.\n\nKYC Flow sikrer at du alltid har oppdatert dokumentasjon og at alle kundeforhold er løpende overvåket.',
+    cta:'Sikre etterlevelsen med KYC Flow' },
+  'b-9': { nr:9, seg:'b', h:'Er dine kunder på en sanksjonsliste? Slik holder du kontroll',
+    ingress:'Sanksjonskontroll er et lovkrav – og en praktisk utfordring. Listene oppdateres kontinuerlig.',
+    seg_intro:'For banker og finansinstitusjoner er KYC et kjernekrav. Compliance-belastningen øker år for år.',
+    body:'Internasjonale sanksjonslister som FN, EU og OFAC oppdateres jevnlig. En kunde som var sanksjonsfri ved oppstart kan havne på listen dagen etter.\n\nMange bedrifter gjennomfører sanksjonskontroll manuelt og sporadisk – og oppdager ikke endringer i tide.\n\nKYC Flow overvåker automatisk alle dine kunder mot internasjonale PEP-lister og sanksjonslister – og varsler deg umiddelbart ved treff. Ingen manuell sjekk nødvendig.',
+    cta:'Aktiver automatisk sanksjonskontroll med KYC Flow' },
+  'v-1': { nr:1, seg:'v', h:'Er du rapporteringspliktig bedrift? Dette må du vite om KYC',
+    ingress:'Som verdipapirforetak er du underlagt hvitvaskingsloven med særlig strenge krav.',
+    seg_intro:'Verdipapirforetak, forvaltningsselskaper og investeringsrådgivere er underlagt hvitvaskingsloven med særlig strenge krav. Bransjen er hardt regulert, og kravene til kundekontroll er blant de mest omfattende.',
+    body:'Hvitvaskingsloven pålegger rapporteringspliktige virksomheter å gjennomføre risikovurdering, kundetiltak (KYC), løpende overvåkning, intern kontroll og rapportering til Økokrim.\n\nFor verdipapirforetak er dette krevende å håndtere uten dedikerte ressurser. KYC Flow fra Stø gjør dette arbeidet enkelt – uten utvikling eller integrasjon.',
+    cta:'Kom i gang med KYC Flow' },
+  'v-6': { nr:6, seg:'v', h:'KYC Flow: Komplett kundekontroll fra dag én – uten teknisk integrasjon',
+    ingress:'Mange KYC-systemer krever lang implementeringstid og IT-ressurser. KYC Flow er annerledes.',
+    seg_intro:'Verdipapirforetak og forvaltningsselskaper er underlagt hvitvaskingsloven med særlig strenge krav. Kravene til KYC i verdipapirmarkedet er komplekse.',
+    body:'En av de største barrierene for å ta i bruk et KYC-system er implementeringskompleksiteten. KYC Flow løser dette: ingen utvikling, ingen integrasjon, ingen langvarig onboarding.\n\nDu velger pakke, betaler i portalen og får umiddelbart tilgang. Fra det øyeblikket har du tilgang til overvåkning mot PEP- og sanksjonslister, KYC-skjemaer med BankID-signatur, risikovurdering og eierkart.\n\nKYC Flow er bygget av folka bak BankID og BankAxept.',
+    cta:'Bestill KYC Flow og vær i gang i dag' },
+  'v-10': { nr:10, seg:'v', h:'Forstå risikovurdering i KYC – og gjør det riktig første gang',
+    ingress:'Risikovurdering er et av kjerneelementene i hvitvaskingsloven. Mange bedrifter gjennomfører den feil.',
+    seg_intro:'Verdipapirforetak er underlagt hvitvaskingsloven med særlig strenge krav. Kravene til KYC i verdipapirmarkedet er komplekse.',
+    body:'Hvitvaskingsloven krever at du vurderer risikoen ved hvert enkelt kundeforhold basert på: kundens bransje og forretningsmodell, geografi, om kunden er politisk eksponert (PEP), eierstruktur og transaksjonsvolum.\n\nKYC Flow gir deg en strukturert risikovurderingsprosess med sjekklister og risikoindikatorer. Du gjennomfører risikovurdering på under 10 minutter per kunde – og alt dokumenteres automatisk.',
+    cta:'Gjør risikovurdering riktig med KYC Flow' }
+};
+
+// Journey data per seg+art
+const JOURNEYS = {
+  'r-1': { ann_hook:'Er du rapporteringspliktig? — KYC for regnskapsførere', ann_txt:'Hvitvaskingsloven stiller strenge krav til regnskapsbyråer. Automatisk risikovurdering, PEP-sjekk og BankID-signerte skjemaer. Kom i gang samme dag..', ann_cta:'Kom i gang med KYC Flow', li_hook:'Er du rapporteringspliktig? KYC for regnskapsbyråer', lp_h:'Er du rapporteringspliktig? Dette må du vite om KYC', lp_url:'stoe.no/kyc/regnskap', em1_subj:'Hva betyr rapporteringsplikten for deg som regnskapsfører?', em1_arts:['r-1','r-3','r-5'], em1_cta:'Ta AML-helsesjekken →', em2_subj:'{{lead.Company}} — 5 KYC-feil vi ser igjen og igjen', em2_cta:'Last ned guiden — gratis →', em2_pris:'', sal_subj:'{{lead.Company}} — unngå alle 5 feilene fra dag én', sal_pris:'', meet_seg:'Regnskap og revisjon' },
+  'r-3': { ann_hook:'Automatisk overvåkning av kunder — viktigere enn du tror', ann_txt:'Det holder ikke med én kontroll. Hvitvaskingsloven krever løpende overvåkning. KYC Flow varsler automatisk ved endringer..', ann_cta:'Aktiver automatisk overvåkning med KYC Flow', li_hook:'Det holder ikke med én kundekontroll. Hvitvaskingsloven krever løpende overvåkning.', lp_h:'Derfor er automatisk overvåkning viktigere enn du tror', lp_url:'stoe.no/kyc/regnskap', em1_subj:'Hva betyr rapporteringsplikten for deg som regnskapsfører?', em1_arts:['r-1','r-3','r-5'], em1_cta:'Ta AML-helsesjekken →', em2_subj:'{{lead.Company}} — er dere løpende overvåkt?', em2_cta:'Last ned guiden — gratis →', em2_pris:'', sal_subj:'{{lead.Company}} — aktiver automatisk overvåkning fra dag én', sal_pris:'', meet_seg:'Regnskap og revisjon' },
+  'r-5': { ann_hook:'5 vanlige KYC-feil — og hvordan du enkelt unngår dem', ann_txt:'De fleste feilene i KYC-tilsyn er de samme, gang på gang. KYC Flow eliminerer alle fem. Prøv gratis.', ann_cta:'Unngå alle 5 feilene – prøv KYC Flow gratis', li_hook:'KYC-tilsyn avdekker de samme feilene igjen og igjen. Her er hva du kan gjøre.', lp_h:'5 vanlige KYC-feil – og hvordan du enkelt unngår dem', lp_url:'stoe.no/kyc/regnskap-guide', em1_subj:'Hva betyr rapporteringsplikten for deg som regnskapsfører?', em1_arts:['r-1','r-3','r-5'], em1_cta:'Ta AML-helsesjekken →', em2_subj:'{{lead.Company}} — 5 KYC-feil vi ser igjen og igjen', em2_cta:'Last ned guiden — gratis →', em2_pris:'', sal_subj:'{{lead.Company}} — unngå alle 5 feilene fra dag én', sal_pris:'', meet_seg:'Regnskap og revisjon' },
+  'b-1': { ann_hook:'Er du rapporteringspliktig? — KYC for banker og finansforetak', ann_txt:'Hvitvaskingsloven gjelder alle finansforetak – uavhengig av størrelse. Automatisk risikovurdering og løpende overvåkning..', ann_cta:'Sikre etterlevelsen med KYC Flow', li_hook:'Er du rapporteringspliktig? KYC for bank og finans.', lp_h:'Er du rapporteringspliktig? Dette må bank og finansforetak vite', lp_url:'stoe.no/kyc/bank', em1_subj:'AMLR 2027 og banksektoren — hva compliance-teamet ditt trenger å vite', em1_arts:['b-1','b-4','b-9'], em1_cta:'Ta AML-modenhetsvurderingen →', em2_subj:'{{lead.Company}} — er dere klare for EU-AMLR 2027?', em2_cta:'Last ned guiden — gratis →', em2_pris:'', sal_subj:'{{lead.Company}} — automatisk sanksjonskontroll fra dag én', sal_pris:'', meet_seg:'Bank og finans' },
+  'b-4': { ann_hook:'Hva skjer hvis du ikke overholder hvitvaskingsloven?', ann_txt:'Finanstilsynet intensiverer tilsynsarbeidet. Overtredelsesgebyr og tilbakekall av konsesjon er reelle konsekvenser..', ann_cta:'Sikre etterlevelsen med KYC Flow', li_hook:'Hva skjer hvis Finanstilsynet banker på?', lp_h:'Hva skjer hvis du ikke overholder hvitvaskingsloven?', lp_url:'stoe.no/kyc/bank', em1_subj:'Hva skjer hvis du ikke overholder hvitvaskingsloven?', em1_arts:['b-1','b-4','b-9'], em1_cta:'Ta AML-modenhetsvurderingen →', em2_subj:'{{lead.Company}} — er dere klare for tilsyn?', em2_cta:'Last ned guiden — gratis →', em2_pris:'', sal_subj:'{{lead.Company}} — automatisk sanksjonskontroll fra dag én', sal_pris:'', meet_seg:'Bank og finans' },
+  'b-9': { ann_hook:'Er dine kunder på en sanksjonsliste? Slik holder du kontroll', ann_txt:'FN, EU og OFAC-lister oppdateres daglig. KYC Flow overvåker alle kunder automatisk og varsler umiddelbart..', ann_cta:'Aktiver automatisk sanksjonskontroll med KYC Flow', li_hook:'Sanksjonslister oppdateres daglig. Er du sikker på at kundene dine er rene?', lp_h:'Er dine kunder på en sanksjonsliste? Slik holder du kontroll', lp_url:'stoe.no/kyc/bank-guide', em1_subj:'Hva skjer hvis du ikke overholder hvitvaskingsloven?', em1_arts:['b-1','b-4','b-9'], em1_cta:'Ta AML-modenhetsvurderingen →', em2_subj:'{{lead.Company}} — er dine kunder på en sanksjonsliste?', em2_cta:'Last ned guiden — gratis →', em2_pris:'', sal_subj:'{{lead.Company}} — automatisk sanksjonskontroll fra dag én', sal_pris:'', meet_seg:'Bank og finans' },
+  'v-1': { ann_hook:'Er du rapporteringspliktig? — KYC for verdipapirforetak', ann_txt:'Verdipapirforetak er underlagt hvitvaskingsloven med særlig strenge krav. KYC Flow gjør etterlevelsen enkel..', ann_cta:'Kom i gang med KYC Flow', li_hook:'Er du rapporteringspliktig? KYC for verdipapirforetak.', lp_h:'Er du rapporteringspliktig? Dette må verdipapirforetak vite', lp_url:'stoe.no/kyc/verdipapir', em1_subj:'KYC i verdipapir: rapporteringsplikten og hva den krever', em1_arts:['v-1','v-6','v-10'], em1_cta:'Ta KYC-modenhetsvurderingen →', em2_subj:'{{lead.Company}} — gjør risikovurdering riktig med KYC Flow', em2_cta:'Last ned guiden — gratis →', em2_pris:'', sal_subj:'{{lead.Company}} — gjør risikovurdering riktig med KYC Flow', sal_pris:'', meet_seg:'Verdipapir' },
+  'v-6': { ann_hook:'KYC Flow: Komplett kundekontroll fra dag én – uten teknisk integrasjon', ann_txt:'Ingen utvikling, ingen integrasjon, ingen langvarig onboarding. Du velger pakke og er i gang samme dag. Bygget av folka bak BankID..', ann_cta:'Bestill KYC Flow og vær i gang i dag', li_hook:'KYC-system uten implementeringsprosjekt? Ja, det finnes.', lp_h:'KYC Flow: Komplett kundekontroll fra dag én — uten teknisk integrasjon', lp_url:'stoe.no/kyc/verdipapir', em1_subj:'KYC i verdipapir: rapporteringsplikten og hva den krever', em1_arts:['v-1','v-6','v-10'], em1_cta:'Ta KYC-modenhetsvurderingen →', em2_subj:'{{lead.Company}} — kom i gang med KYC Flow samme dag', em2_cta:'Last ned guiden — gratis →', em2_pris:'', sal_subj:'{{lead.Company}} — komplett kundekontroll fra dag én', sal_pris:'', meet_seg:'Verdipapir' },
+  'v-10': { ann_hook:'Forstå risikovurdering i KYC — og gjør det riktig første gang', ann_txt:'Hvitvaskingsloven krever risikovurdering per kundeforhold. Med KYC Flow gjennomfører du det på under 10 minutter..', ann_cta:'Gjør risikovurdering riktig med KYC Flow', li_hook:'Gjør risikovurdering riktig — første gang.', lp_h:'Forstå risikovurdering i KYC — og gjør det riktig første gang', lp_url:'stoe.no/kyc/verdipapir-guide', em1_subj:'KYC i verdipapir: rapporteringsplikten og hva den krever', em1_arts:['v-1','v-6','v-10'], em1_cta:'Ta KYC-modenhetsvurderingen →', em2_subj:'{{lead.Company}} — gjør risikovurdering riktig med KYC Flow', em2_cta:'Last ned guiden — gratis →', em2_pris:'', sal_subj:'{{lead.Company}} — gjør risikovurdering riktig med KYC Flow', sal_pris:'', meet_seg:'Verdipapir' }
+};
+
+// ── COPY UTILITY ──────────────────────────────────────────────────────────
+var COPY_STORE = {};
+
+function doCopy(id, btn) {
+  var text = COPY_STORE[id] || '';
+  copyText(text, btn);
+}
+function doCopyBtn(btn) {
+  var id = btn.getAttribute('data-copyid');
+  var text = COPY_STORE[id] || '';
+  copyText(text, btn);
+}
+
+function copyText(text, btn) {
+  if (!text) { return; }
+  navigator.clipboard.writeText(text).then(function() {
+    btn.textContent = '✓ Kopiert!';
+    btn.classList.add('copied');
+    setTimeout(function() {
+      btn.textContent = '📋 Kopier';
+      btn.classList.remove('copied');
+    }, 2000);
+  }).catch(function() {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.textContent = '✓ Kopiert!';
+    btn.classList.add('copied');
+    setTimeout(function() {
+      btn.textContent = '📋 Kopier';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+function mkCopyBtn(text) {
+  var id = 'cb' + (Math.random() * 1e9 | 0);
+  COPY_STORE[id] = text;
+  return '<button class="copy-btn" data-copyid="' + id + '" onclick="doCopyBtn(this)">📋 Kopier</button>';
+}
+
+// ── VIEW TOGGLE ────────────────────────────────────────────────────────────
+function setView(v, btn) {
+  document.querySelectorAll('.vt-btn').forEach(function(b) { b.classList.remove('on'); });
+  btn.classList.add('on');
+  document.getElementById('view-seg').style.display = v === 'seg' ? 'flex' : 'none';
+  document.getElementById('view-kanban').style.display = v === 'kanban' ? 'flex' : 'none';
+}
+
+// ── SEGMENT VIEW ────────────────────────────────────────────────────────────
+var currentSeg = null, currentArt = null, activeChs = new Set(['ann','li','lp','em','sal','meet']);
+
+function selectArt(seg, art) {
+  // Highlight selected
+  document.querySelectorAll('.art-item').forEach(function(el) { el.classList.remove('on'); });
+  var el = document.querySelector('[data-seg="'+seg+'"][data-art="'+art+'"]');
+  if (el) el.classList.add('on');
+
+  currentSeg = seg; currentArt = art;
+  renderJourney(seg, art);
+}
+
+function renderJourney(seg, art) {
+  var key = seg + '-' + art;
+  var artData = ARTS[key];
+  var jData = JOURNEYS[key];
+  if (!artData || !jData) return;
+
+  var segLabel = SEG_LABELS[seg];
+  var segColor = SEG_COLORS[seg];
+  var bgColor = SEG_BG[seg];
+  var textColor = SEG_TEXT[seg];
+
+  var html = '';
+
+  // Journey header
+  html += '<div class="journey-hd">';
+  html += '<div class="journey-hd-seg" style="color:'+segColor+'">'+segLabel+' · Art. '+artData.nr+'</div>';
+  html += '<div class="journey-hd-art">'+artData.h+'</div>';
+  html += '<div class="journey-hd-ing">'+artData.ingress+'</div>';
+  html += '</div>';
+
+  // Channel filter tabs
+  html += '<div class="ch-tabs">';
+  var chs = [{id:'all',lbl:'Alle kanaler'},{id:'ann',lbl:'Google Ads'},{id:'li',lbl:'LinkedIn'},{id:'lp',lbl:'Landingsside'},{id:'em',lbl:'E-post'},{id:'sal',lbl:'Salgs-e-post'},{id:'meet',lbl:'Møtebekreftelse'}];
+  chs.forEach(function(c) {
+    var on = c.id === 'all' ? (activeChs.size === 5) : activeChs.has(c.id);
+    html += '<button class="ch-tab'+(on?' on':'')+'" onclick="toggleJourneyCh(\''+c.id+'\')">'+c.lbl+'</button>';
+  });
+  html += '</div>';
+
+  // Journey steps
+  html += '<div class="journey-steps">';
+
+  // Step 1: Google Ads
+  if (activeChs.has('ann')) {
+    
+  // Map seg+art to D object keys
+  var dKeyMap = {
+    'r-1':  {ann:'g-r-a', li:'li-r', lp:'lp-r-web', em1:'em1-r', em2:'em2-r', sal:'sal-r'},
+    'r-3':  {ann:'g-r-a', li:'li-r', lp:'lp-r-web', em1:'em1-r', em2:'em2-r', sal:'sal-r'},
+    'r-5':  {ann:'g-r-b', li:'li-r', lp:'lp-r-wp',  em1:'em1-r', em2:'em2-r', sal:'sal-r'},
+    'b-1':  {ann:'g-b-a', li:'li-b', lp:'lp-b-web', em1:'em1-b', em2:'em2-b', sal:'sal-b'},
+    'b-4':  {ann:'g-b-a', li:'li-b', lp:'lp-b-web', em1:'em1-b', em2:'em2-b', sal:'sal-b'},
+    'b-9':  {ann:'g-b-b', li:'li-b', lp:'lp-b-wp',  em1:'em1-b', em2:'em2-b', sal:'sal-b'},
+    'v-1':  {ann:'g-v-a', li:'li-v', lp:'lp-v-web', em1:'em1-v', em2:'em2-v', sal:'sal-v'},
+    'v-6':  {ann:'g-v-a', li:'li-v', lp:'lp-v-web', em1:'em1-v', em2:'em2-v', sal:'sal-v'},
+    'v-10': {ann:'g-v-b', li:'li-v', lp:'lp-v-wp',  em1:'em1-v', em2:'em2-v', sal:'sal-v'}
+  };
+  var dKeys = dKeyMap[key] || {};
+
+  html += mkStep(1, 'ann', 'Google Ads · Variant A & B', segLabel, bgColor, textColor, [
+      { lbl:'Annonseoverskrift', txt:jData.ann_hook },
+      { lbl:'Annonsetekst', txt:jData.ann_txt },
+      { lbl:'CTA', txt:jData.ann_cta },
+      { lbl:'Targeting', txt:'Norge · '+segLabel+' · Daglig leder, compliance-ansvarlig, partner' },
+      { lbl:'UTM', txt:'utm_source=google&utm_medium=cpc&utm_content=art'+art }
+    ], render_google, D[dKeys.ann]);
+  }
+
+  // Step 2: LinkedIn
+  if (activeChs.has('li')) {
+    html += mkStep(2, 'li', 'LinkedIn Sponsored Content', segLabel, bgColor, textColor, [
+      { lbl:'Annonsetekst / hook', txt:jData.li_hook },
+      { lbl:'Lenkeforhåndsvisning', txt:jData.lp_url },
+      { lbl:'Targeting', txt:segLabel+' · Compliance officer, daglig leder, partner' }
+    ], render_li, D[dKeys.li]);
+  }
+
+  // Step 3: Landingsside
+  if (activeChs.has('lp')) {
+    html += mkStep(3, 'lp', 'Landingsside · LP A · Webinar', segLabel, bgColor, textColor, [
+      { lbl:'Hero-overskrift', txt:jData.lp_h },
+      { lbl:'URL', txt:jData.lp_url },
+      { lbl:'Segment-intro (brødtekst)', txt:artData.seg_intro },
+      { lbl:'Artikkeltekst (gated content)', txt:artData.body.split('\n\n')[0] },
+      { lbl:'CTA', txt:artData.cta }
+    ], render_lp, D[dKeys.lp]);
+  }
+
+  // Step 4: E-post 1
+  if (activeChs.has('em')) {
+    var artTitles = jData.em1_arts.map(function(k) {
+      return ARTS[k] ? 'Art. '+ARTS[k].nr+': '+ARTS[k].h : k;
+    }).join('\n');
+    html += mkStep(4, 'em', 'E-post 1 · Dag 2 · Topp-funnel', segLabel, bgColor, textColor, [
+      { lbl:'Emnelinje', txt:jData.em1_subj },
+      { lbl:'3 artikler i e-posten', txt:artTitles },
+      { lbl:'CTA', txt:jData.em1_cta },
+      { lbl:'Scoring', txt:'+5 pts åpnet · +10 pts klikket · +30 pts helsesjekk fullført' }
+    ], render_email1, D[dKeys.em1]);
+
+    // E-post 2
+    html += mkStep(5, 'em', 'E-post 2 · Dag 7 · Mid-funnel', segLabel, bgColor, textColor, [
+      { lbl:'Emnelinje', txt:jData.em2_subj },
+      { lbl:'CTA', txt:jData.em2_cta },
+      { lbl:'Kampanjepris nevnt', txt:'Ta kontakt for pris' },
+      { lbl:'Scoring', txt:'+15 pts guide-nedlasting · +25 pts prisside-besøk' }
+    ], render_email2, D[dKeys.em2]);
+  }
+
+  // Step 5: Salgs-e-post
+  if (activeChs.has('sal')) {
+    html += mkStep(6, 'sal', 'Salgs-e-post · Score ≥ 45', segLabel, bgColor, textColor, [
+      { lbl:'Emnelinje', txt:jData.sal_subj },
+      { lbl:'Kampanjepris', txt:'Ta kontakt for pris' },
+      { lbl:'CTA 1', txt:'Kom i gang nå →' },
+      { lbl:'CTA 2', txt:'Book et møte med Dennis →' }
+    ], render_sales, D[dKeys.sal]);
+  }
+
+  // Step 6: Møtebekreftelse
+  if (activeChs.has('meet')) {
+    html += mkStep(7, 'meet', 'Møtebekreftelse · Fra dennis@stoe.no', jData.meet_seg, bgColor, textColor, [
+      { lbl:'Emnelinje', txt:'Vi sees {{meeting.Date}} — litt om meg og hva vi skal gå gjennom' },
+      { lbl:'Avsender', txt:'dennis@stoe.no (ikke noreply)' },
+      { lbl:'Agenda', txt:'5 min bli kjent · 15 min demo · 10 min integrasjon · 10 min priser' },
+      { lbl:'Forberedelsestips', txt:'Tenk over: KYC-kunder per år og hvilket system dere bruker i dag?' }
+    ], render_meeting, null);
+  }
+
+  html += '</div>';
+
+  // Artikkel section
+  html += '<div style="margin-top:24px">';
+  html += '<div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px">FULLSTENDIG ARTIKKEL <span style="flex:1;height:1px;background:var(--border);display:inline-block"></span></div>';
+  html += '<div class="art-block">';
+  html += '<div class="art-block-hd"><div class="art-block-ttl">'+artData.h+'</div>'+mkCopyBtn(artData.h+'\n\n'+artData.ingress+'\n\n'+artData.seg_intro+'\n\n'+artData.body+'\n\n'+artData.cta)+'</div>';
+  html += '<div class="art-block-body">';
+  html += '<div class="art-block-seg-intro">'+artData.seg_intro+'</div>';
+  var bodyHtml = artData.body.split('\n\n').map(function(p) { return '<p>'+p+'</p>'; }).join('');
+  html += '<div class="art-block-body-txt">'+bodyHtml+'</div>';
+  html += '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)"><div class="cb-cta">'+artData.cta+'</div></div>';
+  html += '</div></div></div>';
+
+  document.getElementById('journey-panel').innerHTML = html;
+}
+
+
+// ── D OBJECT FROM V2 ───────────────────────────────────────────────────
+const D = {
+
+'g-r-a':{
+  ch:'ann',badge:'Google Ads · Variant A · Regnskap',badgeBg:'#FDF3F3',badgeCol:'#C03030',
+  segs:['Regnskap og revisjon'],art:ARTS.r1,
+  ingress:'Artikkel 1 bærer hele veien: tittelen brukes som Google-annonse-hook, ingressen fra den skreddersydde regnskap-versjonen brukes på landingssiden, og artikkelen er første av tre i e-post 1.',
+  meta:[['Annonseformat','Google Responsive Search Ads'],['Hook','Art. 1 — rapporteringspliktig'],['Variant','A — compliance-vinkel'],['UTM','utm_content=art1-compliance']],
+  prevType:'google',prev:{
+    url:'stoe.no › tjenester › kyc',
+    h:'Er du rapporteringspliktig? — KYC for regnskapsførere',
+    d:'Hvitvaskingsloven stiller strenge krav til regnskapsbyråer. Automatisk risikovurdering, PEP-sjekk og BankID-signerte skjemaer. Kom i gang samme dag. Fra 1\u00a0300\u00a0kr/mnd.',
+    chips:['Rapporteringspliktig','BankID-integrert','Ingen integrasjon nødvendig']
+  }
+},
+
+'g-r-b':{
+  ch:'ann',badge:'Google Ads · Variant B · Regnskap',badgeBg:'#FDF3F3',badgeCol:'#C03030',
+  segs:['Regnskap og revisjon'],art:ARTS.r5,
+  ingress:'Artikkel 5 som effektivitetshook — de 5 konkrete KYC-feilene som går igjen i tilsyn. Tester et annet motiv enn Variant A (regelverkforståelse vs. feilunngåelse).',
+  meta:[['Hook','Art. 5 — 5 vanlige KYC-feil'],['Variant','B — feil/løsning-vinkel'],['UTM','utm_content=art5-feil'],['A/B-mål','Konverteringsrate per variant']],
+  prevType:'google',prev:{
+    url:'stoe.no › tjenester › kyc',
+    h:'5 vanlige KYC-feil — og hvordan du enkelt unngår dem',
+    d:'De fleste feilene i KYC-tilsyn er de samme, gang på gang. Risikovurdering, løpende overvåkning og dokumentasjon — KYC Flow dekker alle. Prøv gratis.',
+    chips:['5 konkrete feil','AML-sjekkliste','Prøv gratis']
+  }
+},
+
+'li-r':{
+  ch:'ann',badge:'LinkedIn Ads · Regnskap',badgeBg:'#FDF3F3',badgeCol:'#C03030',
+  segs:['Regnskap og revisjon'],art:ARTS.r3,
+  ingress:'Artikkel 3 — løpende overvåkning — passer godt for LinkedIn-format der man kan forklare et oversett krav. Differensierer KYC Flow fra «én gangs kontroll»-løsninger.',
+  meta:[['Hook','Art. 3 — løpende overvåkning'],['Targeting','Daglig leder · Partner · Revisor'],['Format','Sponsored Content · Single Image']],
+  prevType:'li',prev:{
+    tag:'Regnskap og revisjon · Art. 3',
+    h:'Det holder ikke med én kontroll. Hvitvaskingsloven krever løpende overvåkning.',
+    hl:'Automatisk overvåkning av kunder — viktigere enn du tror',
+    desc:'En kunde som i dag er lav-risiko kan bli PEP eller havne på sanksjonsliste. KYC Flow varsler deg umiddelbart. Ingen manuell sjekk nødvendig.',
+    lttl:'Webinar: Automatisk KYC-overvåkning for regnskapsbyråer',
+    ldesc:'45 min on-demand. Inkluderer demo av PEP- og sanksjonskontroll.',
+    chips:['Gratis','On-demand','PEP-sjekk']
+  }
+},
+
+'g-b-a':{
+  ch:'ann',badge:'Google Ads · Variant A · Bank',badgeBg:'#FDF3F3',badgeCol:'#C03030',
+  segs:['Bank og finans'],art:ARTS.b4,
+  ingress:'Artikkel 4 — konsekvenser — er den sterkeste compliance-hooken for bank. Overtredelsesgebyr og tilbakekall av konsesjon som risikobilde trigger høy intensjon.',
+  meta:[['Hook','Art. 4 — konsekvenser av brudd'],['Variant','A — konsekvens-vinkel'],['UTM','utm_content=art4-konsekvenser']],
+  prevType:'google',prev:{
+    url:'stoe.no › tjenester › kyc',
+    h:'Hva skjer hvis du ikke overholder hvitvaskingsloven?',
+    d:'Finanstilsynet intensiverer tilsynsarbeidet. Overtredelsesgebyr og tilbakekall av konsesjon er reelle konsekvenser. KYC Flow sikrer etterlevelsen fra dag én. Fra 3\u00a0900\u00a0kr/mnd.',
+    chips:['Finanstilsynet-klar','Nedlastbare PDF-rapporter','Ingen integrasjon']
+  }
+},
+'g-b-b':{
+  ch:'ann',badge:'Google Ads · Variant B · Bank',badgeBg:'#FDF3F3',badgeCol:'#C03030',
+  segs:['Bank og finans'],art:ARTS.b9,
+  ingress:'Art. 9 — sanksjonskontroll — som Variant B for bank. Praktisk/handlingsorientert vinkel mot Variant A (konsekvenser). Tester om frykt for bot eller frykt for ikke å vite er sterkest.',
+  meta:[['Hook','Art. 9 — sanksjonskontroll'],['Variant','B — praktisk vinkel'],['UTM','utm_content=art9-sanksjon'],['A/B-mål','Konvertering vs. Variant A']],
+  prevType:'google',prev:{
+    url:'stoe.no › tjenester › kyc',
+    h:'Er dine kunder på en sanksjonsliste? Slik holder du kontroll',
+    d:'FN, EU og OFAC-lister oppdateres daglig. KYC Flow overvaker alle kunder automatisk og varsler umiddelbart ved treff. Ingen manuell sjekk. Fra 3\u00a0900\u00a0kr/mnd.',
+    chips:['FN/EU/OFAC','Automatisk varsling','Ingen manuell sjekk']
+  }
+},
+
+'li-b':{
+  ch:'ann',badge:'LinkedIn Ads · Bank',badgeBg:'#FDF3F3',badgeCol:'#C03030',
+  segs:['Bank og finans'],art:ARTS.b9,
+  ingress:'Artikkel 9 — sanksjonskontroll — er et særlig relevant tema for bank. FN, EU og OFAC-lister oppdateres daglig, og manuell sjekk er ikke skalérbart.',
+  meta:[['Hook','Art. 9 — sanksjonskontroll'],['Targeting','Compliance officer · CFO · Risikoansvarlig'],['Format','Sponsored Content']],
+  prevType:'li',prev:{
+    tag:'Bank og finans · Art. 9',
+    h:'Sanksjonslister oppdateres daglig. Er du sikker på at kundene dine er rene?',
+    hl:'Automatisk sanksjonskontroll — uten manuell sjekk',
+    desc:'KYC Flow overvåker alle kunder mot FN, EU og OFAC-lister og varsler umiddelbart ved treff. Ingen manuell sjekk nødvendig.',
+    lttl:'Webinar: Sanksjonskontroll for banker — gratis',
+    ldesc:'45 min on-demand. Demo av automatisk PEP- og sanksjonskontroll.',
+    chips:['FN/EU/OFAC','Automatisk','Gratis webinar']
+  }
+},
+
+'g-v-a':{
+  ch:'ann',badge:'Google Ads · Variant A · Verdipapir',badgeBg:'#FDF3F3',badgeCol:'#C03030',
+  segs:['Verdipapir'],art:ARTS.v6,
+  ingress:'Artikkel 6 — «uten teknisk integrasjon» — er den viktigste innvendingsløseren for verdipapir. Mange foretak frykter lange implementeringsprosjekter.',
+  meta:[['Hook','Art. 6 — ingen integrasjon'],['Variant','A — implementering-vinkel'],['UTM','utm_content=art6-integrasjon']],
+  prevType:'google',prev:{
+    url:'stoe.no › tjenester › kyc',
+    h:'KYC Flow: Komplett kundekontroll fra dag én — uten teknisk integrasjon',
+    d:'Ingen utvikling, ingen integrasjon, ingen langvarig onboarding. Du velger pakke og er i gang samme dag. Bygget av folka bak BankID og BankAxept. Fra 2\u00a0900\u00a0kr/mnd.',
+    chips:['Ingen integrasjon','BankID-signatur','I gang samme dag']
+  }
+},
+'g-v-b':{
+  ch:'ann',badge:'Google Ads · Variant B · Verdipapir',badgeBg:'#FDF3F3',badgeCol:'#C03030',
+  segs:['Verdipapir'],art:ARTS.v10,
+  ingress:'Art. 10 — risikovurdering — som Variant B for verdipapir. Under 10 min per kunde er konkret og handlingsorientert. Tester mot Variant A (ingen integrasjon).',
+  meta:[['Hook','Art. 10 — risikovurdering'],['Variant','B — effektivitet/tid-vinkel'],['UTM','utm_content=art10-risikovurdering'],['A/B-mål','Konvertering vs. Variant A']],
+  prevType:'google',prev:{
+    url:'stoe.no › tjenester › kyc',
+    h:'Forstå risikovurdering i KYC — og gjør det riktig første gang',
+    d:'Hvitvaskingsloven krever risikovurdering per kundeforhold. Med KYC Flow gjør du det på under 10 minutter. Sjekklister og automatisk dokumentasjon. Fra 2\u00a0900\u00a0kr/mnd.',
+    chips:['Under 10 min','Sjekklister','Finanstilsynet-klar']
+  }
+},
+
+'li-v':{
+  ch:'ann',badge:'LinkedIn Ads · Verdipapir',badgeBg:'#FDF3F3',badgeCol:'#C03030',
+  segs:['Verdipapir'],art:ARTS.v10,
+  ingress:'Artikkel 10 — risikovurdering — er kjernen i KYC for verdipapir. «Gjøre det riktig første gang» er en sterk hook for compliance-ansvarlige.',
+  meta:[['Hook','Art. 10 — risikovurdering'],['Targeting','Compliance officer · Porteføljeforvalter'],['Format','Sponsored Content']],
+  prevType:'li',prev:{
+    tag:'Verdipapir · Art. 10',
+    h:'Gjør risikovurdering riktig — første gang',
+    hl:'Risikovurdering i KYC: slik gjør du det systematisk',
+    desc:'KYC Flow gir deg sjekklister og risikoindikatorer. Du gjennomfører risikovurdering på under 10 minutter per kunde. Alt dokumenteres automatisk.',
+    lttl:'Webinar: Risikovurdering i verdipapir — gratis',
+    ldesc:'45 min on-demand. Demo med sjekklister og risikoindikatorer.',
+    chips:['Gratis','Under 10 min','Finanstilsynet-klar']
+  }
+},
+
+'lp-r-web':{
+  ch:'lp',badge:'LP A · Webinar · Regnskap',badgeBg:'#EDE8F8',badgeCol:'#4A2A8E',
+  segs:['Regnskap og revisjon'],art:ARTS.r1,
+  ingress:'Landingssiden bruker Art. 1 sin tittel som hero-overskrift og den skreddersydde ingressen som hero-tekst. Konsistent med annonse-hook og e-post 1.',
+  meta:[['Tittel fra','Art. 1 — rapporteringspliktig'],['URL','stoe.no/kyc/regnskap'],['Format','Webinar · 45 min on-demand'],['Score','+20 pts · Grade A–F settes']],
+  prevType:'lp',prev:{
+    tag:'Gratis webinar · Regnskap og revisjon',
+    h:'Er du rapporteringspliktig? Dette må du vite om KYC',
+    sub:'45 minutter on-demand. Inkluderer Q&A med ekspert.',
+    items:['Hvem er rapporteringspliktig og hvilke plikter har du?','Slik gjennomfører du en lovlig kundekontroll steg for steg','Løpende overvåkning — hva kreves og hvorfor det holder ikke med én sjekk','Praktisk demo av Stø KYC Flow for regnskapsbyråer'],
+    roles:['Regnskapsfører','Revisor','Daglig leder / Partner','Compliance-ansvarlig'],
+    systems:['Manuelt / Excel','PowerOffice Go','Visena / Tripletex','Annet KYC-system'],
+    ctaTxt:'Se webinaret gratis →'
+  }
+},
+
+'lp-r-wp':{
+  ch:'lp',badge:'LP B · Guide · Regnskap',badgeBg:'#EDE8F8',badgeCol:'#4A2A8E',
+  segs:['Regnskap og revisjon'],art:ARTS.r5,
+  ingress:'Landingssiden bruker Art. 5 som hero-overskrift. PDF-guide med de 5 konkrete feilene og løsningene — konsistent med Variant B-annonsen.',
+  meta:[['Tittel fra','Art. 5 — 5 vanlige KYC-feil'],['URL','stoe.no/kyc/regnskap-guide'],['Format','8-siders PDF-guide'],['Score','+20 pts · Grade settes']],
+  prevType:'lp',prev:{
+    tag:'Gratis guide · Regnskap og revisjon',
+    h:'5 vanlige KYC-feil – og hvordan du enkelt unngår dem',
+    sub:'8-siders PDF-guide · Gratis nedlasting · Oppdatert 2025',
+    items:['Mangelfull risikovurdering — og sjekklisten som løser det','Utdatert kundeinformasjon — slik holder du det oppdatert','Manglende identitetskontroll med BankID','Ingen kontroll av reelle rettighetshavere — eierkart i praksis','Dårlig dokumentasjon — slik arkiverer du riktig'],
+    roles:['Regnskapsfører','Revisor','Daglig leder / Partner','Compliance-ansvarlig'],
+    systems:null,
+    ctaTxt:'Last ned gratis →'
+  }
+},
+
+'lp-b-web':{
+  ch:'lp',badge:'LP A · Webinar · Bank',badgeBg:'#EDE8F8',badgeCol:'#4A2A8E',
+  segs:['Bank og finans'],art:ARTS.b4,
+  ingress:'Art. 4-tittel som hero. Konsekvens-rammen — tilsyn, overtredelsesgebyr — er riktig tone for bank-segmentet og matcher Google-annonsen.',
+  meta:[['Tittel fra','Art. 4 — konsekvenser'],['URL','stoe.no/kyc/bank'],['Format','Webinar · 45 min on-demand'],['Score','+20 pts']],
+  prevType:'lp',prev:{
+    tag:'Gratis webinar · Bank og finans',
+    h:'Hva skjer hvis du ikke overholder hvitvaskingsloven?',
+    sub:'45 minutter on-demand. Compliance-team i bank.',
+    items:['Hvilke konsekvenser avdekker Finanstilsynet i bank?','De vanligste feilene — og hvordan de unngås','Slik dokumenterer du KYC-arbeidet ved tilsyn','Demo: KYC Flow for bank — fra onboarding til løpende overvåking'],
+    roles:['Compliance officer','CFO','Daglig leder / Partner','Risikoansvarlig'],
+    systems:['Manuelt / Excel','Temenos Go','Mambu / kjernesystemet','Annet KYC-system'],
+    ctaTxt:'Se webinaret gratis →'
+  }
+},
+
+'lp-b-wp':{
+  ch:'lp',badge:'LP B · Guide · Bank',badgeBg:'#EDE8F8',badgeCol:'#4A2A8E',
+  segs:['Bank og finans'],art:ARTS.b9,
+  ingress:'Art. 9-tittel som hero. Sanksjonskontroll som guide-tema. Konsistent med LinkedIn-annonsen.',
+  meta:[['Tittel fra','Art. 9 — sanksjonskontroll'],['URL','stoe.no/kyc/bank-guide'],['Format','8-siders PDF-guide'],['Score','+20 pts']],
+  prevType:'lp',prev:{
+    tag:'Gratis guide · Bank og finans',
+    h:'Er dine kunder på en sanksjonsliste? Slik holder du kontroll',
+    sub:'8-siders PDF-guide · Gratis nedlasting · Oppdatert 2025',
+    items:['Hvilke lister er du pliktig å sjekke (FN, EU, OFAC)?','Hva skjer om en kunde havner på en sanksjonsliste?','Slik setter du opp automatisk sanksjonskontroll','Dokumentasjon ved tilsyn — hva Finanstilsynet ser etter'],
+    roles:['Compliance officer','CFO','Daglig leder','Risikoansvarlig'],
+    systems:null,ctaTxt:'Last ned gratis →'
+  }
+},
+
+'lp-v-web':{
+  ch:'lp',badge:'LP A · Webinar · Verdipapir',badgeBg:'#EDE8F8',badgeCol:'#4A2A8E',
+  segs:['Verdipapir'],art:ARTS.v6,
+  ingress:'Art. 6-tittel som hero. «Uten teknisk integrasjon» er den viktigste innvendingsløseren for verdipapirforetak uten IT-avdeling.',
+  meta:[['Tittel fra','Art. 6 — uten integrasjon'],['URL','stoe.no/kyc/verdipapir'],['Format','Webinar · 45 min on-demand'],['Score','+20 pts']],
+  prevType:'lp',prev:{
+    tag:'Gratis webinar · Verdipapir',
+    h:'KYC Flow: Komplett kundekontroll fra dag én — uten teknisk integrasjon',
+    sub:'45 minutter on-demand. EU-AMLR og MiFID II.',
+    items:['Slik er KYC Flow designet for verdipapirforetak uten IT-avdeling','Ingen integrasjon nødvendig — du er i gang samme dag','Demo: investoronboarding fra uker til dager','PEP-sjekk, risikovurdering og eierkart i ett system'],
+    roles:['Compliance officer','Porteføljeforvalter','Daglig leder','Annet'],
+    systems:['Manuelt / Excel','Advent Geneva','Simcorp / porteføljesystemet','Annet KYC-system'],
+    ctaTxt:'Se webinaret gratis →'
+  }
+},
+
+'lp-v-wp':{
+  ch:'lp',badge:'LP B · Guide · Verdipapir',badgeBg:'#EDE8F8',badgeCol:'#4A2A8E',
+  segs:['Verdipapir'],art:ARTS.v10,
+  ingress:'Art. 10-tittel som hero. Risikovurdering på 10 min per kunde er det konkrete løftet — konsistent med LinkedIn-annonsen.',
+  meta:[['Tittel fra','Art. 10 — risikovurdering'],['URL','stoe.no/kyc/verdipapir-guide'],['Format','8-siders PDF-guide'],['Score','+20 pts']],
+  prevType:'lp',prev:{
+    tag:'Gratis guide · Verdipapir',
+    h:'Forstå risikovurdering i KYC — og gjør det riktig første gang',
+    sub:'8-siders PDF-guide · Gratis nedlasting · Oppdatert 2025',
+    items:['Hvilke faktorer inngår i en lovmessig risikovurdering?','Sjekkliste: geografi, PEP, eierstruktur, transaksjonsvolum','Slik gjennomfører du risikovurdering på under 10 minutter','Dokumentasjon Finanstilsynet godkjenner'],
+    roles:['Compliance officer','Porteføljeforvalter','Daglig leder','Annet'],
+    systems:null,ctaTxt:'Last ned gratis →'
+  }
+},
+
+'em1-r':{
+  ch:'em',badge:'E-post 1 · Dag 2 · Regnskap',badgeBg:'#E8EFF8',badgeCol:'#1A3A7A',
+  segs:['Regnskap og revisjon'],
+  ingress:'Tre artikler fra Bjørns xlsx, alle i regnskap-versjon. Art. 1 (rapporteringspliktig) — Art. 3 (overvåkning) — Art. 5 (5 feil). Samme tematikk som annonse og LP. AML-helsesjekk som CTA.',
+  meta:[['Emne','Hva betyr rapporteringsplikten for deg som regnskapsfører?'],['Artikler','Art. 1 + Art. 3 + Art. 5'],['CTA','AML-helsesjekk · +30 pts'],['Score','+5 åpnet · +10 klikket']],
+  prevType:'email1',prev:{
+    seg:'KYC · Regnskap og revisjon',subj:'Hva betyr rapporteringsplikten for deg som regnskapsfører?',
+    heroTag:'Regnskap og revisjon',hero:'Alt du trenger å vite om KYC-plikten — samlet på ett sted',
+    intro:'Som regnskapsfører eller revisor er du rapporteringspliktig etter hvitvaskingsloven. Vi har samlet artiklene du trenger for å få full oversikt.',
+    arts:[
+      {tag:'Art. 1 · Rapporteringspliktig',ttl:'Er du rapporteringspliktig bedrift? Dette må du vite om KYC',txt:'Regnskapsførere og revisorer er blant de mest utsatte yrkesgruppene. Denne artikkelen forklarer hvilke forpliktelser du faktisk har.'},
+      {tag:'Art. 3 · Løpende overvåkning',ttl:'Derfor er automatisk overvåkning av kunder viktigere enn du tror',txt:'Det holder ikke å gjøre én kontroll ved oppstart. En kunde som er lav-risiko i dag kan bli PEP i morgen. Uten overvåkning oppdager du det ikke.'},
+      {tag:'Art. 5 · 5 vanlige feil',ttl:'5 vanlige KYC-feil – og hvordan du enkelt unngår dem',txt:'De fleste feilene i KYC-tilsyn er de samme, gang på gang. Her er de fem vanligste — og hva du konkret kan gjøre for å unngå dem.'}
+    ],
+    hl:'Usikker på hvor du står? Ta vår gratis AML-helsesjekk — du får svar på 5 minutter.',
+    ctaTxt:'Ta AML-helsesjekken →',foot:'stoe.no/kyc/regnskap-og-revisjon'
+  }
+},
+
+'em2-r':{
+  ch:'em',badge:'E-post 2 · Dag 7 · Regnskap',badgeBg:'#E8EFF8',badgeCol:'#1A3A7A',
+  segs:['Regnskap og revisjon'],
+  ingress:'Art. 5-hook: de 5 feilene som hook på emnelinjen, AMLR-urgency, guide-nedlasting, priser tas separat. Tone-shift fra e-post 1.',
+  meta:[['Emne','{{lead.Company}} — 5 KYC-feil vi ser igjen og igjen i regnskapsbyråer'],['Hook','Art. 5 — feil/løsning'],['Status','Ta kontakt for pris'],['Score','+15–25 pts']],
+  prevType:'email2',prev:{
+    seg:'Regnskap og revisjon',subj:'{{lead.Company}} — 5 KYC-feil vi ser igjen og igjen i regnskapsbyråer',
+    hero:'5 KYC-feil — og hvordan {{lead.Company}} unngår dem alle',
+    intro:'Hei {{lead.FirstName}}, de fleste feilene som avdekkes i KYC-tilsyn er de samme, gang på gang. Her er de fem vanligste for regnskapsbyråer — og hva KYC Flow gjør for å løse dem.',
+    guide_items:['Mangelfull risikovurdering — sjekklister som sikrer at ingenting glipper','Utdatert kundeinformasjon — automatisk overvåkning og varsling','Manglende identitetskontroll — BankID-integrasjon','Ingen kontroll av reelle rettighetshavere — grafisk eierkart','Dårlig dokumentasjon — alt arkiveres automatisk som PDF'],
+    pris:'',foot:'stoe.no/kyc/regnskap-og-revisjon'
+  }
+},
+
+'em1-b':{
+  ch:'em',badge:'E-post 1 · Dag 2 · Bank',badgeBg:'#E8EFF8',badgeCol:'#1A3A7A',
+  segs:['Bank og finans'],
+  ingress:'Art. 1 + Art. 4 + Art. 9 i bank-versjon. Konsekvensfokus (Art. 4) og sanksjonskontroll (Art. 9) er de sterkeste hookene for compliance-team i bank. Modenhetsvurdering som CTA.',
+  meta:[['Emne','Hva skjer hvis du ikke overholder hvitvaskingsloven?'],['Artikler','Art. 1 + Art. 4 + Art. 9'],['CTA','AML-modenhetsvurdering · +30 pts'],['Score','+5 åpnet · +10 klikket']],
+  prevType:'email1',prev:{
+    seg:'KYC · Bank og finans',subj:'Hva skjer hvis du ikke overholder hvitvaskingsloven?',
+    heroTag:'Bank og finans',hero:'Alt compliance-teamet trenger å vite om KYC-plikten i bank',
+    intro:'Som compliance officer i bank er du rapporteringspliktig etter hvitvaskingsloven. Her er de tre artiklene som gir deg full oversikt.',
+    arts:[
+      {tag:'Art. 1 · Rapporteringspliktig',ttl:'Er du rapporteringspliktig bedrift? Dette må du vite om KYC',txt:'For banker og finansinstitusjoner er KYC et kjernekrav. Også mindre sparebanker og låneformidlere er fullt underlagt hvitvaskingsloven.'},
+      {tag:'Art. 4 · Konsekvenser',ttl:'Hva skjer hvis du ikke overholder hvitvaskingsloven?',txt:'Finanstilsynet intensiverer tilsynsarbeidet. Brudd kan medføre overtredelsesgebyr og tilbakekall av konsesjon. Her er hva du må ha på plass.'},
+      {tag:'Art. 9 · Sanksjonskontroll',ttl:'Er dine kunder på en sanksjonsliste? Slik holder du kontroll',txt:'FN, EU og OFAC-listene oppdateres kontinuerlig. KYC Flow overvåker automatisk og varsler umiddelbart ved treff.'}
+    ],
+    hl:'Usikker på modenhetsnivået ditt? Ta vår gratis AML-modenhetsvurdering — du får svar på 5 minutter.',
+    ctaTxt:'Ta AML-modenhetsvurderingen →',foot:'stoe.no/kyc/bank-og-finans'
+  }
+},
+
+'em2-b':{
+  ch:'em',badge:'E-post 2 · Dag 7 · Bank',badgeBg:'#E8EFF8',badgeCol:'#1A3A7A',
+  segs:['Bank og finans'],
+  ingress:'Art. 9-hook: sanksjonskontroll på emnelinjen. Reell urgency — listene oppdateres daglig. ',
+  meta:[['Emne','{{lead.Company}} — Er dine kunder på en sanksjonsliste?'],['Hook','Art. 9 — sanksjonskontroll'],['Status','Ta kontakt for pris'],['Score','+15–25 pts']],
+  prevType:'email2',prev:{
+    seg:'Bank og finans',subj:'{{lead.Company}} — Er dine kunder på en sanksjonsliste?',
+    hero:'Sanksjonslister oppdateres daglig. Er {{lead.Company}} klar?',
+    intro:'Hei {{lead.FirstName}}, internasjonale sanksjonslister (FN, EU, OFAC) oppdateres jevnlig. En kunde som var sanksjonsfri ved oppstart kan havne på listen dagen etter — uten at du vet det.',
+    guide_items:['Oversikt over listene du er pliktig å sjekke — FN, EU, OFAC og norske lister','Hva skjer ved et treff — rapporteringsplikt og rutiner','Slik setter du opp automatisk sanksjonskontroll i KYC Flow','Dokumentasjon Finanstilsynet ser etter ved tilsyn'],
+    pris:'',foot:'stoe.no/kyc/bank-og-finans'
+  }
+},
+
+'em1-v':{
+  ch:'em',badge:'E-post 1 · Dag 2 · Verdipapir',badgeBg:'#E8EFF8',badgeCol:'#1A3A7A',
+  segs:['Verdipapir'],
+  ingress:'Art. 1 + Art. 6 + Art. 10 i verdipapir-versjon. Art. 6 (ingen integrasjon) og Art. 10 (risikovurdering) er de mest relevante hookene for compliance i verdipapir. KYC-modenhetsvurdering som CTA.',
+  meta:[['Emne','KYC i verdipapir: rapporteringsplikten og hva den krever'],['Artikler','Art. 1 + Art. 6 + Art. 10'],['CTA','KYC-modenhetsvurdering · +30 pts'],['Score','+5 åpnet · +10 klikket']],
+  prevType:'email1',prev:{
+    seg:'KYC · Verdipapir',subj:'KYC i verdipapir: rapporteringsplikten og hva den krever',
+    heroTag:'Verdipapir',hero:'Alt compliance-teamet trenger å vite om KYC-plikten i verdipapir',
+    intro:'Som verdipapirforetak, forvaltningsselskap eller investeringsrådgiver er du underlagt hvitvaskingsloven med særlig strenge krav. Her er de tre artiklene som gir deg oversikten.',
+    arts:[
+      {tag:'Art. 1 · Rapporteringspliktig',ttl:'Er du rapporteringspliktig bedrift? Dette må du vite om KYC',txt:'Verdipapirforetak og investeringsrådgivere er underlagt hvitvaskingsloven med særlig strenge krav. Her får du en klar oversikt over forpliktelsene.'},
+      {tag:'Art. 6 · Uten integrasjon',ttl:'KYC Flow: Komplett kundekontroll fra dag én – uten teknisk integrasjon',txt:'Ingen utvikling, ingen integrasjon, ingen langvarig onboarding. Du velger pakke og er i gang samme dag. Bygget av folka bak BankID og BankAxept.'},
+      {tag:'Art. 10 · Risikovurdering',ttl:'Forstå risikovurdering i KYC – og gjør det riktig første gang',txt:'Hvitvaskingsloven krever risikovurdering per kundeforhold. Med KYC Flow gjennomfører du dette på under 10 minutter — og alt dokumenteres automatisk.'}
+    ],
+    hl:'Usikker på modenhetsnivået ditt? Ta vår gratis KYC-modenhetsvurdering — du får svar på 5 minutter.',
+    ctaTxt:'Ta KYC-modenhetsvurderingen →',foot:'stoe.no/kyc/verdipapir'
+  }
+},
+
+'em2-v':{
+  ch:'em',badge:'E-post 2 · Dag 7 · Verdipapir',badgeBg:'#E8EFF8',badgeCol:'#1A3A7A',
+  segs:['Verdipapir'],
+  ingress:'Art. 10-hook: risikovurdering på emnelinjen. «Gjøre det riktig første gang» er den sterkeste hooken for verdipapir. ',
+  meta:[['Emne','{{lead.Company}} — gjør risikovurdering riktig med KYC Flow'],['Hook','Art. 10 — risikovurdering'],['Status','Ta kontakt for pris'],['Score','+15–25 pts']],
+  prevType:'email2',prev:{
+    seg:'Verdipapir',subj:'{{lead.Company}} — gjør risikovurdering riktig med KYC Flow',
+    hero:'Risikovurdering i KYC — gjør det riktig, første gang',
+    intro:'Hei {{lead.FirstName}}, hvitvaskingsloven krever at du vurderer risikoen ved hvert enkelt kundeforhold. Mange verdipapirforetak gjennomfører det feil — eller ikke i det hele tatt.',
+    guide_items:['Hvilke faktorer inngår i en lovmessig risikovurdering (PEP, geografi, eierstruktur)?','Slik gjennomfører du risikovurdering på under 10 minutter per kunde','Sjekklister og risikoindikatorer i KYC Flow','Dokumentasjon som tåler Finanstilsynets kontroll'],
+    pris:'',foot:'stoe.no/kyc/verdipapir'
+  }
+},
+
+'sal-r':{
+  ch:'sal',badge:'Salgs-e-post · Regnskap',badgeBg:'#FDF3DC',badgeCol:'#854F0B',
+  segs:['Regnskap og revisjon'],
+  ingress:'Art. 5-hook videreføres inn i salgse-posten. «Unngå alle 5 feilene fra dag én» er det konkrete løftet.  Book møte eller start selv.',
+  meta:[['Emne','{{lead.Company}} — unngå alle 5 KYC-feilene fra dag én'],['Trigger','Score ≥ 45 eller prisside-besøk'],['Status','Ta kontakt for pris'],['CTA','Kom i gang / Book møte']],
+  prevType:'sales',prev:{seg:'Regnskap og revisjon',pris:'',
+    subj:'{{lead.Company}} — unngå alle 5 KYC-feilene fra dag én',
+    budskap:'Stø KYC Flow eliminerer alle 5 feilene vi ser igjen og igjen i regnskapsbyråer — uten integrasjon, uten IT-avdeling.',
+    cta1:'Kom i gang nå →',cta2:'Dennis tar en uforpliktende prat om hva som passer for ditt regnskapsbyrå'}
+},
+
+'sal-b':{
+  ch:'sal',badge:'Salgs-e-post · Bank',badgeBg:'#FDF3DC',badgeCol:'#854F0B',
+  segs:['Bank og finans'],
+  ingress:'Art. 9-hook: «automatisk sanksjonskontroll fra dag én».  EDD og Finanstilsynet-rapportering som nøkkelfeatures.',
+  meta:[['Emne','{{lead.Company}} — automatisk sanksjonskontroll fra dag én'],['Trigger','Score ≥ 45 eller prisside-besøk'],['Status','Ta kontakt for pris'],['CTA','Kom i gang / Book møte']],
+  prevType:'sales',prev:{seg:'Bank og finans',pris:'',
+    subj:'{{lead.Company}} — automatisk sanksjonskontroll fra dag én',
+    budskap:'KYC Flow overvåker alle kunder mot FN, EU og OFAC-lister og varsler umiddelbart ved treff. EDD, løpende overvåkning og Finanstilsynet-rapportering samlet på ett sted.',
+    cta1:'Kom i gang nå →',cta2:'Dennis tar en uforpliktende prat om hva som passer for ditt finansforetak'}
+},
+
+'sal-v':{
+  ch:'sal',badge:'Salgs-e-post · Verdipapir',badgeBg:'#FDF3DC',badgeCol:'#854F0B',
+  segs:['Verdipapir'],
+  ingress:'Art. 10-hook: «gjør risikovurdering riktig med KYC Flow».  Ingen integrasjon som sekundær hook.',
+  meta:[['Emne','{{lead.Company}} — gjør risikovurdering riktig med KYC Flow'],['Trigger','Score ≥ 45 eller prisside-besøk'],['Status','Ta kontakt for pris'],['CTA','Kom i gang / Book møte']],
+  prevType:'sales',prev:{seg:'Verdipapir',pris:'',
+    subj:'{{lead.Company}} — gjør risikovurdering riktig med KYC Flow',
+    budskap:'Systemstøttet risikovurdering på under 10 minutter per kunde. Sjekklister, risikoindikatorer og automatisk dokumentasjon — klar til Finanstilsynets kontroll.',
+    cta1:'Kom i gang nå →',cta2:'Dennis tar en uforpliktende prat om hva som passer for ditt verdipapirforetak'}
+},
+
+'meet':{
+  ch:'meet',badge:'Møtebekreftelse · Fra Dennis direkte',badgeBg:'#E6F4EE',badgeCol:'#1D7A4F',
+  segs:['Regnskap og revisjon','Bank og finans','Verdipapir'],
+  ingress:'Fra dennis@stoe.no. Redusere no-show, bygge relasjon. Dennis viser at han har lest skjemaet (system, KYC-volum). Agenda 5+15+10+10 min.',
+  meta:[['Emne','Vi sees {{meeting.Date}} — litt om meg og hva vi skal gå gjennom'],['Avsender','dennis@stoe.no'],['Agenda','5+15+10+10 min'],['Mål','Redusere no-show']],
+  prevType:'meeting'
+}
+
+};
+
+// ── RENDERERS ─────────────────────────────────────────────────────────────
+function render_google(d){
+  const p=d.prev;
+  return `<div class="adp"><div class="adp-lbl">Google Responsive Search Ad · Forhåndsvisning</div>
+<div class="ad-g">
+<div class="ad-g-url"><span class="ad-g-sp">Annonse</span>${p.url}</div>
+<div class="ad-g-h">${p.h}</div>
+<div class="ad-g-d">${p.d}</div>
+<div class="ad-g-chips">${p.chips.map(function(c){return '<span class="ad-chip">'+c+'</span>';}).join('')}</div>
+</div></div>`;
+}
+
+function render_li(d){
+  const p=d.prev;
+  return `<div class="adp"><div class="adp-lbl">LinkedIn Sponsored Content · Forhåndsvisning</div>
+<div class="ad-li">
+<div class="ad-li-hd"><div class="ad-li-meta">KYC Flow · Stø AS · 1 450 følgere</div><div class="ad-li-sp">Sponset</div></div>
+<div class="ad-li-img">
+<div class="ad-li-tag">${p.tag}</div>
+<div class="ad-li-h">${p.h}</div>
+</div>
+<div class="ad-link"><div class="ad-link-dom">stoe.no</div><div class="ad-link-ttl">${p.lttl}</div><div class="ad-link-d">${p.ldesc}</div></div>
+<div class="ad-li-bd">
+<div class="ad-li-hl">${p.hl}</div>
+<div class="ad-li-desc">${p.desc}</div>
+<div class="ad-li-cta">Les mer →</div>
+<div class="ad-li-chips">${p.chips.map(function(c){return '<span class="ad-chip">'+c+'</span>';}).join('')}</div>
+</div>
+<div class="li-react"><span>👍 Liker · Kommenter · Del</span><span>Følg Stø</span></div>
+</div></div>`;
+}
+
+function render_lp(d){
+  const p=d.prev;
+  const checks=p.items.map(function(i){return '<div class="lp-check"><span class="lp-check-ico">✓</span>'+i+'</div>';}).join('');
+  const roles=p.roles.map(function(r){return '<option>'+r+'</option>';}).join('');
+  const sys=p.systems?`<select class="lp-sel">${p.systems.map(function(s){return '<option>'+s+'</option>';}).join('')}</select>`:'';
+  return `<div class="lpp"><div class="lpf">
+<div class="lp-nav"><div class="lp-nav-logo">Stø<span>.</span></div><div class="lp-nav-cta">stoe.no</div></div>
+<div class="lp-hero">
+<div class="lp-hero-tag">${p.tag}</div>
+<div class="lp-hero-h">${p.h}</div>
+<div class="lp-hero-s">${p.sub}</div>
+<div class="lp-wb"><div class="lp-play">▶</div><div><div class="lp-wb-t">${p.tag.split('·')[0].trim()}</div><div class="lp-wb-m"><span>On-demand</span><span>Gratis tilgang</span><span>Q&A</span></div></div></div>
+<div class="lp-form">
+<div class="lp-form-lbl">Fyll inn for tilgang</div>
+<input class="lp-inp" placeholder="Fornavn og etternavn" readonly>
+<input class="lp-inp" placeholder="Jobb-e-post" readonly>
+<select class="lp-sel"><option>Velg rolle...</option>${roles}</select>
+<input class="lp-inp" placeholder="KYC-kunder per år" readonly>
+${sys}
+<button class="lp-btn">${p.ctaTxt}</button>
+<div class="lp-fine">Ingen kredittkort. Du får umiddelbar tilgang.</div>
+<div class="lp-checks">${checks}</div>
+</div></div>
+<div style="height:160px;background:url('https://stoe.no/images/8gh06hji/production/728beab2d394a51a1a1d0edf520696e9c742f65c-2000x1080.png?w=520&fm=webp&q=85&fit=crop') center/cover no-repeat;border-bottom:1px solid var(--border)"></div>
+<div class="lp-trust">
+<div class="lp-trust-i">🔒 BankID-integrert</div>
+<div class="lp-trust-i">⚡ I gang samme dag</div>
+<div class="lp-trust-i">✅ 2 000+ kunder</div>
+</div>
+<div class="lp-spk"><div class="lp-spk-av">D</div><div><div class="lp-spk-n">Dennis Sebastian Nystedt</div><div class="lp-spk-t">KYC Sales · Stø AS</div></div></div>
+<div class="lp-foot"><div class="lp-foot-logo">Stø<span>.</span></div><div class="lp-foot-t">Biskop Gunnerus' gate 14 · 0185 Oslo</div></div>
+</div></div>`;
+}
+
+function render_email1(d){
+  const p=d.prev;
+  const arts=p.arts.map(function(a){
+  return '<div class="ef-art"><div class="ef-art-tag">'+a.tag+'</div><div class="ef-art-ttl">'+a.ttl+'</div><div class="ef-art-txt">'+a.txt+'</div><div class="ef-art-lnk">Les artikkelen →</div></div>';
+}).join('');
+  return `<div class="ep"><div class="ef">
+<div class="ef-logo"><div class="ef-logo-t">Stø<span>.</span></div><div class="ef-logo-s">${p.seg}</div></div>
+<div class="ef-meta"><div class="ef-subj">${p.subj}</div><div class="ef-to">Til: {{lead.FirstName}} {{lead.LastName}}</div></div>
+<div class="ef-hero"><div class="ef-hero-tag">${p.heroTag}</div><div class="ef-hero-h">${p.hero}</div></div>
+<div style="height:120px;background:url('https://stoe.no/images/8gh06hji/production/b5d101843b6b433887e4702c55b9e3b13c35fdcc-1078x1080.png?w=520&fm=webp&q=85&fit=crop') center/cover no-repeat;filter:grayscale(20%) brightness(.8)"></div>
+<div class="ef-body">
+<div class="ef-p">${p.intro}</div>
+<div class="ef-p" style="font-size:11px;font-weight:700;color:#1A1A18;margin-bottom:7px">Aktuelt for deg</div>
+<div class="ef-arts">${arts}</div>
+<div class="ef-hl">${p.hl}</div>
+</div>
+<div class="ef-cta-w"><div class="ef-cta">${p.ctaTxt}</div></div>
+<div class="ef-foot"><div class="ef-foot-t">Stø AS · Biskop Gunnerus' gate 14 · 0185 Oslo<br>Du mottar denne e-posten fordi du registrerte deg på ${p.foot}</div></div>
+</div></div>`;
+}
+
+function render_email2(d){
+  const p=d.prev;
+  const gl=p.guide_items.map(function(i){return '<div style="display:flex;align-items:flex-start;gap:6px;margin-bottom:4px;font-size:11px;color:#5A6B52"><span style="color:#7FE832;font-weight:700;flex-shrink:0">✓</span>'+i+'</div>';}).join('');
+  return `<div class="ep"><div class="ef">
+<div class="ef-logo"><div class="ef-logo-t">Stø<span>.</span></div><div class="ef-logo-s">${p.seg}</div></div>
+<div class="ef-meta"><div class="ef-subj">${p.subj}</div><div class="ef-to">Til: {{lead.FirstName}} {{lead.LastName}}</div></div>
+<div class="ef-hero"><div class="ef-hero-tag">${p.seg}</div><div class="ef-hero-h">${p.hero}</div></div>
+<div style="height:120px;background:url('https://cdn.sanity.io/images/8gh06hji/production/174171b0ae81cbd2acf22b2a3b8022b71ba567c9-6660x4313.jpg?w=520&h=120&q=85&fit=crop') center/cover no-repeat;filter:grayscale(20%) brightness(.8)"></div>
+<div class="ef-body">
+<div class="ef-p">${p.intro}</div>
+<div class="ef-hl" style="font-size:11px;font-style:normal"><strong>I vår guide finner du</strong><br><br>${gl}</div>
+</div>
+<div class="ef-cta-w"><div class="ef-cta">Last ned guiden — gratis →</div></div>
+<div class="ef-body" style="border-top:1px solid #E0D8CC">
+<div class="ef-p">Allerede 2&nbsp;000+ skandinaviske bedrifter bruker Stø for kundekontroll og AML. Ingen integrasjon — i gang samme dag.</div>
+<div class="ef-hl"><strong>Kampanjepris — ta kontakt for pris</strong>, eks. mva. Standard-pakken til Basic-pris.</div>
+</div>
+<div class="ef-cta-w"><div class="ef-cta">Se priser og pakker →</div></div>
+<div class="ef-foot"><div class="ef-foot-t">Stø AS · Biskop Gunnerus' gate 14 · 0185 Oslo<br>Du mottar denne e-posten fordi du registrerte deg på ${p.foot}</div></div>
+</div></div>`;
+}
+
+function render_sales(d){
+  const p=d.prev;
+  const feats=[['PEP- og sanksjonslister','Automatisk overvåkning'],['BankID-signerte skjemaer','Nordisk BankID'],['Risikovurdering','Finanstilsynet-klar'],['Løpende overvåkning','Automatisk varsling']];
+  return `<div class="sep"><div class="ef">
+<div class="ef-logo"><div class="ef-logo-t">Stø<span>.</span></div><div class="ef-logo-s">KYC Flow · ${p.seg}</div></div>
+<div class="ef-meta"><div class="ef-subj">${p.subj}</div><div class="ef-to">Fra: kyc@stoe.no</div></div>
+<div class="ef-hero"><div class="ef-hero-tag">KYC Flow · ${p.seg}</div><div class="ef-hero-h">Du er nesten der</div></div>
+<div style="height:120px;background:url('https://stoe.no/images/8gh06hji/production/bd40bad372d062f6319ad1ed3fee3016604420a7-832x1080.png?w=520&fm=webp&q=85&fit=crop') center/cover no-repeat;filter:grayscale(20%) brightness(.75)"></div>
+<div class="ef-body"><div class="ef-p">${p.budskap}</div></div>
+<div class="ef-feats">${feats.map(function(f){return '<div class="ef-feat"><div class="ef-feat-t">'+f[0]+'</div><div class="ef-feat-s">'+f[1]+'</div></div>';}).join('')}</div>
+<div class="ef-body" style="text-align:center;padding-top:14px">
+<div style="display:inline-block;background:#1C3D1C;color:#fff;font-size:11px;font-weight:800;letter-spacing:.05em;padding:10px 20px;border-radius:4px">Ta kontakt for pris</div>
+</div>
+<div class="ef-cta-w"><div class="ef-cta">${p.cta1}</div></div>
+<div class="ef-body"><div class="ef-hl">${p.cta2}</div></div>
+<div class="ef-cta-w" style="background:#fff"><div class="ef-cta" style="background:rgba(28,61,28,.1);color:#1C3D1C">Book et møte med Dennis →</div></div>
+<div class="ef-foot"><div class="ef-foot-t">Stø AS · Biskop Gunnerus' gate 14 · 0185 Oslo · Meld deg av</div></div>
+</div></div>`;
+}
+
+function render_meeting(){
+  return `<div class="meep"><div class="meef">
+<div class="meet-hd">
+<div class="meet-logo">Stø<span>.</span></div>
+<div class="meet-sub">Møtebekreftelse · KYC Flow</div>
+<div class="meet-c">
+<div class="meet-c-tag">✓ Møte bekreftet</div>
+<div class="meet-c-t">{{meeting.Date}} kl. {{meeting.Time}} · {{meeting.Duration}} minutter · Google Meet</div>
+<div class="meet-c-m">Med Dennis Sebastian Nystedt · KYC Sales · Stø AS</div>
+<div class="meet-add">Legg til i kalender →</div>
+</div></div>
+<div class="meet-d">
+<div class="meet-d-av">D</div>
+<div>
+<div class="meet-d-n">Dennis Sebastian Nystedt</div>
+<div class="meet-d-t">KYC Sales · Stø AS · dennis@stoe.no</div>
+<div class="meet-d-bio">Dennis jobber daglig med regnskapsbyråer, banker og verdipapirforetak som er i gang med å bygge gode KYC-prosesser. Han kjenner hvitvaskingsregelverket godt, og er opptatt av å finne løsninger som faktisk fungerer i praksis — ikke bare på papiret.</div>
+</div></div>
+<div class="meet-ag">
+<div class="meet-ag-lbl">Vi går gjennom</div>
+<div class="meet-step"><div class="meet-step-t">5 min</div><div><div class="meet-step-ttl">Bli kjent</div><div class="meet-step-txt">Litt om {{lead.Company}} og deres KYC-prosess i dag — hva fungerer, hva er utfordrende?</div></div></div>
+<div class="meet-step"><div class="meet-step-t">15 min</div><div><div class="meet-step-ttl">Demo av KYC Flow</div><div class="meet-step-txt">Vi går gjennom systemet med utgangspunkt i {{lead.Company}} sin situasjon — kundekontroll, risikovurdering og overvåking.</div></div></div>
+<div class="meet-step"><div class="meet-step-t">10 min</div><div><div class="meet-step-ttl">Integrasjon og oppsett</div><div class="meet-step-txt">Hvordan passer KYC Flow inn i eksisterende arbeidsflyt. Ingen integrasjon nødvendig for å starte.</div></div></div>
+<div class="meet-step"><div class="meet-step-t">10 min</div><div><div class="meet-step-ttl">Priser og neste steg</div><div class="meet-step-txt">Vi ser på hvilken pakke som passer best og hva som skal til for å komme i gang.</div></div></div>
+</div>
+<div class="meet-prep">
+<div class="meet-prep-lbl">Forberedelse (valgfritt)</div>
+<div class="meet-prep-txt">Tenk gjerne over: hvor mange KYC-kunder gjennomfører dere per år, og hvilket system bruker dere i dag? Det hjelper meg å gjøre møtet mest mulig relevant for dere.</div>
+</div>
+<div class="meet-cta-w">
+<div class="meet-cta">Åpne møtelenke (Google Meet) →</div>
+<div class="meet-ph">Eller ring meg direkte: +47 XXX XX XXX</div>
+</div>
+<div class="meet-sig">Dennis Sebastian Nystedt · Stø AS · Biskop Gunnerus' gate 14 · 0185 Oslo<br>Avlys møtet · Endre tidspunkt · Personvern</div>
+</div></div>`;
+}
+
+function render_art(d){
+  if(!d.art){
+    document.getElementById('p-art').innerHTML='<div class="artpane"><div style="background:var(--cream2);border:1px solid var(--border);border-radius:5px;padding:18px;font-size:13px;color:var(--stone);line-height:1.75">Ikke knyttet til en spesifikk artikkel. M\u00f8tebekreftelse og salgs-e-post er basert p\u00e5 prospektets score og atferd.</div></div>';
+    return;
+  }
+  const a=d.art;
+  const seg_col={r:'cs-r',b:'cs-b',v:'cs-v'}[d.ch==='ann'||d.ch==='lp'||d.ch==='em'||d.ch==='sal'?'r':'r'];
+  const segs=d.segs||[];
+  const segKey=segs[0]&&segs[0].includes('Regnskap')?'r':segs[0]&&segs[0].includes('Bank')?'b':'v';
+  const segColMap={r:'cs-r',b:'cs-b',v:'cs-v'};
+  const bodyPs=a.body.split('\n\n').map(function(p){return '<p>'+p+'</p>';}).join('');
+  const conItems=Object.entries(a.con).map(([k,v])=>{
+    const labels={ann:'Annonse',lp:'Landingsside',em:'E-post'};
+    return `<div class="art-con-item"><div class="art-con-item-l">${labels[k]||k}</div><div class="art-con-item-v">${v}</div></div>`;
+  }).join('');
+  return `<div class="artpane">
+<span class="art-seg ${segColMap[segKey]}">Art. ${a.nr} · ${a.seg}</span>
+<div class="art-h">${a.h}</div>
+<div class="art-ingress">${a.ingress}</div>
+<div class="art-seg-intro">
+<div class="art-seg-intro-lbl">Segment-intro (skreddersydd)</div>
+<div class="art-seg-intro-txt">${a.seg_intro}</div>
+</div>
+<div class="art-body">${bodyPs}</div>
+<div class="art-cta-wrap">
+<div class="art-cta-txt">Call-to-action</div>
+<div class="art-cta-btn">${a.cta}</div>
+</div>
+<div class="art-consistency">
+<div class="art-con-lbl">Konsistens gjennom funnelen</div>
+<div class="art-con-grid">${conItems}</div>
+</div>
+</div>`;
+}
+
+
+// ── RENDER FUNCTIONS FROM V2 ────────────────────────────────────────────
+function render_google(d){
+  const p=d.prev;
+  return `<div class="adp"><div class="adp-lbl">Google Responsive Search Ad · Forhåndsvisning</div>
+<div class="ad-g">
+<div class="ad-g-url"><span class="ad-g-sp">Annonse</span>${p.url}</div>
+<div class="ad-g-h">${p.h}</div>
+<div class="ad-g-d">${p.d}</div>
+<div class="ad-g-chips">${p.chips.map(function(c){return '<span class="ad-chip">'+c+'</span>';}).join('')}</div>
+</div></div>`;
+}
+
+function render_li(d){
+  const p=d.prev;
+  return `<div class="adp"><div class="adp-lbl">LinkedIn Sponsored Content · Forhåndsvisning</div>
+<div class="ad-li">
+<div class="ad-li-hd"><div class="ad-li-meta">KYC Flow · Stø AS · 1 450 følgere</div><div class="ad-li-sp">Sponset</div></div>
+<div class="ad-li-img">
+<div class="ad-li-tag">${p.tag}</div>
+<div class="ad-li-h">${p.h}</div>
+</div>
+<div class="ad-link"><div class="ad-link-dom">stoe.no</div><div class="ad-link-ttl">${p.lttl}</div><div class="ad-link-d">${p.ldesc}</div></div>
+<div class="ad-li-bd">
+<div class="ad-li-hl">${p.hl}</div>
+<div class="ad-li-desc">${p.desc}</div>
+<div class="ad-li-cta">Les mer →</div>
+<div class="ad-li-chips">${p.chips.map(function(c){return '<span class="ad-chip">'+c+'</span>';}).join('')}</div>
+</div>
+<div class="li-react"><span>👍 Liker · Kommenter · Del</span><span>Følg Stø</span></div>
+</div></div>`;
+}
+
+function render_lp(d){
+  const p=d.prev;
+  const checks=p.items.map(function(i){return '<div class="lp-check"><span class="lp-check-ico">✓</span>'+i+'</div>';}).join('');
+  const roles=p.roles.map(function(r){return '<option>'+r+'</option>';}).join('');
+  const sys=p.systems?`<select class="lp-sel">${p.systems.map(function(s){return '<option>'+s+'</option>';}).join('')}</select>`:'';
+  return `<div class="lpp"><div class="lpf">
+<div class="lp-nav"><div class="lp-nav-logo">Stø<span>.</span></div><div class="lp-nav-cta">stoe.no</div></div>
+<div class="lp-hero">
+<div class="lp-hero-tag">${p.tag}</div>
+<div class="lp-hero-h">${p.h}</div>
+<div class="lp-hero-s">${p.sub}</div>
+<div class="lp-wb"><div class="lp-play">▶</div><div><div class="lp-wb-t">${p.tag.split('·')[0].trim()}</div><div class="lp-wb-m"><span>On-demand</span><span>Gratis tilgang</span><span>Q&A</span></div></div></div>
+<div class="lp-form">
+<div class="lp-form-lbl">Fyll inn for tilgang</div>
+<input class="lp-inp" placeholder="Fornavn og etternavn" readonly>
+<input class="lp-inp" placeholder="Jobb-e-post" readonly>
+<select class="lp-sel"><option>Velg rolle...</option>${roles}</select>
+<input class="lp-inp" placeholder="KYC-kunder per år" readonly>
+${sys}
+<button class="lp-btn">${p.ctaTxt}</button>
+<div class="lp-fine">Ingen kredittkort. Du får umiddelbar tilgang.</div>
+<div class="lp-checks">${checks}</div>
+</div></div>
+<div style="height:160px;background:url('https://stoe.no/images/8gh06hji/production/728beab2d394a51a1a1d0edf520696e9c742f65c-2000x1080.png?w=520&fm=webp&q=85&fit=crop') center/cover no-repeat;border-bottom:1px solid var(--border)"></div>
+<div class="lp-trust">
+<div class="lp-trust-i">🔒 BankID-integrert</div>
+<div class="lp-trust-i">⚡ I gang samme dag</div>
+<div class="lp-trust-i">✅ 2 000+ kunder</div>
+</div>
+<div class="lp-spk"><div class="lp-spk-av">D</div><div><div class="lp-spk-n">Dennis Sebastian Nystedt</div><div class="lp-spk-t">KYC Sales · Stø AS</div></div></div>
+<div class="lp-foot"><div class="lp-foot-logo">Stø<span>.</span></div><div class="lp-foot-t">Biskop Gunnerus' gate 14 · 0185 Oslo</div></div>
+</div></div>`;
+}
+
+function render_email1(d){
+  const p=d.prev;
+  const arts=p.arts.map(function(a){
+  return '<div class="ef-art"><div class="ef-art-tag">'+a.tag+'</div><div class="ef-art-ttl">'+a.ttl+'</div><div class="ef-art-txt">'+a.txt+'</div><div class="ef-art-lnk">Les artikkelen →</div></div>';
+}).join('');
+  return `<div class="ep"><div class="ef">
+<div class="ef-logo"><div class="ef-logo-t">Stø<span>.</span></div><div class="ef-logo-s">${p.seg}</div></div>
+<div class="ef-meta"><div class="ef-subj">${p.subj}</div><div class="ef-to">Til: {{lead.FirstName}} {{lead.LastName}}</div></div>
+<div class="ef-hero"><div class="ef-hero-tag">${p.heroTag}</div><div class="ef-hero-h">${p.hero}</div></div>
+<div style="height:120px;background:url('https://stoe.no/images/8gh06hji/production/b5d101843b6b433887e4702c55b9e3b13c35fdcc-1078x1080.png?w=520&fm=webp&q=85&fit=crop') center/cover no-repeat;filter:grayscale(20%) brightness(.8)"></div>
+<div class="ef-body">
+<div class="ef-p">${p.intro}</div>
+<div class="ef-p" style="font-size:11px;font-weight:700;color:#1A1A18;margin-bottom:7px">Aktuelt for deg</div>
+<div class="ef-arts">${arts}</div>
+<div class="ef-hl">${p.hl}</div>
+</div>
+<div class="ef-cta-w"><div class="ef-cta">${p.ctaTxt}</div></div>
+<div class="ef-foot"><div class="ef-foot-t">Stø AS · Biskop Gunnerus' gate 14 · 0185 Oslo<br>Du mottar denne e-posten fordi du registrerte deg på ${p.foot}</div></div>
+</div></div>`;
+}
+
+function render_email2(d){
+  const p=d.prev;
+  const gl=p.guide_items.map(function(i){return '<div style="display:flex;align-items:flex-start;gap:6px;margin-bottom:4px;font-size:11px;color:#5A6B52"><span style="color:#7FE832;font-weight:700;flex-shrink:0">✓</span>'+i+'</div>';}).join('');
+  return `<div class="ep"><div class="ef">
+<div class="ef-logo"><div class="ef-logo-t">Stø<span>.</span></div><div class="ef-logo-s">${p.seg}</div></div>
+<div class="ef-meta"><div class="ef-subj">${p.subj}</div><div class="ef-to">Til: {{lead.FirstName}} {{lead.LastName}}</div></div>
+<div class="ef-hero"><div class="ef-hero-tag">${p.seg}</div><div class="ef-hero-h">${p.hero}</div></div>
+<div style="height:120px;background:url('https://cdn.sanity.io/images/8gh06hji/production/174171b0ae81cbd2acf22b2a3b8022b71ba567c9-6660x4313.jpg?w=520&h=120&q=85&fit=crop') center/cover no-repeat;filter:grayscale(20%) brightness(.8)"></div>
+<div class="ef-body">
+<div class="ef-p">${p.intro}</div>
+<div class="ef-hl" style="font-size:11px;font-style:normal"><strong>I vår guide finner du</strong><br><br>${gl}</div>
+</div>
+<div class="ef-cta-w"><div class="ef-cta">Last ned guiden — gratis →</div></div>
+<div class="ef-body" style="border-top:1px solid #E0D8CC">
+<div class="ef-p">Allerede 2&nbsp;000+ skandinaviske bedrifter bruker Stø for kundekontroll og AML. Ingen integrasjon — i gang samme dag.</div>
+<div class="ef-hl"><strong>Kampanjepris — ta kontakt for pris</strong>, eks. mva. Standard-pakken til Basic-pris.</div>
+</div>
+<div class="ef-cta-w"><div class="ef-cta">Se priser og pakker →</div></div>
+<div class="ef-foot"><div class="ef-foot-t">Stø AS · Biskop Gunnerus' gate 14 · 0185 Oslo<br>Du mottar denne e-posten fordi du registrerte deg på ${p.foot}</div></div>
+</div></div>`;
+}
+
+function render_sales(d){
+  const p=d.prev;
+  const feats=[['PEP- og sanksjonslister','Automatisk overvåkning'],['BankID-signerte skjemaer','Nordisk BankID'],['Risikovurdering','Finanstilsynet-klar'],['Løpende overvåkning','Automatisk varsling']];
+  return `<div class="sep"><div class="ef">
+<div class="ef-logo"><div class="ef-logo-t">Stø<span>.</span></div><div class="ef-logo-s">KYC Flow · ${p.seg}</div></div>
+<div class="ef-meta"><div class="ef-subj">${p.subj}</div><div class="ef-to">Fra: kyc@stoe.no</div></div>
+<div class="ef-hero"><div class="ef-hero-tag">KYC Flow · ${p.seg}</div><div class="ef-hero-h">Du er nesten der</div></div>
+<div style="height:120px;background:url('https://stoe.no/images/8gh06hji/production/bd40bad372d062f6319ad1ed3fee3016604420a7-832x1080.png?w=520&fm=webp&q=85&fit=crop') center/cover no-repeat;filter:grayscale(20%) brightness(.75)"></div>
+<div class="ef-body"><div class="ef-p">${p.budskap}</div></div>
+<div class="ef-feats">${feats.map(function(f){return '<div class="ef-feat"><div class="ef-feat-t">'+f[0]+'</div><div class="ef-feat-s">'+f[1]+'</div></div>';}).join('')}</div>
+<div class="ef-body" style="text-align:center;padding-top:14px">
+<div style="display:inline-block;background:#1C3D1C;color:#fff;font-size:11px;font-weight:800;letter-spacing:.05em;padding:10px 20px;border-radius:4px">Ta kontakt for pris</div>
+</div>
+<div class="ef-cta-w"><div class="ef-cta">${p.cta1}</div></div>
+<div class="ef-body"><div class="ef-hl">${p.cta2}</div></div>
+<div class="ef-cta-w" style="background:#fff"><div class="ef-cta" style="background:rgba(28,61,28,.1);color:#1C3D1C">Book et møte med Dennis →</div></div>
+<div class="ef-foot"><div class="ef-foot-t">Stø AS · Biskop Gunnerus' gate 14 · 0185 Oslo · Meld deg av</div></div>
+</div></div>`;
+}
+
+function render_meeting(){
+  return `<div class="meep"><div class="meef">
+<div class="meet-hd">
+<div class="meet-logo">Stø<span>.</span></div>
+<div class="meet-sub">Møtebekreftelse · KYC Flow</div>
+<div class="meet-c">
+<div class="meet-c-tag">✓ Møte bekreftet</div>
+<div class="meet-c-t">{{meeting.Date}} kl. {{meeting.Time}} · {{meeting.Duration}} minutter · Google Meet</div>
+<div class="meet-c-m">Med Dennis Sebastian Nystedt · KYC Sales · Stø AS</div>
+<div class="meet-add">Legg til i kalender →</div>
+</div></div>
+<div class="meet-d">
+<div class="meet-d-av">D</div>
+<div>
+<div class="meet-d-n">Dennis Sebastian Nystedt</div>
+<div class="meet-d-t">KYC Sales · Stø AS · dennis@stoe.no</div>
+<div class="meet-d-bio">Dennis jobber daglig med regnskapsbyråer, banker og verdipapirforetak som er i gang med å bygge gode KYC-prosesser. Han kjenner hvitvaskingsregelverket godt, og er opptatt av å finne løsninger som faktisk fungerer i praksis — ikke bare på papiret.</div>
+</div></div>
+<div class="meet-ag">
+<div class="meet-ag-lbl">Vi går gjennom</div>
+<div class="meet-step"><div class="meet-step-t">5 min</div><div><div class="meet-step-ttl">Bli kjent</div><div class="meet-step-txt">Litt om {{lead.Company}} og deres KYC-prosess i dag — hva fungerer, hva er utfordrende?</div></div></div>
+<div class="meet-step"><div class="meet-step-t">15 min</div><div><div class="meet-step-ttl">Demo av KYC Flow</div><div class="meet-step-txt">Vi går gjennom systemet med utgangspunkt i {{lead.Company}} sin situasjon — kundekontroll, risikovurdering og overvåking.</div></div></div>
+<div class="meet-step"><div class="meet-step-t">10 min</div><div><div class="meet-step-ttl">Integrasjon og oppsett</div><div class="meet-step-txt">Hvordan passer KYC Flow inn i eksisterende arbeidsflyt. Ingen integrasjon nødvendig for å starte.</div></div></div>
+<div class="meet-step"><div class="meet-step-t">10 min</div><div><div class="meet-step-ttl">Priser og neste steg</div><div class="meet-step-txt">Vi ser på hvilken pakke som passer best og hva som skal til for å komme i gang.</div></div></div>
+</div>
+<div class="meet-prep">
+<div class="meet-prep-lbl">Forberedelse (valgfritt)</div>
+<div class="meet-prep-txt">Tenk gjerne over: hvor mange KYC-kunder gjennomfører dere per år, og hvilket system bruker dere i dag? Det hjelper meg å gjøre møtet mest mulig relevant for dere.</div>
+</div>
+<div class="meet-cta-w">
+<div class="meet-cta">Åpne møtelenke (Google Meet) →</div>
+<div class="meet-ph">Eller ring meg direkte: +47 XXX XX XXX</div>
+</div>
+<div class="meet-sig">Dennis Sebastian Nystedt · Stø AS · Biskop Gunnerus' gate 14 · 0185 Oslo<br>Avlys møtet · Endre tidspunkt · Personvern</div>
+</div></div>`;
+}
+
+// ── VISUAL JOURNEY RENDER ───────────────────────────────────────────────
+function mkStep(num, ch, label, segLabel, bgColor, textColor, blocks, renderFn, renderData) {
+  var chColors = {ann:'#C03030',li:'#0A66C2',lp:'#4A2A8E',em:'#1A3A7A',sal:'#854F0B',meet:'#1D7A4F'};
+  var color = chColors[ch] || '#1C3D1C';
+  var allText = blocks.map(function(b){return b.lbl+': '+b.txt;}).join('\n');
+
+  var html = '<div class="journey-step" id="step-'+ch+num+'">';
+
+  // Step header
+  html += '<div class="step-hd">';
+  html += '<div class="step-num">'+num+'</div>';
+  html += '<div class="step-ch" style="color:'+color+'">'+label+'</div>';
+  html += '<span class="step-seg-tag" style="background:'+bgColor+';color:'+textColor+'">'+segLabel+'</span>';
+  html += mkCopyBtn(allText);
+  html += '</div>';
+
+  // Visual preview — rendered mockup
+  if (renderFn && renderData) {
+    var previewHtml = renderFn(renderData);
+    var copyId = 'cb-preview-' + num + '-' + ch;
+    COPY_STORE[copyId] = allText;
+    html += '<div style="position:relative">';
+    html += '<div style="position:absolute;top:12px;right:12px;z-index:10">';
+    html += '<button class="copy-btn" data-copyid="' + copyId + '" onclick="doCopyBtn(this)" style="background:rgba(28,61,28,.9);color:#7FE832;border-color:rgba(127,232,50,.3);box-shadow:0 2px 8px rgba(0,0,0,.3)">📋 Kopier innhold</button>';
+    html += '</div>';
+    html += previewHtml;
+    html += '</div>';
+  } else {
+    // Fallback to text blocks
+    html += '<div class="step-body">';
+    blocks.forEach(function(b){
+      html += '<div class="cb"><div class="cb-lbl">'+b.lbl+mkCopyBtn(b.txt)+'</div>';
+      html += '<div class="cb-txt">'+b.txt.replace(/\n/g,'<br>')+'</div></div>';
+    });
+    html += '</div>';
+  }
+
+  html += '</div>';
+  return html;
+}
+
+
+function toggleJourneyCh(ch) {
+  if (ch === 'all') {
+    activeChs = new Set(['ann','li','lp','em','sal','meet']);
+  } else {
+    if (activeChs.has(ch)) {
+      activeChs.delete(ch);
+    } else {
+      activeChs.add(ch);
+    }
+  }
+  if (currentSeg && currentArt) renderJourney(currentSeg, currentArt);
+}
+
+// ── KANBAN ─────────────────────────────────────────────────────────────────
+var kActiveSeg = 'all', kHiddenChs = new Set();
+
+function kfSeg(s, btn) {
+  kActiveSeg = s;
+  document.querySelectorAll('.kf-btn').forEach(function(b) {
+    if (['all','r','b','v'].includes(b.textContent.toLowerCase().slice(0,3)) ||
+        b.textContent === 'Alle') {
+      // skip
+    }
+  });
+  // Simpler: find all seg buttons
+  document.querySelectorAll('.kf-btn').forEach(function(b) {
+    var vals = {'Alle':'all','Regnskap':'r','Bank':'b','Verdipapir':'v'};
+    if (vals[b.textContent] !== undefined) {
+      b.classList.toggle('on', vals[b.textContent] === s);
+    }
+  });
+  kApplyFilters();
+}
+
+function kfCh(ch, btn) {
+  if (kHiddenChs.has(ch)) { kHiddenChs.delete(ch); btn.classList.add('on'); }
+  else { kHiddenChs.add(ch); btn.classList.remove('on'); }
+  kApplyFilters();
+}
+
+function kApplyFilters() {
+  document.querySelectorAll('.card').forEach(function(card) {
+    var ch = card.dataset.ch;
+    var segs = (card.dataset.seg || '').split(',');
+    var show = !kHiddenChs.has(ch);
+    if (kActiveSeg !== 'all' && !segs.includes(kActiveSeg)) show = false;
+    card.classList.toggle('hidden', !show);
+  });
+}
+
+function kOpen(id) {
+  document.getElementById('kp-info').innerHTML = '<div style="padding:24px;color:var(--muted);font-size:13px">Klikk «Segment-visning» for fullstendig journeyvisning med kopierknapper.<br><br>Eller bruk filteret i kanban for å navigere.</div>';
+  kTab('info');
+  document.getElementById('ovl').classList.add('open');
+}
+function kCD() { document.getElementById('ovl').classList.remove('open'); }
+function kClose(e) { if (e.target === document.getElementById('ovl')) kCD(); }
+function kTab(t) {
+  ['info','prev'].forEach(function(n) {
+    document.getElementById('kt-'+n).classList.toggle('on', n===t);
+    document.getElementById('kp-'+n).style.display = n===t ? 'block' : 'none';
+  });
+}
+
+// Init
+document.getElementById('view-kanban').style.display = 'none';
+
+// ── CMS SYSTEM ────────────────────────────────────────────────────────────
+const CMS = {
+  editMode: false,
+  changes: {},  // key -> {id, field, from, to, cardTitle}
+
+  // Make all editable elements contenteditable
+  enableEdit: function() {
+    // Find all text elements in cards
+    document.querySelectorAll('.ctitle, .cdesc, .cf, .cb-txt, .journey-hd-art, .art-block-ttl, .art-block-seg-intro, .art-block-body-txt p, .step-ttl, .ef-hero-h, .ef-p, .ef-art-ttl, .ef-art-txt, .lp-hero-h, .lp-hero-s, .ad-g-h, .ad-g-d').forEach(function(el, i) {
+      var card = el.closest('.card');
+      var cardId = card ? card.getAttribute('onclick') : 'unknown';
+      var field = el.className.split(' ')[0];
+      var key = cardId + '::' + field + '::' + i;
+
+      el.setAttribute('contenteditable', 'true');
+      el.setAttribute('spellcheck', 'false');
+      el.classList.add('editable');
+      el.dataset.cmsKey = key;
+      el.dataset.cmsOriginal = el.textContent.trim();
+      el.dataset.cmsField = field;
+      el.dataset.cmsCard = cardId;
+
+      el.addEventListener('input', function() {
+        CMS.onChange(this);
+      });
+      el.addEventListener('keydown', function(e) {
+        // Prevent Enter from creating new lines in short fields
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          this.blur();
+        }
+      });
+      // Prevent card click from opening drawer while editing
+      el.addEventListener('click', function(e) {
+        if (CMS.editMode) e.stopPropagation();
+      });
+    });
+
+    // Also make drawer content editable when open
+    document.querySelectorAll('.ititle, .ingress').forEach(function(el, i) {
+      el.setAttribute('contenteditable', 'true');
+      el.setAttribute('spellcheck', 'false');
+      el.classList.add('editable');
+      var key = 'drawer::' + el.className + '::' + i;
+      el.dataset.cmsKey = key;
+      el.dataset.cmsOriginal = el.textContent.trim();
+      el.dataset.cmsField = el.className;
+      el.dataset.cmsCard = 'drawer';
+      el.addEventListener('input', function() { CMS.onChange(this); });
+    });
+  },
+
+  disableEdit: function() {
+    document.querySelectorAll('.editable').forEach(function(el) {
+      el.removeAttribute('contenteditable');
+    });
+  },
+
+  onChange: function(el) {
+    var key = el.dataset.cmsKey;
+    var original = el.dataset.cmsOriginal;
+    var current = el.textContent.trim();
+
+    if (current !== original) {
+      // Get card title for context
+      var card = el.closest('.card');
+      var cardTitle = card ? card.querySelector('.ctitle') : null;
+      var cardLabel = cardTitle ? cardTitle.textContent.trim() : el.dataset.cmsCard;
+
+      CMS.changes[key] = {
+        id: el.dataset.cmsCard,
+        field: el.dataset.cmsField,
+        cardTitle: cardLabel,
+        from: original,
+        to: current
+      };
+      el.classList.add('changed');
+    } else {
+      delete CMS.changes[key];
+      el.classList.remove('changed');
+    }
+    CMS.updateUI();
+  },
+
+  updateUI: function() {
+    var count = Object.keys(CMS.changes).length;
+    var countEl = document.getElementById('cms-count');
+    var exportBtn = document.getElementById('cms-export-btn');
+    var statusEl = document.getElementById('cms-status');
+
+    if (count > 0) {
+      countEl.textContent = count + (count === 1 ? ' endring' : ' endringer');
+      countEl.classList.add('on');
+      /* exportBtn always visible */
+      statusEl.textContent = count + ' tekst' + (count === 1 ? '' : 'er') + ' er endret. Trykk «Mine endringer» når du er ferdig.';
+    } else {
+      countEl.classList.remove('on');
+      /* exportBtn always visible */
+      statusEl.textContent = 'Klikk på en tekst for å redigere den direkte.';
+    }
+  },
+
+  generateOutput: function() {
+    var changes = Object.values(CMS.changes);
+    if (changes.length === 0) return 'Ingen endringer ennå.';
+
+    var lines = [];
+    lines.push('ENDRINGER FRA BJØRN — Stø KYC Flow');
+    lines.push('Dato: ' + new Date().toLocaleDateString('no-NO', {day:'2-digit',month:'2-digit',year:'numeric'}));
+    lines.push('Antall endringer: ' + changes.length);
+    lines.push('');
+    lines.push('══════════════════════════════════');
+    lines.push('');
+
+    changes.forEach(function(c, i) {
+      lines.push('ENDRING ' + (i + 1) + ':');
+      lines.push('Kort: ' + c.cardTitle);
+      lines.push('Felt: ' + c.field);
+      lines.push('Fra:  "' + c.from + '"');
+      lines.push('Til:  "' + c.to + '"');
+      lines.push('');
+    });
+
+    lines.push('══════════════════════════════════');
+    lines.push('Send denne teksten til Toralf på e-post eller Slack.');
+    lines.push('Han laster det opp i Claude som oppdaterer og publiserer ny versjon.');
+
+    return lines.join('\n');
+  }
+};
+
+function cmsToggleEdit() {
+  CMS.editMode = !CMS.editMode;
+  var btn = document.getElementById('cms-edit-btn');
+  var status = document.getElementById('cms-status');
+  document.body.classList.toggle('edit-mode', CMS.editMode);
+
+  if (CMS.editMode) {
+    CMS.enableEdit();
+    btn.textContent = '✓ Avslutt redigering';
+    btn.classList.add('active');
+    status.textContent = 'Klikk på en tekst for å redigere den direkte.';
+  } else {
+    CMS.disableEdit();
+    btn.textContent = '✎ Rediger';
+    btn.classList.remove('active');
+    CMS.updateUI();
+    if (Object.keys(CMS.changes).length === 0) {
+      status.textContent = 'Trykk «Rediger» for å redigere tekster direkte i kortet';
+    }
+  }
+}
+
+function cmsOpenModal() {
+  var output = CMS.generateOutput();
+  document.getElementById('cms-changes-output').textContent = output;
+  document.getElementById('cms-copy-btn').textContent = 'Kopier alle endringer';
+  document.getElementById('cms-copy-btn').classList.remove('copied');
+  document.getElementById('cms-modal').classList.add('open');
+}
+
+function cmsCloseModal() {
+  document.getElementById('cms-modal').classList.remove('open');
+}
+
+function cmsCopy() {
+  var text = document.getElementById('cms-changes-output').textContent;
+  navigator.clipboard.writeText(text).then(function() {
+    var btn = document.getElementById('cms-copy-btn');
+    btn.textContent = '✓ Kopiert!';
+    btn.classList.add('copied');
+    setTimeout(function() {
+      btn.textContent = 'Kopier alle endringer';
+      btn.classList.remove('copied');
+    }, 2500);
+  }).catch(function() {
+    // Fallback for older browsers
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    var btn = document.getElementById('cms-copy-btn');
+    btn.textContent = '✓ Kopiert!';
+    btn.classList.add('copied');
+  });
+}
+
+// Prevent card click while in edit mode
+document.addEventListener('click', function(e) {
+  if (CMS.editMode && e.target.classList.contains('editable')) {
+    e.stopImmediatePropagation();
+  }
+}, true);
+
+
+
+
+// ── GITHUB PUBLISH SYSTEM ─────────────────────────────────────────────────
+const GH = {
+  LS_KEY: 'stoe_kyc_gh_config',
+
+  load: function() {
+    try {
+      var cfg = JSON.parse(localStorage.getItem(GH.LS_KEY) || '{}');
+      if (cfg.token) document.getElementById('gh-token').value = cfg.token;
+      if (cfg.owner) document.getElementById('gh-owner').value = cfg.owner;
+      if (cfg.repo)  document.getElementById('gh-repo').value  = cfg.repo;
+      if (cfg.filename) document.getElementById('gh-filename').value = cfg.filename;
+      if (cfg.token && cfg.owner && cfg.repo && cfg.filename) {
+        GH.enablePublishBtn();
+      }
+    } catch(e) {}
+  },
+
+  enablePublishBtn: function() {
+    var btn = document.getElementById('cms-publish-btn');
+    if (btn) { btn.classList.add('on'); btn.style.display='inline-block'; }
+  },
+
+  getConfig: function() {
+    try {
+      return JSON.parse(localStorage.getItem(GH.LS_KEY) || '{}');
+    } catch(e) { return {}; }
+  },
+
+  publish: async function() {
+    var cfg = GH.getConfig();
+    if (!cfg.token || !cfg.owner || !cfg.repo || !cfg.filename) {
+      ghOpen();
+      return;
+    }
+
+    var btn = document.getElementById('cms-publish-btn');
+    var status = document.getElementById('cms-status');
+    btn.textContent = '⏳ Publiserer...';
+    btn.classList.add('publishing');
+    status.textContent = 'Henter fil fra GitHub...';
+
+    try {
+      // 1. Get current file SHA (needed for update)
+      var apiBase = 'https://api.github.com/repos/' + cfg.owner + '/' + cfg.repo + '/contents/' + encodeURIComponent(cfg.filename);
+      var headers = {
+        'Authorization': 'Bearer ' + cfg.token,
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
+      };
+
+      var getResp = await fetch(apiBase, { headers: headers });
+      if (!getResp.ok) throw new Error('Kunne ikke hente fil: ' + getResp.status);
+      var fileData = await getResp.json();
+      var sha = fileData.sha;
+
+      status.textContent = 'Forbereder innhold...';
+
+      // 2. Get current page HTML and apply changes
+      var pageHtml = document.documentElement.outerHTML;
+
+      // Apply all CMS changes to the HTML string
+      var changes = Object.values(CMS.changes);
+      changes.forEach(function(c) {
+        // Simple text replacement
+        // var escaped = c.from.replace(...);
+        // We replace in the data strings
+      });
+
+      // Get the base64 of current HTML
+      var encoder = new TextEncoder();
+      var bytes = encoder.encode(pageHtml);
+      var binary = '';
+      bytes.forEach(function(b) { binary += String.fromCharCode(b); });
+      var b64 = btoa(binary);
+
+      status.textContent = 'Laster opp til GitHub...';
+
+      // 3. Push to GitHub
+      var pushResp = await fetch(apiBase, {
+        method: 'PUT',
+        headers: headers,
+        body: JSON.stringify({
+          message: 'Oppdatering fra Bjørn: ' + changes.length + ' endring' + (changes.length === 1 ? '' : 'er'),
+          content: b64,
+          sha: sha
+        })
+      });
+
+      if (!pushResp.ok) {
+        var errData = await pushResp.json();
+        throw new Error(errData.message || 'Feil ved publisering');
+      }
+
+      // Success
+      btn.textContent = '✓ Publisert!';
+      btn.classList.remove('publishing');
+      status.textContent = 'Siden er oppdatert på GitHub Pages. Endringene er live om ca. 60 sekunder.';
+
+      // Reset after 4 seconds
+      setTimeout(function() {
+        btn.textContent = '⬆ Publiser til GitHub';
+        btn.classList.remove('publishing');
+        if (Object.keys(CMS.changes).length === 0) {
+          status.textContent = 'Trykk «Rediger» for å redigere tekster direkte i kortet';
+        }
+      }, 4000);
+
+    } catch(err) {
+      btn.textContent = '⬆ Publiser til GitHub';
+      btn.classList.remove('publishing');
+      status.textContent = '⚠ Feil: ' + err.message;
+      console.error('GitHub publish error:', err);
+    }
+  }
+};
+
+function ghOpen() {
+  GH.load();
+  document.getElementById('gh-settings').classList.add('open');
+  document.getElementById('gh-overlay').classList.add('open');
+}
+
+function ghClose() {
+  document.getElementById('gh-settings').classList.remove('open');
+  document.getElementById('gh-overlay').classList.remove('open');
+}
+
+function ghSave() {
+  var token    = document.getElementById('gh-token').value.trim();
+  var owner    = document.getElementById('gh-owner').value.trim();
+  var repo     = document.getElementById('gh-repo').value.trim();
+  var filename = document.getElementById('gh-filename').value.trim();
+
+  if (!token || !owner || !repo || !filename) {
+    document.getElementById('gh-status').textContent = 'Fyll inn alle felt.';
+    document.getElementById('gh-status').className = 'gh-status err';
+    return;
+  }
+
+  localStorage.setItem(GH.LS_KEY, JSON.stringify({ token, owner, repo, filename }));
+  document.getElementById('gh-status').textContent = '✓ Lagret! Publisering er aktivert.';
+  document.getElementById('gh-status').className = 'gh-status ok';
+  GH.enablePublishBtn();
+
+  setTimeout(function() {
+    ghClose();
+    document.getElementById('gh-status').textContent = '';
+  }, 1500);
+}
+
+function ghPublish() {
+  GH.publish();
+}
+
+// Load config on startup
+document.addEventListener('DOMContentLoaded', function() {
+  GH.load();
+});
+
+
+</script>
+
+<!-- ── GITHUB OVERLAY ── -->
+<div class="gh-overlay" id="gh-overlay" onclick="ghClose()"></div>
+
+<!-- ── GITHUB SETTINGS BOX ── -->
+<div class="gh-settings" id="gh-settings">
+  <div class="gh-settings-hd">
+    <div class="gh-settings-ttl">⚙ GitHub-publisering</div>
+    <button class="gh-settings-x" onclick="ghClose()">✕</button>
+  </div>
+  <div class="gh-settings-body">
+    <div class="gh-settings-desc">Lim inn ditt GitHub Personal Access Token. Det lagres kun lokalt i nettleseren din og sendes aldri noe sted.</div>
+    <div class="gh-field">
+      <div class="gh-field-lbl">Personal Access Token</div>
+      <input class="gh-field-inp" id="gh-token" type="password" placeholder="github_pat_..." autocomplete="off"/>
+      <div class="gh-field-hint">Trykk øye-ikonet for å se tokenet</div>
+    </div>
+    <div class="gh-field">
+      <div class="gh-field-lbl">GitHub brukernavn</div>
+      <input class="gh-field-inp" id="gh-owner" placeholder="f.eks. toralfslokvik-rgb" autocomplete="off"/>
+    </div>
+    <div class="gh-field">
+      <div class="gh-field-lbl">Repository-navn</div>
+      <input class="gh-field-inp" id="gh-repo" placeholder="f.eks. stoe-kyc-innholdsunivers" autocomplete="off"/>
+    </div>
+    <div class="gh-field">
+      <div class="gh-field-lbl">Filnavn i repoet</div>
+      <input class="gh-field-inp" id="gh-filename" placeholder="f.eks. Stø_-_Innholdsuniversum_-_KYC_Flow_6.html" autocomplete="off"/>
+    </div>
+    <button class="gh-save-btn" onclick="ghSave()">Lagre og aktiver publisering</button>
+    <div class="gh-status" id="gh-status"></div>
+  </div>
+</div>
+
+</body>
+</html>
+
+<!-- ── CMS BAR ── -->
+<div class="cms-bar">
+  <div class="cms-logo">Stø<span>.</span></div>
+  <div class="cms-sep"></div>
+  <div class="cms-status" id="cms-status">Trykk «Rediger» for å redigere tekster direkte i kortet</div>
+  <span class="cms-count" id="cms-count">0 endringer</span>
+  <button class="cms-btn cms-btn-edit" id="cms-edit-btn" onclick="cmsToggleEdit()">✎ Rediger</button>
+  <button class="cms-btn cms-btn-export" id="cms-export-btn" onclick="cmsOpenModal()">📋 Mine endringer</button>
+  <button class="cms-btn cms-btn-publish" id="cms-publish-btn" onclick="ghPublish()" style="display:none">⬆ Publiser</button>
+  <button class="cms-btn cms-btn-setup" onclick="ghOpen()" title="GitHub-innstillinger" style="background:transparent;color:rgba(255,255,255,.3);border:1px solid rgba(255,255,255,.1);font-size:13px;padding:6px 10px">⚙</button>
+  <button class="cms-btn cms-btn-publish" id="cms-publish-btn" onclick="ghPublish()">⬆ Publiser til GitHub</button>
+  <button class="cms-btn cms-btn-setup" onclick="ghOpen()" title="GitHub-innstillinger">⚙</button>
+</div>
+
+<!-- ── CMS MODAL ── -->
+<div class="cms-modal" id="cms-modal">
+  <div class="cms-modal-box">
+    <div class="cms-modal-hd">
+      <div class="cms-modal-ttl">Mine endringer — Stø KYC Flow</div>
+      <button class="cms-modal-x" onclick="cmsCloseModal()">✕</button>
+    </div>
+    <div class="cms-modal-body">
+      <div class="cms-modal-desc">Kopier teksten under og send den til Toralf. Han laster det opp i Claude, som oppdaterer innholdet og publiserer en ny versjon på URL-en.</div>
+      <div class="cms-modal-changes" id="cms-changes-output">Ingen endringer ennå.</div>
+      <div class="cms-modal-actions">
+        <button class="cms-copy-btn" id="cms-copy-btn" onclick="cmsCopy()">Kopier alle endringer</button>
+        <button class="cms-close-btn" onclick="cmsCloseModal()">Lukk</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── GITHUB OVERLAY ── -->
+<div class="gh-overlay" id="gh-overlay" onclick="ghClose()"></div>
+
+<!-- ── GITHUB SETTINGS BOX ── -->
+<div class="gh-settings" id="gh-settings">
+  <div class="gh-settings-hd">
+    <div class="gh-settings-ttl">⚙ GitHub-publisering</div>
+    <button class="gh-settings-x" onclick="ghClose()">✕</button>
+  </div>
+  <div class="gh-settings-body">
+    <div class="gh-settings-desc">Lim inn ditt GitHub Personal Access Token. Det lagres kun lokalt i nettleseren din og sendes aldri noe sted.</div>
+    <div class="gh-field">
+      <div class="gh-field-lbl">Personal Access Token</div>
+      <input class="gh-field-inp" id="gh-token" type="password" placeholder="github_pat_..." autocomplete="off"/>
+      <div class="gh-field-hint">Trykk øye-ikonet for å se tokenet</div>
+    </div>
+    <div class="gh-field">
+      <div class="gh-field-lbl">GitHub brukernavn</div>
+      <input class="gh-field-inp" id="gh-owner" placeholder="f.eks. toralfslokvik-rgb" autocomplete="off"/>
+    </div>
+    <div class="gh-field">
+      <div class="gh-field-lbl">Repository-navn</div>
+      <input class="gh-field-inp" id="gh-repo" placeholder="f.eks. stoe-kyc-innholdsunivers" autocomplete="off"/>
+    </div>
+    <div class="gh-field">
+      <div class="gh-field-lbl">Filnavn i repoet</div>
+      <input class="gh-field-inp" id="gh-filename" placeholder="f.eks. Stø_-_Innholdsuniversum_-_KYC_Flow_6.html" autocomplete="off"/>
+    </div>
+    <button class="gh-save-btn" onclick="ghSave()">Lagre og aktiver publisering</button>
+    <div class="gh-status" id="gh-status"></div>
+  </div>
+</div>
+</body>
+</html>
